@@ -1,0 +1,1556 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>美股期權 + 台股期貨自學系統</title>
+<meta name="description" content="離線可開、單檔 HTML 的衍生品自學手冊：覆蓋美股期權與台股期貨。" />
+<style>
+/* ============================================================
+   設計系統：CSS variables（light / dark / print）
+   配色對齊 STK：slate-900 + emerald-400 + rose-400
+   ============================================================ */
+:root {
+  --bg: #fafaf9;
+  --bg-elev: #ffffff;
+  --bg-sunken: #f1f1ef;
+  --fg: #1c1c1c;
+  --fg-muted: #6b6b6b;
+  --fg-subtle: #9b9b9b;
+  --border: #e4e4e2;
+  --border-strong: #c8c8c5;
+  --accent: #047857;          /* emerald-700 */
+  --accent-soft: #d1fae5;
+  --warn: #c2410c;            /* orange-700 */
+  --danger: #be123c;          /* rose-700 */
+  --info: #1d4ed8;            /* blue-700 */
+  --info-soft: #dbeafe;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
+  --radius: 8px;
+  --radius-sm: 4px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+  --font-mono: "SF Mono", Menlo, Consolas, monospace;
+}
+[data-theme="dark"] {
+  --bg: #0f172a;              /* slate-900 */
+  --bg-elev: #1e293b;          /* slate-800 */
+  --bg-sunken: #0a0f1f;
+  --fg: #e2e8f0;               /* slate-200 */
+  --fg-muted: #94a3b8;         /* slate-400 */
+  --fg-subtle: #64748b;        /* slate-500 */
+  --border: #334155;           /* slate-700 */
+  --border-strong: #475569;
+  --accent: #34d399;           /* emerald-400 */
+  --accent-soft: #064e3b;
+  --warn: #fb923c;             /* orange-400 */
+  --danger: #fb7185;           /* rose-400 */
+  --info: #60a5fa;             /* blue-400 */
+  --info-soft: #1e3a8a;
+  --shadow-md: 0 4px 12px rgba(0,0,0,.4);
+}
+
+/* ============================================================
+   重置與基礎
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, kbd { font-family: var(--font-mono); font-size: .92em; background: var(--bg-sunken); padding: 1px 5px; border-radius: var(--radius-sm); }
+strong { color: var(--fg); font-weight: 600; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+/* ============================================================
+   Layout：頂部進度 / 左側導覽 / 主內容
+   ============================================================ */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 18px;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(6px);
+}
+.topbar .brand {
+  font-weight: 700; font-size: 14px;
+  color: var(--fg);
+  letter-spacing: .02em;
+}
+.topbar .brand .sub { color: var(--fg-muted); font-weight: 400; margin-left: 8px; }
+.topbar .progress {
+  flex: 1; height: 4px; background: var(--bg-sunken); border-radius: 2px; overflow: hidden;
+}
+.topbar .progress-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--info));
+  transition: width .3s;
+}
+.topbar .actions { display: flex; gap: 6px; }
+.btn {
+  font: inherit; font-size: 13px;
+  padding: 6px 12px;
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all .15s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 49px);
+}
+.sidebar {
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border);
+  padding: 18px 0;
+  position: sticky; top: 49px;
+  height: calc(100vh - 49px);
+  overflow-y: auto;
+}
+.sidebar .path-pill {
+  margin: 0 14px 14px;
+  padding: 10px 12px;
+  background: var(--bg-sunken);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+.sidebar .path-pill b { color: var(--fg); }
+.sidebar .nav-group { margin-bottom: 16px; }
+.sidebar .nav-group-title {
+  padding: 6px 18px 4px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--fg-subtle);
+}
+.sidebar a.nav-item {
+  display: block;
+  padding: 5px 18px;
+  color: var(--fg-muted);
+  font-size: 13.5px;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  transition: all .12s;
+}
+.sidebar a.nav-item:hover { color: var(--fg); background: var(--bg-sunken); text-decoration: none; }
+.sidebar a.nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--bg-sunken); font-weight: 600; }
+.sidebar a.nav-item .ch-num { color: var(--fg-subtle); font-family: var(--font-mono); margin-right: 6px; font-size: 12px; }
+.sidebar a.nav-item.active .ch-num { color: var(--accent); }
+.sidebar a.nav-item.stub { color: var(--fg-subtle); }
+.sidebar a.nav-item.stub::after { content: "·規劃中"; font-size: 11px; margin-left: 6px; color: var(--fg-subtle); }
+.sidebar .badge-mini {
+  display: inline-block; margin-left: 4px;
+  font-size: 10px; padding: 1px 5px; border-radius: 3px;
+  background: var(--bg-sunken); color: var(--fg-muted);
+}
+
+.content {
+  padding: 32px 48px 80px;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  .content { padding: 24px 18px; }
+}
+
+/* ============================================================
+   章節 / Badge / Callout
+   ============================================================ */
+section[data-chapter] { margin-bottom: 64px; padding-top: 16px; }
+section[data-chapter] h1 {
+  font-size: 28px; font-weight: 800; margin: 0 0 6px;
+  color: var(--fg); letter-spacing: -.01em;
+}
+section[data-chapter] h2 { font-size: 20px; font-weight: 700; margin: 32px 0 12px; padding-top: 6px; border-top: 1px solid var(--border); }
+section[data-chapter] h3 { font-size: 16.5px; font-weight: 600; margin: 24px 0 8px; }
+section[data-chapter] p { margin: 12px 0; color: var(--fg); }
+section[data-chapter] ul, section[data-chapter] ol { padding-left: 24px; }
+section[data-chapter] li { margin: 4px 0; }
+
+.badge {
+  display: inline-block; font-size: 11.5px; font-weight: 600;
+  padding: 2px 8px; border-radius: 999px; margin-right: 6px;
+  border: 1px solid; vertical-align: middle;
+}
+.badge.core   { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.badge.op     { color: var(--info);   border-color: var(--info);   background: var(--info-soft); }
+.badge.adv    { color: var(--warn);   border-color: var(--warn);   background: transparent; }
+.badge.stub   { color: var(--fg-subtle); border-color: var(--border-strong); }
+
+.callout {
+  margin: 16px 0; padding: 14px 18px;
+  border-left: 3px solid var(--info);
+  background: var(--bg-elev);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 14.5px;
+}
+.callout.warn { border-left-color: var(--warn); }
+.callout.danger { border-left-color: var(--danger); }
+.callout.success { border-left-color: var(--accent); }
+.callout .callout-title { font-weight: 700; margin-bottom: 4px; color: var(--fg); }
+
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { font-weight: 700; color: var(--fg-muted); background: var(--bg-sunken); font-size: 13px; }
+tr:hover td { background: var(--bg-sunken); }
+
+details {
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+details summary {
+  cursor: pointer; font-weight: 600; color: var(--fg-muted);
+  font-size: 14px;
+  user-select: none;
+  list-style: none;
+}
+details summary::before { content: "▸ "; color: var(--accent); }
+details[open] summary::before { content: "▾ "; }
+details[open] { background: var(--bg-sunken); }
+
+.glossary-term {
+  display: inline-block; font-size: 12px; padding: 1px 6px;
+  background: var(--bg-sunken); border-radius: 3px; color: var(--fg-muted);
+  margin-left: 4px;
+}
+
+/* ============================================================
+   互動元件樣式
+   ============================================================ */
+.widget {
+  margin: 24px 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.widget-header {
+  padding: 12px 16px;
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.widget-title { font-weight: 700; font-size: 14px; }
+.widget-title .icon { color: var(--accent); margin-right: 6px; }
+.widget-meta { font-size: 12px; color: var(--fg-muted); }
+.widget-body { padding: 16px; }
+.widget-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.ctrl { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.ctrl label { color: var(--fg-muted); display: flex; justify-content: space-between; }
+.ctrl label .val { color: var(--accent); font-family: var(--font-mono); font-weight: 600; }
+.ctrl input[type="range"] {
+  width: 100%; -webkit-appearance: none; appearance: none;
+  height: 4px; background: var(--bg-sunken); border-radius: 2px;
+  outline: none;
+}
+.ctrl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg-elev); box-shadow: var(--shadow-sm);
+}
+.ctrl input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); cursor: pointer;
+  border: 2px solid var(--bg-elev);
+}
+
+.widget-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px; background: var(--border); margin-top: 12px;
+}
+.stat {
+  background: var(--bg-elev); padding: 10px 12px;
+  text-align: left;
+}
+.stat .label { font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
+.stat .value { font-size: 17px; font-family: var(--font-mono); font-weight: 700; color: var(--fg); margin-top: 2px; }
+.stat .value.pos { color: var(--accent); }
+.stat .value.neg { color: var(--danger); }
+
+.preset-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;
+}
+.preset-btn {
+  font-size: 12px; padding: 4px 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer; color: var(--fg-muted);
+  font-family: inherit;
+}
+.preset-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+svg.chart { display: block; width: 100%; height: auto; max-height: 400px; }
+svg.chart .axis { stroke: var(--border-strong); stroke-width: 1; }
+svg.chart .grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3,3; opacity: .6; }
+svg.chart .axis-label { fill: var(--fg-muted); font-size: 11px; font-family: var(--font-mono); }
+svg.chart .axis-title { fill: var(--fg-muted); font-size: 12px; }
+svg.chart .curve-expiry { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+svg.chart .curve-current { fill: none; stroke: var(--info); stroke-width: 1.8; stroke-dasharray: 4,3; }
+svg.chart .zero-line { stroke: var(--border-strong); stroke-width: 1; stroke-dasharray: 2,3; }
+svg.chart .fill-profit { fill: var(--accent); opacity: .12; }
+svg.chart .fill-loss { fill: var(--danger); opacity: .12; }
+svg.chart .marker { stroke-width: 1.5; }
+svg.chart .marker.spot { stroke: var(--info); }
+svg.chart .marker.strike { stroke: var(--warn); }
+svg.chart .marker.breakeven { stroke: var(--fg-subtle); stroke-dasharray: 2,2; }
+svg.chart text.label-marker { font-size: 10px; font-family: var(--font-mono); fill: var(--fg-muted); }
+
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--fg-muted); margin-top: 8px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 18px; height: 3px; border-radius: 2px; }
+
+/* ============================================================
+   Greeks Lab 專用樣式
+   ============================================================ */
+.greek-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 1px; background: var(--border); margin-top: 12px;
+}
+.greek-cell { background: var(--bg-elev); padding: 12px; }
+.greek-cell .greek-name { font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
+.greek-cell .greek-name .gloss { color: var(--fg); font-size: 12px; font-weight: 600; margin-left: 4px; }
+.greek-cell .greek-val { font-size: 22px; font-family: var(--font-mono); font-weight: 700; margin: 4px 0; }
+.greek-cell .greek-hint { font-size: 11px; color: var(--fg-subtle); line-height: 1.4; }
+.greek-cell.delta .greek-val { color: var(--info); }
+.greek-cell.gamma .greek-val { color: var(--accent); }
+.greek-cell.theta .greek-val { color: var(--danger); }
+.greek-cell.vega .greek-val { color: var(--warn); }
+.greek-cell.rho .greek-val { color: var(--fg-muted); }
+
+.expo-row {
+  margin-top: 12px; padding: 12px 14px;
+  background: var(--bg-sunken); border-radius: var(--radius);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 13px; flex-wrap: wrap; gap: 8px;
+}
+.expo-row .expo-val { font-family: var(--font-mono); font-weight: 700; color: var(--accent); }
+
+/* ============================================================
+   IV Percentile 決策表（Ch5）
+   ============================================================ */
+.iv-decision-table { margin: 16px 0; }
+.iv-decision-table .iv-row {
+  display: grid; grid-template-columns: 120px 1fr;
+  gap: 12px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.iv-decision-table .iv-range { font-family: var(--font-mono); font-weight: 600; padding-top: 2px; }
+.iv-decision-table .iv-row.lo .iv-range { color: var(--fg-subtle); }
+.iv-decision-table .iv-row.md .iv-range { color: var(--info); }
+.iv-decision-table .iv-row.hi .iv-range { color: var(--accent); }
+.iv-decision-table .iv-row.peak .iv-range { color: var(--warn); }
+
+/* ============================================================
+   案例卡（Case study）
+   ============================================================ */
+.case {
+  margin: 24px 0; padding: 18px 22px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+}
+.case .case-header {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 12px;
+  border-bottom: 1px dashed var(--border);
+}
+.case .case-tag {
+  font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 3px;
+  background: var(--info-soft); color: var(--info);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.case .case-title { font-weight: 700; font-size: 15px; }
+.case .scenarios { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 12px 0; }
+.case .scenario {
+  display: grid; grid-template-columns: 80px 1fr 100px;
+  gap: 12px; padding: 8px 12px;
+  background: var(--bg-sunken); border-radius: var(--radius-sm);
+  font-size: 13.5px; align-items: center;
+}
+.case .scenario .when { font-weight: 600; color: var(--fg-muted); }
+.case .scenario .pnl { font-family: var(--font-mono); font-weight: 700; text-align: right; }
+.case .scenario .pnl.pos { color: var(--accent); }
+.case .scenario .pnl.neg { color: var(--danger); }
+.case .scenario .pnl.neutral { color: var(--fg-muted); }
+
+/* ============================================================
+   Stub 章節（規劃中）顯示
+   ============================================================ */
+section[data-chapter].stub-section .stub-banner {
+  padding: 24px;
+  background: var(--bg-elev);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+section[data-chapter].stub-section .stub-banner .stub-icon { font-size: 32px; opacity: .4; }
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.foot {
+  margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border);
+  color: var(--fg-subtle); font-size: 12.5px; text-align: center;
+}
+
+/* ============================================================
+   Print
+   ============================================================ */
+@media print {
+  .topbar, .sidebar { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .content { max-width: 100%; padding: 0; }
+  body { background: white; color: black; }
+  section[data-chapter] { page-break-before: always; }
+  details { break-inside: avoid; }
+  details:not([open]) summary::after { content: " （摺疊內容已隱藏）"; color: gray; }
+}
+
+/* 「只看核心」隱藏操作/進階 */
+body[data-path-filter="core"] .badge.op,
+body[data-path-filter="core"] .badge.adv { display: none; }
+body[data-path-filter="core"] section[data-level="op"] > h2,
+body[data-path-filter="core"] section[data-level="op"] > h3,
+body[data-path-filter="core"] section[data-level="op"] > p,
+body[data-path-filter="core"] section[data-level="op"] > ul,
+body[data-path-filter="core"] section[data-level="op"] > .case,
+body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">衍生品自學系統<span class="sub">Stage 0 原型</span></div>
+  <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="actions">
+    <button class="btn" id="theme-btn" title="切換深色 / 淺色主題">深色</button>
+    <button class="btn" id="reset-btn" title="清除閱讀進度">重置</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="path-pill">
+      <b>建議路徑</b>：Stage 0 原型只完整實作 <b>Ch5 Covered Call</b>，其他章節為規劃中。
+      請試讀 Ch5 + 玩兩個互動元件，確認觀感後再進 Stage 1 補完 14 章 MVP。
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅰ · 共通基礎</div>
+      <a class="nav-item stub" href="#ch1"><span class="ch-num">Ch1</span>衍生品本質</a>
+      <a class="nav-item stub" href="#ch2"><span class="ch-num">Ch2</span>Payoff Diagram</a>
+      <a class="nav-item stub" href="#ch3"><span class="ch-num">Ch3</span>權利金與時間價值</a>
+      <a class="nav-item stub" href="#ch4"><span class="ch-num">Ch4</span>市場為什麼存在</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅱ · 鎖住現股獲利</div>
+      <a class="nav-item" href="#ch5"><span class="ch-num">Ch5</span>Covered Call <span class="badge-mini">✓ 完整</span></a>
+      <a class="nav-item stub" href="#ch6"><span class="ch-num">Ch6</span>Cash-Secured Put</a>
+      <a class="nav-item stub" href="#ch7"><span class="ch-num">Ch7</span>Protective Put</a>
+      <a class="nav-item stub" href="#ch8"><span class="ch-num">Ch8</span>Collar 領口</a>
+      <a class="nav-item stub" href="#ch9"><span class="ch-num">Ch9</span>Wheel 循環策略</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅲ · 市場語言</div>
+      <a class="nav-item" href="#ch10"><span class="ch-num">Ch10</span>Greeks 白話版 <span class="badge-mini">✓ Lab</span></a>
+      <a class="nav-item stub" href="#ch11"><span class="ch-num">Ch11</span>IV / IV Percentile</a>
+      <a class="nav-item stub" href="#ch12"><span class="ch-num">Ch12</span>P/C / Skew / Max Pain</a>
+      <a class="nav-item stub" href="#ch13"><span class="ch-num">Ch13</span>Expected Move</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅳ · 多腿與事件</div>
+      <a class="nav-item stub" href="#ch14"><span class="ch-num">Ch14</span>單腿 Long Call/Put</a>
+      <a class="nav-item stub" href="#ch15"><span class="ch-num">Ch15</span>Vertical Spreads</a>
+      <a class="nav-item stub" href="#ch16"><span class="ch-num">Ch16</span>Iron Condor/Butterfly</a>
+      <a class="nav-item stub" href="#ch17"><span class="ch-num">Ch17</span>Straddle / Strangle</a>
+      <a class="nav-item stub" href="#ch18"><span class="ch-num">Ch18</span>財報與 IV Crush</a>
+      <a class="nav-item stub" href="#ch19"><span class="ch-num">Ch19</span>稅費 / Margin / Assign</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅴ · 台股期貨</div>
+      <a class="nav-item stub" href="#ch20"><span class="ch-num">Ch20</span>商品全景</a>
+      <a class="nav-item stub" href="#ch21"><span class="ch-num">Ch21</span>保證金機制</a>
+      <a class="nav-item stub" href="#ch22"><span class="ch-num">Ch22</span>結算與轉倉</a>
+      <a class="nav-item stub" href="#ch23"><span class="ch-num">Ch23</span>基差與套利</a>
+      <a class="nav-item stub" href="#ch24"><span class="ch-num">Ch24</span>大額交易人</a>
+      <a class="nav-item stub" href="#ch25"><span class="ch-num">Ch25</span>Beta Hedging 公式</a>
+      <a class="nav-item stub" href="#ch26"><span class="ch-num">Ch26</span>期現/跨月套利</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅵ · 實戰案例</div>
+      <a class="nav-item stub" href="#cases"><span class="ch-num">案例</span>8+ 個具體案例</a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Part Ⅶ · 決策框架</div>
+      <a class="nav-item stub" href="#ch27"><span class="ch-num">Ch27</span>決策樹（3×3×2）</a>
+      <a class="nav-item stub" href="#ch28"><span class="ch-num">Ch28</span>個人風險預算</a>
+      <a class="nav-item stub" href="#ch29"><span class="ch-num">Ch29</span>進階主題索引</a>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- ============================================================
+         首頁 / 介紹
+         ============================================================ -->
+    <section data-chapter="intro">
+      <h1>美股期權 + 台股期貨自學系統</h1>
+      <p style="font-size: 17px; color: var(--fg-muted); margin-top: -2px;">
+        一份離線可開的衍生品自學手冊。把投資儀表板上熟悉的指標連回背後原理與操作含義。
+      </p>
+
+      <div class="callout">
+        <div class="callout-title">這份手冊解決什麼問題？</div>
+        <p style="margin-top: 6px;">
+          如果你已經在看 IV Percentile、P/C Ratio、Max Pain、基差、保證金率，但**指標背後的原理**與**該怎麼用來做決定**還沒打通——這份手冊就是為你寫的。
+          四個學習目標：賺取超額報酬、鎖住現股獲利、台股期貨避險 / 槓桿、聽得懂別人講策略。
+        </p>
+      </div>
+
+      <h2>三條閱讀路徑</h2>
+      <table>
+        <thead><tr><th>路徑</th><th>適合誰</th><th>時長</th><th>必讀章節</th></tr></thead>
+        <tbody>
+          <tr><td><b>快速通關</b></td><td>想理解工具但不一定操作</td><td>6–8h</td><td>Ch1–4 · Ch10–13 · Ch20 · Ch23 · Ch27</td></tr>
+          <tr><td><b>鎖股實作</b></td><td>持有現股想鎖獲利</td><td>~20h</td><td>+ Part Ⅱ 全部 + Ch10/11/19 + 案例 2/3/4/5</td></tr>
+          <tr><td><b>完整路徑</b></td><td>系統性學習</td><td>~60h</td><td>全章 + 全案例</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <div class="callout-title">⚠️ Stage 0 原型範圍說明</div>
+        <p style="margin-top: 6px;">這個原型版本只實作了 <b>Ch5 Covered Call</b> 完整內容 + <b>PayoffDiagram</b> + <b>GreeksLab</b> 兩個互動元件。
+        其他 28 個章節 / 7 個案例 / 5 個互動元件會在後續 Stage 1（MVP）與 Stage 2 補上。
+        現階段目的是 <b>確認文章風格 + 互動體驗 + 深色主題</b> 是否符合你的期待。</p>
+      </div>
+    </section>
+
+    <!-- Ch1-4 stubs -->
+    <section data-chapter="ch1" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch1 · 衍生品的本質與三個 use case</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">📘</div>
+        <p>用「便利商店買咖啡券」引出履約權；介紹避險 / 投機 / 套利三大用途。<br/>
+        Stage 1 MVP 補上完整內容。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch2" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch2 · 報酬結構與 Payoff Diagram</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">📊</div>
+        <p>股票多空 vs long call vs long put 四張並排；解釋為什麼 long put ≠ 做空股票（最大損失有限 vs 無限）。<br/>
+        將用 PayoffDiagram 元件示範。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch3" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch3 · 權利金、內在價值、時間價值</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">⏳</div>
+        <p>用「ATM call 隨時間每天蒸發多少」實例切入；intrinsic / extrinsic value 拆解。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch4" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch4 · 為什麼存在這個市場</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">🏛️</div>
+        <p>option seller / market maker 視角；引出 Max Pain 為什麼會出現。</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Ch5 · Covered Call —— Stage 0 完整章節
+         ============================================================ -->
+    <section data-chapter="ch5">
+      <h1><span class="badge op">操作必讀</span>Ch5 · Covered Call（CC）</h1>
+      <p style="color: var(--fg-muted); margin-top: -2px;">
+        <em>Covered Call / 掩護性買權 / 備兌買權</em> · 持有現股想鎖獲利或在橫盤期收租金的第一站。
+      </p>
+
+      <h2>一句話總結</h2>
+      <p>
+        <strong>持有 100 股某標的，同時賣出 1 張該標的的 call</strong>，等於把「股票漲過 strike 之後的上漲空間」賣給對方，換取一筆現金（權利金）。
+      </p>
+
+      <div class="callout success">
+        <div class="callout-title">適合的情境</div>
+        <ul>
+          <li>已有現股（必須是 <strong>100 股的整數倍</strong>，因為 1 張選擇權對應 100 股）</li>
+          <li>短期 <strong>看法中性或微多</strong>（不認為這個月會大漲）</li>
+          <li>IV Percentile 偏高（賣方甜蜜區，權利金值得收）</li>
+          <li>願意接受 <strong>「漲過 strike 就被買走」的場景</strong></li>
+        </ul>
+      </div>
+
+      <h2>為什麼這個策略存在？</h2>
+      <p>
+        想像你開了一間咖啡店，每天進貨 100 杯，當天賣不掉就過期。
+        有個常客跟你說：「我每天可能會來、也可能不會來，但我希望咖啡漲價時你能用今天的價賣我」——你會收他一筆「保留費」吧？
+        賣 Covered Call 就是這個意思：你手上的股票就是咖啡，買 call 的人付你權利金，換得「在某個價位內隨時可以買走」的權利。
+      </p>
+      <p>
+        對方賺什麼？股票若漲超過 strike + 權利金，他用低價買走轉賣賺差價。
+        你賺什麼？無論股價漲跌，<strong>權利金當天就到帳</strong>；如果股票沒漲到 strike，期權失效，你保留股票繼續賣下一張。
+      </p>
+
+      <!-- IV Percentile 決策表 -->
+      <h2>什麼時候該賣 Covered Call？看 IV Percentile</h2>
+      <p>權利金的價格主要由 <strong>IV（隱含波動率）</strong>決定。IV 越高，權利金越貴，賣方越划算。</p>
+      <p>但「IV 絕對值」不能單獨看（不同股票本來水位就不同），要用 <strong>IV Percentile / IV Rank</strong>——這支股票過去一年的 IV 排名第幾百分位：</p>
+
+      <div class="iv-decision-table">
+        <div class="iv-row lo">
+          <div class="iv-range">&lt; 20%</div>
+          <div><strong>避免賣方策略</strong>：權利金太便宜，賣 1 張可能只收 $30–60，被 assign 風險不划算</div>
+        </div>
+        <div class="iv-row md">
+          <div class="iv-range">20% – 50%</div>
+          <div><strong>謹慎評估</strong>：依個別 setup 決定；只挑 30 delta 以下的遠 OTM 才賣</div>
+        </div>
+        <div class="iv-row hi">
+          <div class="iv-range">50% – 80%</div>
+          <div><strong>賣方甜蜜區</strong>：可主動賣，挑 25–35 DTE / 25–35 delta 是經典設定</div>
+        </div>
+        <div class="iv-row peak">
+          <div class="iv-range">&gt; 80%</div>
+          <div><strong>賣方最佳區</strong>：權利金顯著膨脹，可較激進（更高 delta 或更近期 DTE）</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">💡 在 STK 投資儀表板看這個訊號</div>
+        <p style="margin-top: 6px;">
+          OptionsCard 第 ② 格「IV Cache」直接顯示 IV Percentile 數字 + 顏色：
+          <span style="color: var(--accent); font-weight: 600;">綠色 ≥80%</span>（積極賣）·
+          <span style="color: var(--warn); font-weight: 600;">橙色 50–80%</span>（可賣）·
+          <span style="color: var(--fg-muted); font-weight: 600;">灰色 &lt;50%</span>（觀望）。
+          策略候選卡會直接列出推薦的 strike + DTE 組合。
+        </p>
+      </div>
+
+      <!-- 案例 -->
+      <h2>實例：NVDA 200 股 / IV 90% 怎麼挑 Covered Call</h2>
+
+      <div class="case">
+        <div class="case-header">
+          <span class="case-tag">案例 2</span>
+          <span class="case-title">NVDA · 持股 200 股 · IV Percentile 90%</span>
+        </div>
+
+        <p><strong>持倉</strong>：你買進 NVDA 200 股，成本價 $110，現價 $145（未實現獲利 +31.8%）。</p>
+        <p><strong>觀察</strong>：STK 卡片顯示 IV Percentile 90%（過去一年只有 10% 時段比現在高），P/C OI Ratio 中性，沒有立即財報。</p>
+        <p><strong>想法</strong>：你不想短期賣（覺得長期還會漲），但短期看法中性偏多——典型 Covered Call 場景。</p>
+
+        <h3>Step 1 · 決定 DTE</h3>
+        <p>選 <strong>30–45 天到期</strong>（DTE = Days To Expiration）。理由：</p>
+        <ul>
+          <li>太短（&lt; 14 天）：權利金總額小、theta 來不及收完、被 gamma 突襲風險高</li>
+          <li>太長（&gt; 60 天）：權利金看起來大，但「年化權利金率」其實偏低；且鎖死部位太久，錯過 IV 環境變化的調整機會</li>
+          <li>30–45 天剛好是 theta decay 加速、又能容納一次月線波動的甜蜜區</li>
+        </ul>
+        <p>假設今天 5/21，挑 <strong>35 天後到期</strong>（6/25 週五）。</p>
+
+        <h3>Step 2 · 決定 Strike</h3>
+        <p>原則：<strong>看 delta 而不是看「OTM 幾 %」</strong>。delta 是「被 assign 的近似機率」。</p>
+        <ul>
+          <li>30 delta call：約 30% 機率被 assign，70% 機率到期失效（最常用）</li>
+          <li>20 delta call：保守，被 assign 機率低，但權利金也少</li>
+          <li>40+ delta call：激進，權利金大，但很可能被 assign（適合本來就準備了結的部位）</li>
+        </ul>
+        <p>假設 35 DTE 的 NVDA 期權鏈中，30 delta 的 call 對應 <strong>strike $160</strong>，<strong>權利金 $4.50 / 股</strong>（即 $450 / 張）。</p>
+
+        <h3>Step 3 · 下單 + 收權利金</h3>
+        <p>賣 <strong>2 張</strong>（covered call 對應 200 股）NVDA 6/25 $160 Call @ $4.50：</p>
+        <ul>
+          <li>立刻收到 <strong>2 × 100 × $4.50 = $900</strong> 權利金（券商當日入帳）</li>
+          <li>佔用：<strong>200 股 NVDA 不能動</strong>（券商標記為 covered，不收保證金）</li>
+        </ul>
+
+        <h3>Step 4 · 三個可能結果</h3>
+
+        <div class="scenarios">
+          <div class="scenario">
+            <div class="when">情境 A</div>
+            <div>到期日 NVDA &lt; $160（最常見）：期權失效，股票照常持有</div>
+            <div class="pnl pos">+$900</div>
+          </div>
+          <div class="scenario">
+            <div class="when">情境 B</div>
+            <div>到期日 NVDA = $160 – $164.50：被 assign，200 股以 $160 賣出</div>
+            <div class="pnl pos">+$900 + ($160−$145)×200 = +$3,900</div>
+          </div>
+          <div class="scenario">
+            <div class="when">情境 C</div>
+            <div>到期日 NVDA &gt; $164.50：被 assign，但若不賣可能賺更多</div>
+            <div class="pnl neutral">+$3,900（封頂）</div>
+          </div>
+        </div>
+
+        <p><strong>break-even（停損點）</strong>：股票跌到 $145 − $4.50 = <strong>$140.50</strong> 才開始虧——比單純持股多了 $4.50 的緩衝。</p>
+        <p><strong>機會成本</strong>：如果到期 NVDA 衝到 $180，你只賺到 $160 + $4.50 = $164.50 的封頂，少賺 $15.50 × 200 = $3,100。這就是「賣方賺確定的小錢，放棄不確定的大錢」。</p>
+      </div>
+
+      <!-- PayoffDiagram 互動元件 -->
+      <h2>互動：玩 PayoffDiagram 試試</h2>
+      <p>下面這張圖直接對應上面的 NVDA 案例：持有 200 股 NVDA @ $145 + 賣 2 張 6/25 $160 call @ $4.50。
+      拖曳下方 slider 試試不同 strike 與權利金組合對「到期 P/L 曲線」的影響。</p>
+
+      <div class="widget"
+           data-component="payoff"
+           data-spot="145"
+           data-legs='[{"side":"stock","action":"buy","entry":145,"qty":200},{"side":"call","action":"sell","strike":160,"premium":4.50,"qty":2}]'>
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">▣</span>PayoffDiagram · NVDA Covered Call</div>
+          <div class="widget-meta">200 股 + 賣 2 張 Call</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
+
+      <!-- 進階：被 early assign / 除息風險 -->
+      <h3>少見但要知道：除息日前 early assignment 風險</h3>
+      <p>美股 ITM call（履約價低於現價的 call）<strong>除息日前一晚</strong>可能被提早履約——對方為了領股息會行使權利。
+      應對：除息前如果 call 已經 ITM 且 extrinsic value 小於下次股息，就先 buy-to-close 或 roll。</p>
+
+      <h3>什麼時候不該賣 CC？</h3>
+      <ul>
+        <li><strong>強烈看漲</strong>：你判斷下個月會大漲，賣 CC 等於放棄上漲</li>
+        <li><strong>財報前 1–2 週</strong>：vega 風險，但若 IV 很高且你接受被 assign，反而是好時機（賺 IV crush）</li>
+        <li><strong>IV Percentile &lt; 20%</strong>：權利金太便宜不值得</li>
+        <li><strong>持股已大幅獲利、本來就準備了結</strong>：直接賣股票省事，或賣 ATM/ITM call 鎖更高價</li>
+      </ul>
+
+      <!-- 公式選讀 -->
+      <details>
+        <summary>公式選讀（選讀）·  CC 的損益數學表達</summary>
+        <p>持有 N 股 + 賣出 N/100 張 call（履約價 K，權利金 P /股），到期日股價 S<sub>T</sub>：</p>
+        <p style="font-family: var(--font-mono); padding-left: 16px;">
+          P/L = (S<sub>T</sub> − S<sub>0</sub>) × N + P × N − max(S<sub>T</sub> − K, 0) × N
+        </p>
+        <ul>
+          <li>當 S<sub>T</sub> ≤ K：P/L = (S<sub>T</sub> − S<sub>0</sub>) × N + P × N（股價部分 + 全額權利金）</li>
+          <li>當 S<sub>T</sub> &gt; K：P/L = (K − S<sub>0</sub>) × N + P × N（封頂在 strike + 權利金）</li>
+        </ul>
+        <p>break-even 在 S<sub>T</sub> = S<sub>0</sub> − P（持股成本扣掉收到的權利金）。</p>
+        <p>最大獲利 = (K − S<sub>0</sub>) × N + P × N；最大虧損 = (S<sub>0</sub> − P) × N（股價歸零的情境）。</p>
+      </details>
+
+      <!-- 關鍵字 / 中英對照 -->
+      <details>
+        <summary>關鍵字（中英對照）</summary>
+        <table>
+          <tr><th>中文</th><th>英文</th><th>說明</th></tr>
+          <tr><td>掩護性買權</td><td>Covered Call (CC)</td><td>持股 + 賣 call</td></tr>
+          <tr><td>履約價</td><td>Strike / Strike Price</td><td>期權對應的買進/賣出價格</td></tr>
+          <tr><td>到期日</td><td>Expiration / Expiry</td><td>期權結算日</td></tr>
+          <tr><td>剩餘天數</td><td>DTE (Days To Expiration)</td><td>離到期還有幾天</td></tr>
+          <tr><td>權利金</td><td>Premium</td><td>期權的價格</td></tr>
+          <tr><td>被履約</td><td>Assigned / Assignment</td><td>對方行使權利，你必須交股票</td></tr>
+          <tr><td>提早履約</td><td>Early Exercise</td><td>到期前被履約（美式期權特有）</td></tr>
+          <tr><td>價內</td><td>ITM (In The Money)</td><td>履約價對賣方不利</td></tr>
+          <tr><td>價平</td><td>ATM (At The Money)</td><td>履約價 ≈ 現價</td></tr>
+          <tr><td>價外</td><td>OTM (Out of The Money)</td><td>履約價對賣方有利</td></tr>
+          <tr><td>Roll（轉倉）</td><td>Roll</td><td>同時 buy-to-close 現有 + sell-to-open 下個月</td></tr>
+        </table>
+      </details>
+    </section>
+
+    <!-- Ch6-9 stubs -->
+    <section data-chapter="ch6" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch6 · Cash-Secured Put（CSP）</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">🪙</div>
+        <p>想接 TSM 100 股但要折價接的場景；與 CC 對稱性；Wheel 預備。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch7" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch7 · Protective Put（保護性買權）</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">🛡️</div>
+        <p>持股 + 保險的概念；貴在哪、怎麼選 strike、何時值得買。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch8" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch8 · Collar 領口策略</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">🎯</div>
+        <p>Protective Put 太貴的對策；賣 OTM call 補回成本；AAPL 過財報案例。</p>
+      </div>
+    </section>
+
+    <section data-chapter="ch9" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch9 · Wheel Strategy 循環</h1>
+      <div class="stub-banner">
+        <div class="stub-icon">🔄</div>
+        <p>CSP 接到股票 → CC 賣掉 → 重複；標的選擇邏輯。</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         Ch10 · Greeks Lab —— Stage 0 互動元件
+         ============================================================ -->
+    <section data-chapter="ch10">
+      <h1><span class="badge core">核心</span>Ch10 · Greeks 白話版</h1>
+      <p style="color: var(--fg-muted); margin-top: -2px;">
+        <em>Δ Delta · Γ Gamma · Θ Theta · 𝜈 Vega · Ρ Rho</em> · 五個希臘字母，五種敏感度。
+      </p>
+
+      <div class="callout">
+        <div class="callout-title">為什麼要懂 Greeks？</div>
+        <p style="margin-top: 6px;">
+          光看權利金「便宜 / 貴」沒用——你需要知道<strong>股價、IV、時間、利率變化會怎麼影響你的部位</strong>。
+          Greeks 是把這四件事拆成五個獨立的敏感度，每一個都對應一個你看得懂的問題。
+        </p>
+      </div>
+
+      <h2>五個 Greeks 對應的問題（白話版）</h2>
+      <table>
+        <thead><tr><th>Greek</th><th>它回答的問題</th><th>對 CC 賣方影響</th></tr></thead>
+        <tbody>
+          <tr><td><b>Δ Delta</b></td><td>股價漲 $1，期權價格變多少？</td><td>賣 30 delta call 等於賣掉 30 股的上漲空間</td></tr>
+          <tr><td><b>Γ Gamma</b></td><td>Delta 變化的速度多快？</td><td>ATM 接近到期日時 gamma 暴增，賣方危險</td></tr>
+          <tr><td><b>Θ Theta</b></td><td>每過 1 天，期權價值蒸發多少？</td><td>賣方朋友：每天時間流逝就賺錢</td></tr>
+          <tr><td><b>𝜈 Vega</b></td><td>IV 上升 1pp，期權價格變多少？</td><td>賣方敵人：IV 飆升會讓未實現損失放大</td></tr>
+          <tr><td><b>Ρ Rho</b></td><td>無風險利率變動 1pp，期權價格變多少？</td><td>大多情境影響小（&lt; 1 年期權幾乎可忽略）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>互動：玩 GreeksLab 看 Greeks 怎麼變</h2>
+      <p>下面拖 slider 改變股價 / IV / 剩餘天數 / 履約價，即時看 5 個 Greeks 的變化。
+      重點觀察：(1) ATM 接近到期日 gamma 怎麼飆 (2) IV 從 20% 拉到 80% vega 漲多少 (3) theta 在最後幾天加速</p>
+
+      <div class="widget"
+           data-component="greeks"
+           data-spot="145"
+           data-strike="160"
+           data-dte="35"
+           data-iv="55"
+           data-rate="4.5"
+           data-iscall="true">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">Δ</span>GreeksLab · 一張 Call 期權的 Greeks</div>
+          <div class="widget-meta">Black-Scholes · 30 delta 起始</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
+
+      <details>
+        <summary>公式選讀 · Black-Scholes</summary>
+        <p>歐式 Call 期權：</p>
+        <p style="font-family: var(--font-mono);">C = S · N(d<sub>1</sub>) − K · e<sup>−rT</sup> · N(d<sub>2</sub>)</p>
+        <p style="font-family: var(--font-mono);">d<sub>1</sub> = [ln(S/K) + (r + σ²/2)T] / (σ√T)</p>
+        <p style="font-family: var(--font-mono);">d<sub>2</sub> = d<sub>1</sub> − σ√T</p>
+        <p>Greeks 都是對應參數的偏導數（這份 Lab 直接用解析解，不是數值微分）。</p>
+        <p>已知限制：Black-Scholes 假設 (1) 連續交易 (2) 對數常態分配 (3) 無股息（這 Lab 也未考慮股息）(4) 歐式履約。
+        美股期權實際是美式可提早履約，但對於 OTM call 與大多數普通情境，BS 估值偏差小於 1%。</p>
+      </details>
+    </section>
+
+    <!-- Ch11-29 stubs -->
+    <section data-chapter="ch11" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch11 · IV 與 IV Percentile</h1>
+      <div class="stub-banner"><div class="stub-icon">📈</div><p>對應 STK OptionsCard ②；解釋為什麼用 percentile 不用 absolute IV；補 IV vs RV。</p></div>
+    </section>
+    <section data-chapter="ch12" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch12 · P/C / Skew / Max Pain / OI Walls</h1>
+      <div class="stub-banner"><div class="stub-icon">⚖️</div><p>對應 STK OptionsCard ③④⑤⑥；何時可信何時雜訊。</p></div>
+    </section>
+    <section data-chapter="ch13" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch13 · Expected Move</h1>
+      <div class="stub-banner"><div class="stub-icon">📏</div><p>用 ATM straddle 反推 1σ 區間；財報前常見用法。</p></div>
+    </section>
+    <section data-chapter="ch14" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch14 · 單腿 Long Call / Long Put</h1>
+      <div class="stub-banner"><div class="stub-icon">↗️</div><p>為什麼大多數散戶虧錢（IV crush + theta 雙殺）。</p></div>
+    </section>
+    <section data-chapter="ch15" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch15 · Vertical Spreads</h1>
+      <div class="stub-banner"><div class="stub-icon">⬛</div><p>debit call spread / credit put spread；限定方向 + 限定區間。</p></div>
+    </section>
+    <section data-chapter="ch16" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch16 · Iron Condor / Butterfly</h1>
+      <div class="stub-banner"><div class="stub-icon">🦅</div><p>高 IV percentile 中性策略；用 OI walls 選翼端。</p></div>
+    </section>
+    <section data-chapter="ch17" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch17 · Straddle / Strangle</h1>
+      <div class="stub-banner"><div class="stub-icon">⚡</div><p>事件前買波動率；break-even vs expected move 判斷。</p></div>
+    </section>
+    <section data-chapter="ch18" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch18 · 財報交易與 IV Crush</h1>
+      <div class="stub-banner"><div class="stub-icon">💥</div><p>為什麼 long straddle 賺方向卻虧錢。</p></div>
+    </section>
+    <section data-chapter="ch19" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch19 · 稅務 / 手續費 / Margin / Assignment</h1>
+      <div class="stub-banner"><div class="stub-icon">📋</div><p>美國券商實務細節。</p></div>
+    </section>
+    <section data-chapter="ch20" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch20 · 台股期貨商品全景</h1>
+      <div class="stub-banner"><div class="stub-icon">🇹🇼</div><p>TX / MTX / 微台 / 個股期 / TXO 規格表。</p></div>
+    </section>
+    <section data-chapter="ch21" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch21 · 保證金機制</h1>
+      <div class="stub-banner"><div class="stub-icon">💰</div><p>原始 / 維持 / 結算保證金；對應 STK TwFuturesCard 保證金率卡。</p></div>
+    </section>
+    <section data-chapter="ch22" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch22 · 結算與轉倉（Rollover）</h1>
+      <div class="stub-banner"><div class="stub-icon">🔁</div><p>為什麼結算日前要 roll、roll 成本（calendar spread）。</p></div>
+    </section>
+    <section data-chapter="ch23" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch23 · 基差與年化基差</h1>
+      <div class="stub-banner"><div class="stub-icon">📐</div><p>期現價差為什麼存在；正逆價差代表；對應 STK basis 卡。</p></div>
+    </section>
+    <section data-chapter="ch24" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch24 · 大額交易人解讀</h1>
+      <div class="stub-banner"><div class="stub-icon">🧭</div><p>Top10 淨變化與 OI 變化的相對關係；何時是領先指標。</p></div>
+    </section>
+    <section data-chapter="ch25" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>Ch25 · Beta Hedging 公式</h1>
+      <div class="stub-banner"><div class="stub-icon">🧮</div><p>持股價值 × beta ÷（指數點位 × 每點價值）= 應賣口數；含 StockHedgeCalc 互動元件。</p></div>
+    </section>
+    <section data-chapter="ch26" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch26 · 期現/跨月套利</h1>
+      <div class="stub-banner"><div class="stub-icon">⚖️</div><p>期現套利、calendar spread。</p></div>
+    </section>
+    <section data-chapter="cases" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge op">操作必讀</span>實戰場景案例庫（8+ 個）</h1>
+      <div class="stub-banner"><div class="stub-icon">📚</div><p>0050 hedge / NVDA CC / AAPL collar / 台股 8% 暴跌 CSP / TSM 建倉 / SPY iron condor 等。</p></div>
+    </section>
+    <section data-chapter="ch27" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge core">核心</span>Ch27 · 決策樹（18 格表）</h1>
+      <div class="stub-banner"><div class="stub-icon">🌳</div><p>持股 漲/跌/不動 × 想做多/做空/中性 × IV 高/低 = 推薦策略；含 StrategyPicker 互動元件。</p></div>
+    </section>
+    <section data-chapter="ch28" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch28 · 個人風險預算</h1>
+      <div class="stub-banner"><div class="stub-icon">📊</div><p>Kelly 簡化版；單一部位上限；總部位曝險上限。</p></div>
+    </section>
+    <section data-chapter="ch29" class="stub-section">
+      <h1><span class="badge stub">規劃中</span><span class="badge adv">進階</span>Ch29 · 進階主題索引</h1>
+      <div class="stub-banner"><div class="stub-icon">🔭</div><p>LEAPS、VIX/VXX、calendar spread、box spread、volatility surface。</p></div>
+    </section>
+
+    <div class="foot">
+      <p>本系統純為學習用途，不構成投資建議。<br/>
+      Stage 0 原型 · 2026-05-21 · <a href="https://github.com/people7771025/derivatives-study" target="_blank" rel="noopener">GitHub</a></p>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============================================================
+     JavaScript：互動元件 + 主題 + 進度
+     ============================================================ -->
+<script>
+"use strict";
+
+/* ============================================================
+   1. 工具函式：數學
+   ============================================================ */
+const Math2 = {
+  // 標準常態 CDF（Abramowitz-Stegun approximation）
+  normCDF(x) {
+    const a1 =  0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 =  1.061405429, p  = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    const ax = Math.abs(x) / Math.SQRT2;
+    const t = 1 / (1 + p * ax);
+    const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax);
+    return 0.5 * (1 + sign * y);
+  },
+  normPDF(x) {
+    return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+  },
+  // Black-Scholes：sigma 是「年化波動率」十進位（IV=55% 傳 0.55）
+  // T 是年化時間（DTE/365）；r 是無風險利率十進位（4.5% 傳 0.045）
+  bs(S, K, T, r, sigma, isCall) {
+    if (T <= 0 || sigma <= 0) {
+      // 到期日當日或 IV=0 時 fallback
+      const intrinsic = isCall ? Math.max(S - K, 0) : Math.max(K - S, 0);
+      return { price: intrinsic, delta: 0, gamma: 0, theta: 0, vega: 0, rho: 0 };
+    }
+    const sqrtT = Math.sqrt(T);
+    const d1 = (Math.log(S / K) + (r + sigma * sigma / 2) * T) / (sigma * sqrtT);
+    const d2 = d1 - sigma * sqrtT;
+    const Nd1 = Math2.normCDF(d1), Nd2 = Math2.normCDF(d2);
+    const nd1 = Math2.normPDF(d1);
+    const expRT = Math.exp(-r * T);
+
+    let price, delta, theta, rho;
+    if (isCall) {
+      price = S * Nd1 - K * expRT * Nd2;
+      delta = Nd1;
+      theta = (-S * nd1 * sigma / (2 * sqrtT) - r * K * expRT * Nd2) / 365;
+      rho   = K * T * expRT * Nd2 / 100;
+    } else {
+      price = K * expRT * Math2.normCDF(-d2) - S * Math2.normCDF(-d1);
+      delta = Nd1 - 1;
+      theta = (-S * nd1 * sigma / (2 * sqrtT) + r * K * expRT * Math2.normCDF(-d2)) / 365;
+      rho   = -K * T * expRT * Math2.normCDF(-d2) / 100;
+    }
+    const gamma = nd1 / (S * sigma * sqrtT);
+    const vega  = S * nd1 * sqrtT / 100; // per 1 percentage point of IV
+    return { price, delta, gamma, theta, vega, rho };
+  }
+};
+
+/* ============================================================
+   2. PayoffDiagram 元件
+   ============================================================ */
+const PayoffDiagram = {
+  /**
+   * 計算到期日 P/L
+   * legs: [{side:'stock'|'call'|'put', action:'buy'|'sell', strike?, premium?, entry?, qty}]
+   *   stock 用 entry, qty（股數）
+   *   call/put 用 strike, premium（每股權利金）, qty（張數，1 張=100 股）
+   */
+  calcExpiryPL(legs, price) {
+    let total = 0;
+    for (const leg of legs) {
+      if (leg.side === 'stock') {
+        const dir = leg.action === 'buy' ? 1 : -1;
+        total += (price - leg.entry) * leg.qty * dir;
+      } else {
+        const qty = leg.qty * 100;
+        const dir = leg.action === 'buy' ? 1 : -1;
+        const intrinsic = leg.side === 'call'
+          ? Math.max(price - leg.strike, 0)
+          : Math.max(leg.strike - price, 0);
+        total += (intrinsic - leg.premium) * qty * dir;
+      }
+    }
+    return total;
+  },
+
+  // 找到 P/L = 0 的價格點（break-even）
+  findBreakevens(legs, xMin, xMax) {
+    const out = [];
+    const steps = 500;
+    let prevPrice = xMin, prevPL = this.calcExpiryPL(legs, xMin);
+    for (let i = 1; i <= steps; i++) {
+      const price = xMin + (xMax - xMin) * i / steps;
+      const pl = this.calcExpiryPL(legs, price);
+      if ((prevPL <= 0 && pl > 0) || (prevPL >= 0 && pl < 0)) {
+        // Linear interpolation
+        const t = -prevPL / (pl - prevPL);
+        out.push(prevPrice + t * (price - prevPrice));
+      }
+      prevPrice = price; prevPL = pl;
+    }
+    return out;
+  },
+
+  render(container, state) {
+    const W = 620, H = 360;
+    const M = { top: 30, right: 30, bottom: 50, left: 70 };
+    const innerW = W - M.left - M.right;
+    const innerH = H - M.top - M.bottom;
+
+    const spot = state.spot;
+    const legs = state.legs;
+
+    // X range: spot ± 30%
+    const range = Math.max(0.3, ...legs.map(l => l.strike ? Math.abs(l.strike - spot) / spot : 0)) * 1.3 + 0.15;
+    const xMin = spot * (1 - range);
+    const xMax = spot * (1 + range);
+
+    // Calc points
+    const steps = 200;
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+      const price = xMin + (xMax - xMin) * i / steps;
+      points.push({ price, pl: this.calcExpiryPL(legs, price) });
+    }
+
+    // Y range
+    let yMaxRaw = Math.max(...points.map(p => p.pl), 0);
+    let yMinRaw = Math.min(...points.map(p => p.pl), 0);
+    const yPad = Math.max(Math.abs(yMaxRaw), Math.abs(yMinRaw)) * 0.15 || 100;
+    const yMax = yMaxRaw + yPad;
+    const yMin = yMinRaw - yPad;
+
+    // Scales
+    const x = p => M.left + (p - xMin) / (xMax - xMin) * innerW;
+    const y = pl => M.top + (1 - (pl - yMin) / (yMax - yMin)) * innerH;
+
+    // Build path
+    const pathExpiry = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(p.price).toFixed(2)} ${y(p.pl).toFixed(2)}`).join(' ');
+
+    // Fill above/below zero
+    const fillPath = (() => {
+      const zeroY = y(0);
+      let above = `M ${x(xMin).toFixed(2)} ${zeroY.toFixed(2)} `;
+      points.forEach((p, i) => {
+        const px = x(p.price).toFixed(2);
+        const py = y(Math.max(p.pl, 0)).toFixed(2);
+        above += `L ${px} ${py} `;
+      });
+      above += `L ${x(xMax).toFixed(2)} ${zeroY.toFixed(2)} Z`;
+
+      let below = `M ${x(xMin).toFixed(2)} ${zeroY.toFixed(2)} `;
+      points.forEach((p, i) => {
+        const px = x(p.price).toFixed(2);
+        const py = y(Math.min(p.pl, 0)).toFixed(2);
+        below += `L ${px} ${py} `;
+      });
+      below += `L ${x(xMax).toFixed(2)} ${zeroY.toFixed(2)} Z`;
+      return { above, below };
+    })();
+
+    // Grid lines
+    const xTicks = 6, yTicks = 5;
+    let gridLines = '';
+    for (let i = 0; i <= xTicks; i++) {
+      const price = xMin + (xMax - xMin) * i / xTicks;
+      const px = x(price);
+      gridLines += `<line class="grid" x1="${px}" y1="${M.top}" x2="${px}" y2="${M.top + innerH}"/>`;
+      gridLines += `<text class="axis-label" x="${px}" y="${M.top + innerH + 18}" text-anchor="middle">$${price.toFixed(0)}</text>`;
+    }
+    for (let i = 0; i <= yTicks; i++) {
+      const pl = yMin + (yMax - yMin) * i / yTicks;
+      const py = y(pl);
+      gridLines += `<line class="grid" x1="${M.left}" y1="${py}" x2="${M.left + innerW}" y2="${py}"/>`;
+      gridLines += `<text class="axis-label" x="${M.left - 8}" y="${py + 3}" text-anchor="end">${pl >= 0 ? '+' : ''}${pl.toFixed(0)}</text>`;
+    }
+
+    // Break-evens
+    const breakevens = this.findBreakevens(legs, xMin, xMax);
+    let beMarkers = '';
+    breakevens.forEach(be => {
+      const px = x(be);
+      beMarkers += `<line class="marker breakeven" x1="${px}" y1="${M.top}" x2="${px}" y2="${M.top + innerH}"/>`;
+      beMarkers += `<text class="label-marker" x="${px}" y="${M.top - 6}" text-anchor="middle">B/E $${be.toFixed(1)}</text>`;
+    });
+
+    // Spot marker
+    const spotX = x(spot);
+    const spotMarker = `
+      <line class="marker spot" x1="${spotX}" y1="${M.top}" x2="${spotX}" y2="${M.top + innerH}"/>
+      <text class="label-marker" x="${spotX}" y="${M.top - 6}" text-anchor="middle" fill="var(--info)">Spot $${spot}</text>
+    `;
+
+    // Strike markers
+    let strikeMarkers = '';
+    legs.filter(l => l.strike).forEach(l => {
+      const px = x(l.strike);
+      strikeMarkers += `<line class="marker strike" x1="${px}" y1="${M.top + innerH}" x2="${px}" y2="${M.top + innerH + 8}"/>`;
+      strikeMarkers += `<text class="label-marker" x="${px}" y="${M.top + innerH + 36}" text-anchor="middle" fill="var(--warn)">K=${l.strike}</text>`;
+    });
+
+    // Max profit / max loss
+    const maxProfit = Math.max(...points.map(p => p.pl));
+    const maxLoss = Math.min(...points.map(p => p.pl));
+    const currentPL = this.calcExpiryPL(legs, spot);
+
+    // SVG
+    const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <path class="fill-profit" d="${fillPath.above}"/>
+      <path class="fill-loss" d="${fillPath.below}"/>
+      ${gridLines}
+      <line class="zero-line" x1="${M.left}" y1="${y(0)}" x2="${M.left + innerW}" y2="${y(0)}"/>
+      ${beMarkers}
+      ${spotMarker}
+      ${strikeMarkers}
+      <path class="curve-expiry" d="${pathExpiry}"/>
+      <text class="axis-title" x="${M.left + innerW / 2}" y="${H - 6}" text-anchor="middle">到期日股價</text>
+      <text class="axis-title" x="14" y="${M.top + innerH / 2}" text-anchor="middle" transform="rotate(-90 14 ${M.top + innerH / 2})">到期 P/L（$）</text>
+    </svg>`;
+
+    // Legs description
+    const legsDesc = legs.map(l => {
+      if (l.side === 'stock') return `${l.action === 'buy' ? '持有' : '空頭'} ${l.qty} 股 @ $${l.entry}`;
+      return `${l.action === 'buy' ? '買' : '賣'} ${l.qty} 張 ${l.side === 'call' ? 'Call' : 'Put'} K=$${l.strike} P=$${l.premium}`;
+    }).join(' + ');
+
+    // Controls
+    const callLegs = legs.filter(l => l.side === 'call' || l.side === 'put');
+    const firstOpt = callLegs[0];
+    const controlsHTML = firstOpt ? `
+      <div class="widget-controls">
+        <div class="ctrl">
+          <label>Spot 現價 <span class="val">$${spot.toFixed(0)}</span></label>
+          <input type="range" min="${(spot*0.5).toFixed(0)}" max="${(spot*1.5).toFixed(0)}" step="1" value="${spot}" data-input="spot"/>
+        </div>
+        <div class="ctrl">
+          <label>Strike 履約價 <span class="val">$${firstOpt.strike.toFixed(0)}</span></label>
+          <input type="range" min="${(spot*0.7).toFixed(0)}" max="${(spot*1.3).toFixed(0)}" step="1" value="${firstOpt.strike}" data-input="strike"/>
+        </div>
+        <div class="ctrl">
+          <label>Premium 權利金 <span class="val">$${firstOpt.premium.toFixed(2)}</span></label>
+          <input type="range" min="0.5" max="20" step="0.1" value="${firstOpt.premium}" data-input="premium"/>
+        </div>
+      </div>
+    ` : '';
+
+    // Stats
+    const statsHTML = `
+      <div class="widget-stats">
+        <div class="stat">
+          <div class="label">當前部位（spot 到期 P/L）</div>
+          <div class="value ${currentPL >= 0 ? 'pos' : 'neg'}">${currentPL >= 0 ? '+' : ''}$${currentPL.toFixed(0)}</div>
+        </div>
+        <div class="stat">
+          <div class="label">最大獲利</div>
+          <div class="value pos">${isFinite(maxProfit) ? '+$' + maxProfit.toFixed(0) : '∞'}</div>
+        </div>
+        <div class="stat">
+          <div class="label">最大虧損</div>
+          <div class="value neg">${isFinite(maxLoss) ? '$' + maxLoss.toFixed(0) : '−∞'}</div>
+        </div>
+        <div class="stat">
+          <div class="label">Break-even</div>
+          <div class="value">${breakevens.length ? breakevens.map(b => '$' + b.toFixed(1)).join(', ') : '—'}</div>
+        </div>
+      </div>
+    `;
+
+    const legend = `
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background: var(--accent);"></div>到期 P/L 曲線</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: var(--info);"></div>Spot 現價</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: var(--warn);"></div>履約價 K</div>
+      </div>
+    `;
+
+    container.innerHTML = `
+      <div style="font-size: 13px; color: var(--fg-muted); margin-bottom: 8px;">${legsDesc}</div>
+      ${svg}
+      ${legend}
+      ${controlsHTML}
+      ${statsHTML}
+    `;
+
+    // Wire up controls
+    container.querySelectorAll('input[type=range]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const key = e.target.dataset.input;
+        const val = parseFloat(e.target.value);
+        const newState = JSON.parse(JSON.stringify(state));
+        if (key === 'spot') newState.spot = val;
+        else if (key === 'strike') {
+          for (const leg of newState.legs) if (leg.strike != null) { leg.strike = val; break; }
+        } else if (key === 'premium') {
+          for (const leg of newState.legs) if (leg.premium != null) { leg.premium = val; break; }
+        }
+        PayoffDiagram.render(container, newState);
+      });
+    });
+  },
+
+  hydrate(widget) {
+    const body = widget.querySelector('.widget-body');
+    const state = {
+      spot: parseFloat(widget.dataset.spot),
+      legs: JSON.parse(widget.dataset.legs)
+    };
+    this.render(body, state);
+  }
+};
+
+/* ============================================================
+   3. GreeksLab 元件
+   ============================================================ */
+const GreeksLab = {
+  render(container, state) {
+    const { spot, strike, dte, iv, rate, isCall } = state;
+    const T = Math.max(dte / 365, 0.001);
+    const sigma = iv / 100;
+    const r = rate / 100;
+    const g = Math2.bs(spot, strike, T, r, sigma, isCall);
+
+    // Also compute curve of delta vs spot (for visualization)
+    const W = 620, H = 240;
+    const M = { top: 20, right: 30, bottom: 40, left: 60 };
+    const innerW = W - M.left - M.right;
+    const innerH = H - M.top - M.bottom;
+    const xMin = strike * 0.6, xMax = strike * 1.4;
+
+    const curve = [];
+    const steps = 100;
+    for (let i = 0; i <= steps; i++) {
+      const s = xMin + (xMax - xMin) * i / steps;
+      const result = Math2.bs(s, strike, T, r, sigma, isCall);
+      curve.push({ s, price: result.price, delta: result.delta });
+    }
+
+    const yMinP = 0, yMaxP = Math.max(...curve.map(p => p.price)) * 1.15;
+    const x = s => M.left + (s - xMin) / (xMax - xMin) * innerW;
+    const yP = v => M.top + (1 - (v - yMinP) / (yMaxP - yMinP)) * innerH;
+
+    const pricePath = curve.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(p.s).toFixed(2)} ${yP(p.price).toFixed(2)}`).join(' ');
+
+    let grid = '';
+    for (let i = 0; i <= 5; i++) {
+      const s = xMin + (xMax - xMin) * i / 5;
+      grid += `<line class="grid" x1="${x(s)}" y1="${M.top}" x2="${x(s)}" y2="${M.top + innerH}"/>`;
+      grid += `<text class="axis-label" x="${x(s)}" y="${M.top + innerH + 16}" text-anchor="middle">$${s.toFixed(0)}</text>`;
+    }
+    for (let i = 0; i <= 4; i++) {
+      const v = yMinP + (yMaxP - yMinP) * i / 4;
+      grid += `<line class="grid" x1="${M.left}" y1="${yP(v)}" x2="${M.left + innerW}" y2="${yP(v)}"/>`;
+      grid += `<text class="axis-label" x="${M.left - 6}" y="${yP(v) + 3}" text-anchor="end">$${v.toFixed(1)}</text>`;
+    }
+
+    const spotMark = `
+      <line class="marker spot" x1="${x(spot)}" y1="${M.top}" x2="${x(spot)}" y2="${M.top + innerH}"/>
+      <circle cx="${x(spot)}" cy="${yP(g.price)}" r="4" fill="var(--accent)" stroke="var(--bg-elev)" stroke-width="2"/>
+      <text class="label-marker" x="${x(spot)}" y="${M.top - 4}" text-anchor="middle" fill="var(--info)">Spot</text>
+    `;
+    const strikeMark = `
+      <line class="marker strike" x1="${x(strike)}" y1="${M.top}" x2="${x(strike)}" y2="${M.top + innerH}"/>
+      <text class="label-marker" x="${x(strike)}" y="${M.top - 4}" text-anchor="middle" fill="var(--warn)">K</text>
+    `;
+
+    const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      ${grid}
+      ${strikeMark}
+      ${spotMark}
+      <path class="curve-expiry" d="${pricePath}"/>
+      <text class="axis-title" x="${M.left + innerW/2}" y="${H - 4}" text-anchor="middle">股價</text>
+      <text class="axis-title" x="14" y="${M.top + innerH/2}" text-anchor="middle" transform="rotate(-90 14 ${M.top + innerH/2})">期權價格</text>
+    </svg>`;
+
+    // Greeks grid
+    const fmt = (v, d=3) => (v >= 0 ? '+' : '') + v.toFixed(d);
+    const greeksHTML = `
+      <div class="greek-grid">
+        <div class="greek-cell delta">
+          <div class="greek-name">Δ Delta<span class="gloss">方向敏感度</span></div>
+          <div class="greek-val">${fmt(g.delta, 3)}</div>
+          <div class="greek-hint">股價漲 $1 → 期權漲 $${(g.delta * 1).toFixed(2)}<br/>≈ ${(Math.abs(g.delta) * 100).toFixed(0)}% 被 assign 機率</div>
+        </div>
+        <div class="greek-cell gamma">
+          <div class="greek-name">Γ Gamma<span class="gloss">Δ 變化速度</span></div>
+          <div class="greek-val">${fmt(g.gamma, 4)}</div>
+          <div class="greek-hint">股價漲 $1 → delta 變化 ${(g.gamma).toFixed(4)}<br/>${dte < 10 ? '⚠️ 接近到期，gamma 高' : ''}</div>
+        </div>
+        <div class="greek-cell theta">
+          <div class="greek-name">Θ Theta<span class="gloss">時間衰減</span></div>
+          <div class="greek-val">${fmt(g.theta, 3)}</div>
+          <div class="greek-hint">每過 1 天，期權價值 ${g.theta < 0 ? '減少' : '增加'} $${Math.abs(g.theta).toFixed(3)}</div>
+        </div>
+        <div class="greek-cell vega">
+          <div class="greek-name">𝜈 Vega<span class="gloss">IV 敏感度</span></div>
+          <div class="greek-val">${fmt(g.vega, 3)}</div>
+          <div class="greek-hint">IV 漲 1pp（如 55→56% ）<br/>→ 期權漲 $${g.vega.toFixed(3)}</div>
+        </div>
+        <div class="greek-cell rho">
+          <div class="greek-name">Ρ Rho<span class="gloss">利率敏感度</span></div>
+          <div class="greek-val">${fmt(g.rho, 4)}</div>
+          <div class="greek-hint">利率漲 1pp → 期權漲 $${g.rho.toFixed(4)}<br/>多數情境可忽略</div>
+        </div>
+      </div>
+    `;
+
+    // Exposure row（持有 1 張選擇權 vs 等效股數）
+    const eqShares = Math.round(g.delta * 100);
+    const expoHTML = `
+      <div class="expo-row">
+        <div>1 張 ${isCall ? 'Call' : 'Put'} K=$${strike} ≈ <span class="expo-val">${eqShares} 股</span>的方向曝險</div>
+        <div>期權理論價：<span class="expo-val">$${g.price.toFixed(2)}</span> / 股</div>
+      </div>
+    `;
+
+    // Controls
+    const controlsHTML = `
+      <div class="widget-controls">
+        <div class="ctrl">
+          <label>Spot 現價 <span class="val">$${spot}</span></label>
+          <input type="range" min="${(strike*0.5).toFixed(0)}" max="${(strike*1.5).toFixed(0)}" step="1" value="${spot}" data-input="spot"/>
+        </div>
+        <div class="ctrl">
+          <label>Strike 履約價 <span class="val">$${strike}</span></label>
+          <input type="range" min="${(spot*0.5).toFixed(0)}" max="${(spot*1.5).toFixed(0)}" step="1" value="${strike}" data-input="strike"/>
+        </div>
+        <div class="ctrl">
+          <label>DTE 剩餘天數 <span class="val">${dte}</span></label>
+          <input type="range" min="1" max="180" step="1" value="${dte}" data-input="dte"/>
+        </div>
+        <div class="ctrl">
+          <label>IV 隱含波動率 <span class="val">${iv}%</span></label>
+          <input type="range" min="10" max="120" step="1" value="${iv}" data-input="iv"/>
+        </div>
+      </div>
+      <div class="preset-row">
+        <button class="preset-btn" data-preset="atm-1d">⚠️ ATM 到期前 1 天</button>
+        <button class="preset-btn" data-preset="otm-60d">OTM 60 DTE</button>
+        <button class="preset-btn" data-preset="iv-spike">IV 80% 看 vega 衝擊</button>
+        <button class="preset-btn" data-preset="reset">重置（30 delta 起始）</button>
+      </div>
+    `;
+
+    container.innerHTML = `${svg}${greeksHTML}${expoHTML}${controlsHTML}`;
+
+    // Wire controls
+    container.querySelectorAll('input[type=range]').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const key = e.target.dataset.input;
+        const val = parseFloat(e.target.value);
+        const newState = { ...state, [key]: val };
+        GreeksLab.render(container, newState);
+      });
+    });
+    container.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        let s = { ...state };
+        if (preset === 'atm-1d')   s = { ...s, spot: 160, strike: 160, dte: 1, iv: 55 };
+        if (preset === 'otm-60d')  s = { ...s, spot: 145, strike: 160, dte: 60, iv: 55 };
+        if (preset === 'iv-spike') s = { ...s, spot: 145, strike: 160, dte: 35, iv: 80 };
+        if (preset === 'reset')    s = { ...s, spot: 145, strike: 160, dte: 35, iv: 55 };
+        GreeksLab.render(container, s);
+      });
+    });
+  },
+
+  hydrate(widget) {
+    const body = widget.querySelector('.widget-body');
+    const state = {
+      spot: parseFloat(widget.dataset.spot),
+      strike: parseFloat(widget.dataset.strike),
+      dte: parseFloat(widget.dataset.dte),
+      iv: parseFloat(widget.dataset.iv),
+      rate: parseFloat(widget.dataset.rate),
+      isCall: widget.dataset.iscall === 'true'
+    };
+    this.render(body, state);
+  }
+};
+
+/* ============================================================
+   4. Hydration scanner（data-component 自動掛載）
+   ============================================================ */
+function hydrateAll() {
+  document.querySelectorAll('[data-component="payoff"]').forEach(w => PayoffDiagram.hydrate(w));
+  document.querySelectorAll('[data-component="greeks"]').forEach(w => GreeksLab.hydrate(w));
+}
+
+/* ============================================================
+   5. 主題切換 + localStorage
+   ============================================================ */
+const STORAGE_KEY = 'derivatives-study/state-v1';
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+function saveState(s) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  document.getElementById('theme-btn').textContent = theme === 'dark' ? '淺色' : '深色';
+}
+
+(function initTheme() {
+  const s = loadState();
+  let theme = s.theme;
+  if (!theme) {
+    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  applyTheme(theme);
+  document.getElementById('theme-btn').addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    const cur = loadState();
+    cur.theme = next;
+    saveState(cur);
+  });
+})();
+
+/* ============================================================
+   6. 進度條 + 章節 active 高亮
+   ============================================================ */
+function updateProgress() {
+  const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
+  document.getElementById('progress-fill').style.width = pct.toFixed(1) + '%';
+  // 存進度
+  const s = loadState();
+  s.lastScrollPct = pct;
+  saveState(s);
+}
+
+function updateActiveNav() {
+  const sections = document.querySelectorAll('section[data-chapter]');
+  const navItems = document.querySelectorAll('.sidebar a.nav-item');
+  let activeId = '';
+  for (const sec of sections) {
+    const rect = sec.getBoundingClientRect();
+    if (rect.top < 200 && rect.bottom > 200) { activeId = sec.dataset.chapter; break; }
+  }
+  navItems.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
+  });
+}
+
+window.addEventListener('scroll', () => {
+  updateProgress();
+  updateActiveNav();
+});
+
+/* ============================================================
+   7. 重置按鈕
+   ============================================================ */
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (confirm('確定要清除閱讀進度與主題設定嗎？')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+});
+
+/* ============================================================
+   8. 啟動
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  hydrateAll();
+  updateProgress();
+  updateActiveNav();
+  // 回復上次閱讀位置（簡單版：scroll 到 lastScrollPct）
+  const s = loadState();
+  if (s.lastScrollPct && s.lastScrollPct > 5) {
+    setTimeout(() => {
+      const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: (s.lastScrollPct / 100) * scrollH, behavior: 'auto' });
+    }, 100);
+  }
+});
+</script>
+</body>
+</html>
