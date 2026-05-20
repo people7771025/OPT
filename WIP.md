@@ -1,14 +1,14 @@
-# WIP — 衍生品自學系統
+# WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-21 / Claude Stage 0 原型完成
+最後更新：2026-05-21 凌晨 / Claude Stage 0 原型完成、repo 改名為 OPT
 
 ## 現在狀態
 
-- Stage 0 原型已上線：<https://people7771025.github.io/derivatives-study/>
-- Ch5 Covered Call 完整 + PayoffDiagram + GreeksLab + 章節導覽 + 深色主題 + localStorage 進度
+- repo 改名 `derivatives-study` → `OPT`（GitHub 自動設 redirect，舊 URL 仍 work）
+- 本機路徑：`$HOME/Dev/OPT/`
+- 線上 URL：<https://people7771025.github.io/OPT/>（Pages 自動跟著 rename）
+- Stage 0 原型完整：Ch5 Covered Call + PayoffDiagram + GreeksLab + 章節導覽 + 深色主題 + localStorage 進度
 - 本機驗證：Black-Scholes 計算正確（30 delta、theta -$0.13/天、vega $0.16/IV pp）
-- 線上 HTTP 200 · Content-Length 75174 bytes（== 本機 74KB）
-- HEAD：`f606fd4` 已 push 至 origin/main
 
 ## 下一步（等使用者試讀後決定）
 

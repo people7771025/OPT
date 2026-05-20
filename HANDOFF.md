@@ -1,4 +1,6 @@
-# HANDOFF — 衍生品自學系統
+# HANDOFF — OPT · 衍生品自學系統
+
+本機路徑 `$HOME/Dev/OPT/` · GitHub `people7771025/OPT` · Pages `https://people7771025.github.io/OPT/`
 
 ## 專案目標
 
@@ -21,7 +23,7 @@
 ## 結構
 
 ```
-derivatives-study/
+OPT/
 ├── README.md
 ├── WIP.md
 ├── HANDOFF.md
