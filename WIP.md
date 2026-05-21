@@ -1,58 +1,47 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-21 / Claude Stage 4 完整版完成
+最後更新：2026-05-21 / Claude Stage 5 完整版完成
 
 ## 現在狀態
 
-- Stage 4 完整版
-  - **章節 32 章**：Ch1-29 + Part Ⅷ Ch30-35 + 附錄 Ch36 實戰日誌
-  - **互動元件 12 個**：PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · MarginSimulator · IVTermStructure · VolSkewExplorer · PMCCBuilder · SyntheticBuilder · WheelSimulator · IVCrushAnimator · **IronCondorBuilder（新）** · **TradeJournal（新）**
-  - **Quiz 7 個（覆蓋全 Part）**
-  - **案例庫 11 個**
-  - **學習系統強化**：
-    - **章節完成標記（新）**：每章 h1 旁「☐ 標為已完成」按鈕，手動勾選
-    - **學習進度 dashboard（新）**：附錄區「📊 我的學習進度」，按 Part 分組顯示完成率
-    - **topbar 進度數字（新）**：「已完成 N / 36」即時顯示
-    - **Glossary 搜尋（新）**：名詞表加搜尋框過濾
-    - 章節已讀（自動偵測）跟章節完成（手動）視覺區分（已讀淡 ✓ / 完成綠粗 ✓）
-  - **Trade Journal（新）**：網頁端下單記錄器，存 localStorage，可匯入/匯出 JSON
-  - **案例修正（依 Agent 全面審查報告）**：
-    - Ch15 Bull Call Spread「少賺 $1,750」→ $1,550
-    - Ch32 Synthetic Long Stock $130 情境「-$1,660」→ -$1,580
-    - Ch33 Risk Reversal 情境 A「+$1,620」→ +$1,970
-    - Ch33 Risk Reversal 情境 C「-$1,210」→ -$1,530（加完整算式）
-    - Cases ① 期貨損益方向「-$7.5k」→ +$7,500（基差收斂對 short hedger 是助力）
-    - Cases ⑦ ETF 證交稅「0.3%」→ ETF 0.1%（個股才 0.3%）
-    - Quiz Part Ⅵ Q3 同步修正稅率
+- Stage 5 完整版
+  - **章節 32 章**：Ch1-29 + Part Ⅷ Ch30-35 + Ch36 實戰日誌
+  - **互動元件 13 個**：原 12 + **LearningPathBuilder（新）**
+  - **學習體驗強化**：
+    - **學習路徑產生器**：選目標+時數+經驗 → 推薦章節+預估週數，儲存後 sidebar highlight
+    - **複習提醒系統**：章節完成 7/14/30 天後自動標 🔄/🔁/⚠️
+    - **行動版適配**：sidebar 變漢堡選單、widget controls 垂直 stack、tables 可滾、case scenarios 自適應
+    - **印刷模式**：@media print 加封面、移除互動元件、強制黑白
 - 本機路徑：`$HOME/Dev/OPT/`
 - 線上：<https://people7771025.github.io/OPT/>
 
-## 全面審查報告
+## 新功能位置速查
 
-- 22 個 case 完全正確 + Quiz 39/40 通過
-- 5 個案例算術 typo（已修 4 個 + 拆解式排版 1 個未修）
-- 3 個邏輯/事實問題（已全修）
-- 詳見 `.audit-report.md`
+| 功能 | 位置 | 觸發 |
+|---|---|---|
+| 學習路徑產生器 | intro 區（首頁）| 點選 3 步驟 → 儲存計畫 |
+| 漢堡選單 | topbar 左側 ☰（mobile） | 點開出 sidebar |
+| 複習提醒 | sidebar nav-item 右側 icon | 章節完成超過 7/14/30 天自動顯示 |
+| 「我複習過了」按鈕 | 章節 h1 旁邊（過期才顯示） | 點一下重置 timer |
+| 待複習章節列表 | progress dashboard | 自動列出所有 ≥7 天的章節 |
+| 印刷模式 | Ctrl+P / 列印 | 自動加封面 + 移除互動 |
+| TradeJournal 策略分組 | Ch36 | 至少 1 筆已結 trade |
+| TradeJournal 標的 Top 5 | Ch36 | 至少 1 筆已結 trade |
+| TradeJournal 月度圖表 | Ch36 | 至少 2 個月有交易 |
+| TradeJournal 連勝/連虧警示 | Ch36 | 連續 ≥ 3 筆同方向 |
 
 ## 下一步
 
 1. 試用新功能：
-   - **章節完成標記**：讀完一章點 h1 旁的「☐ 標為已完成」按鈕
-   - **進度 dashboard**：sidebar 附錄區點「📊 學習進度」看總覽
-   - **IronCondorBuilder**：Ch16 看 EM 推薦 strike + 勝率估算
-   - **TradeJournal**：Ch36 開始記實戰下單
-   - **Glossary 搜尋**：名詞表上方搜尋框
-2. 後續可擴展（暫緩）：
-   - LLM 助教介接
-   - 多語版本（English）
-   - 行動版適配優化
+   - intro 區走過 LearningPathBuilder 3 步驟、儲存計畫看 sidebar highlight
+   - 手機 / 小螢幕測試 mobile 響應式
+   - 印刷預覽看封面（Ctrl+P）
+   - 等幾天後（或手動改 localStorage timestamp）看複習提醒
+2. 後續可擴展：
+   - LLM 助教介接（暫緩中）
+   - 多語版本（英文）
+   - PWA（讓使用者「加到主畫面」當 app）
 
 ## 卡點
 
 - 無
-
-## 已知未做
-
-- a11y form-label warning（functional 無影響）
-- Cases ⑨ PMCC 權利金拆解「$450×8 + $500×3 + $540」湊不出 $5,400（實際表格加總對；中間排版錯誤）
-- Cases ③ AAPL Collar A 描述「200×10」應為「100×20」（最終數字仍對）

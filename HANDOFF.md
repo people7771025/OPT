@@ -48,12 +48,14 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - Part Ⅷ 進階主題：Ch30 LEAPS+PMCC / Ch31 VIX+VXX / Ch32 Synthetic / Ch33 Risk Reversal / Ch34 0-DTE / Ch35 Vol Surface
   - 2 個新互動：PMCCBuilder / SyntheticBuilder
   - 6 個新 Quiz / 3 個新案例 / favicon / 章節已讀自動追蹤
-- **Stage 4 完整**：32 章 + 12 互動 + 11 案例 + 7 Quiz + 名詞表（可搜尋）+ 完整學習系統 ✅ 完成於 2026-05-21 傍晚
-  - Ch36 實戰日誌（含 TradeJournal widget）
-  - 2 個新互動：IronCondorBuilder（4 腿 IC 試算 + 勝率估算）/ TradeJournal（下單記錄器 + 匯入匯出 JSON）
-  - 章節完成系統：每章 h1 旁手動勾選 + topbar 進度數字 + 進度 dashboard（按 Part 分組）
-  - Glossary 搜尋過濾
-  - Agent 全面審查修正：Ch15 / Ch32 / Ch33 兩處 / Cases ① / Cases ⑦ ETF 稅率 / Quiz Ⅵ Q3
+- **Stage 4 完整**：32 章 + 12 互動 + 11 案例 + 7 Quiz + 名詞表 ✅ 完成於 2026-05-21 傍晚
+  - Ch36 TradeJournal / IronCondorBuilder / 章節完成系統 / Glossary 搜尋 / Agent 審查修案例
+- **Stage 5 完整**：32 章 + 13 互動 + 11 案例 + 7 Quiz + 完整學習體驗系統 ✅ 完成於 2026-05-21 傍晚晚段
+  - LearningPathBuilder：選目標+時數+經驗 → 推薦章節 + 儲存到 localStorage + sidebar highlight
+  - 複習提醒系統：章節完成 7/14/30 天後自動標 🔄/🔁/⚠️ + 過期章節 h1 加「按一下重置」按鈕
+  - Mobile 響應式：漢堡選單、widget stack、case scenarios 適配
+  - 印刷模式：封面 + 移除互動元件 + 強制黑白
+  - TradeJournal 強化：策略分組勝率、標的 Top 5、月度累計 P/L SVG 圖表、連續輸贏警示（連虧 3 次提示 Ch28 降部位規則）
 
 ## 互動元件介面（偽函式）
 
