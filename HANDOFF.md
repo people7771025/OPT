@@ -32,16 +32,16 @@ OPT/
 └── .gitignore
 ```
 
-Stage 0 採「直接寫單檔 index.html」策略，不拆 src/ + build.mjs。
-等 Stage 1 章節數成長到 14 章後再評估是否要拆 src/ 與引入 build script。
+Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行 / ~120KB，瀏覽器處理無壓力）。
+等 Stage 2 章節再翻倍 + 互動元件變複雜後再評估是否拆 src/ + build script。
 
 ## 內容架構（25 章 + 案例庫）
 
 詳見 plan 檔，這裡只列 Stage 0 / Stage 1 / Stage 2 範圍：
 
-- **Stage 0（原型）**：Ch5 Covered Call + 2 互動元件（PayoffDiagram + GreeksLab）
-- **Stage 1 MVP**：14 章（Ch1-4, 5-8, 10-12, 20-23, 27）+ 4 互動 + 3 案例
-- **Stage 2 完整**：25 章 + 7 互動 + 8 案例 + Quiz + 名詞表
+- **Stage 0（原型）**：Ch5 Covered Call + 2 互動元件（PayoffDiagram + GreeksLab）✅ 完成
+- **Stage 1 MVP**：14 章（Ch1-8, 10-12, 20-23, 27）+ 4 互動（+StockHedgeCalc / StrategyPicker）+ 3 案例 ✅ 完成於 2026-05-21
+- **Stage 2 完整**：補 Ch9 Wheel / Ch13-19 多腿與事件 / Ch24-26 進階期貨 / Ch28-29 + 3 互動 + 5+ 案例 + Quiz + 名詞表
 
 ## 互動元件介面（偽函式）
 
