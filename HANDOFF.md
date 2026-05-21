@@ -40,8 +40,11 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
 詳見 plan 檔，這裡只列 Stage 0 / Stage 1 / Stage 2 範圍：
 
 - **Stage 0（原型）**：Ch5 Covered Call + 2 互動元件（PayoffDiagram + GreeksLab）✅ 完成
-- **Stage 1 MVP**：14 章（Ch1-8, 10-12, 20-23, 27）+ 4 互動（+StockHedgeCalc / StrategyPicker）+ 3 案例 ✅ 完成於 2026-05-21
-- **Stage 2 完整**：補 Ch9 Wheel / Ch13-19 多腿與事件 / Ch24-26 進階期貨 / Ch28-29 + 3 互動 + 5+ 案例 + Quiz + 名詞表
+- **Stage 1 MVP**：14 章 + 4 互動 + 3 案例 ✅ 完成於 2026-05-21 早上
+- **Stage 2 完整**：全 29 章（Ch1-Ch29）+ 7 互動 + 8 案例 + 2 Quiz + 名詞表 ✅ 完成於 2026-05-21 中午
+  - Ch26 套利章節依使用者要求加重操作細節：5 種套利型態（期現/跨月/跨商品/Put-Call Parity/Box Spread）+ 可行性評分 + 實際下單流程
+  - 3 個新互動：MarginSimulator（保證金水位）/ IVTermStructure（期限結構）/ VolSkewExplorer（skew 視覺化）
+  - 名詞表分 5 大類 + 章節索引
 
 ## 互動元件介面（偽函式）
 
