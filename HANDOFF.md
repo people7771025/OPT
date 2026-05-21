@@ -50,12 +50,11 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - 6 個新 Quiz / 3 個新案例 / favicon / 章節已讀自動追蹤
 - **Stage 4 完整**：32 章 + 12 互動 + 11 案例 + 7 Quiz + 名詞表 ✅ 完成於 2026-05-21 傍晚
   - Ch36 TradeJournal / IronCondorBuilder / 章節完成系統 / Glossary 搜尋 / Agent 審查修案例
-- **Stage 5 完整**：32 章 + 13 互動 + 11 案例 + 7 Quiz + 完整學習體驗系統 ✅ 完成於 2026-05-21 傍晚晚段
-  - LearningPathBuilder：選目標+時數+經驗 → 推薦章節 + 儲存到 localStorage + sidebar highlight
-  - 複習提醒系統：章節完成 7/14/30 天後自動標 🔄/🔁/⚠️ + 過期章節 h1 加「按一下重置」按鈕
-  - Mobile 響應式：漢堡選單、widget stack、case scenarios 適配
-  - 印刷模式：封面 + 移除互動元件 + 強制黑白
-  - TradeJournal 強化：策略分組勝率、標的 Top 5、月度累計 P/L SVG 圖表、連續輸贏警示（連虧 3 次提示 Ch28 降部位規則）
+- **Stage 5 完整**：學習路徑產生器 / 複習提醒 / Mobile 響應式 / 印刷模式 / TradeJournal 統計強化 ✅ 完成於 2026-05-21 傍晚晚段
+- **Stage 6 完整**：LLM 助教 + PWA + 快速鍵 ✅ 完成於 2026-05-21 深夜
+  - LLM 助教：自帶 Gemini API key（aistudio.google.com 取得），右下 🤖 浮動按鈕 → chat panel；系統 prompt OPT-tuned；對話自動帶當前章節 context；history 上限 30 則；回應內 [Ch5] 自動變連結
+  - PWA：manifest 內嵌（data URI）+ apple-touch-icon + theme-color；可加到主畫面當 app 用（iOS Safari + Android Chrome）
+  - 快速鍵：J/K 上下章 / G 首頁 / B/M 書籤 / T 主題 / / 搜尋 / ? 說明 / Esc 關閉
 
 ## 互動元件介面（偽函式）
 

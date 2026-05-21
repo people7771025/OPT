@@ -1,46 +1,37 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-21 / Claude Stage 5 完整版完成
+最後更新：2026-05-21 / Claude Stage 6 完整版
 
 ## 現在狀態
 
-- Stage 5 完整版
-  - **章節 32 章**：Ch1-29 + Part Ⅷ Ch30-35 + Ch36 實戰日誌
-  - **互動元件 13 個**：原 12 + **LearningPathBuilder（新）**
-  - **學習體驗強化**：
-    - **學習路徑產生器**：選目標+時數+經驗 → 推薦章節+預估週數，儲存後 sidebar highlight
-    - **複習提醒系統**：章節完成 7/14/30 天後自動標 🔄/🔁/⚠️
-    - **行動版適配**：sidebar 變漢堡選單、widget controls 垂直 stack、tables 可滾、case scenarios 自適應
-    - **印刷模式**：@media print 加封面、移除互動元件、強制黑白
-- 本機路徑：`$HOME/Dev/OPT/`
+- Stage 6 完整版
+  - 章節 32 章 + 互動 13 個 + 案例 11 個 + Quiz 7 個 + 名詞表
+  - **新增**：
+    - **LLM 助教（OPT-tuned）**：右下浮動 🤖、貼 Gemini API key 啟用、chat panel 自動帶當前章節 context、對話歷史存 localStorage（上限 30 則）、回應內 [Ch5] 自動變連結
+    - **PWA**：manifest 內嵌 data URI、apple-touch-icon、theme-color、可加到主畫面
+    - **快速鍵**：<kbd>J</kbd>/<kbd>K</kbd> 上下章、<kbd>G</kbd> 首頁、<kbd>B</kbd>/<kbd>M</kbd> 書籤跳/標、<kbd>T</kbd> 切主題、<kbd>/</kbd> 聚焦搜尋、<kbd>?</kbd> 說明 panel、<kbd>Esc</kbd> 關閉
 - 線上：<https://people7771025.github.io/OPT/>
 
-## 新功能位置速查
+## LLM 助教使用流程
 
-| 功能 | 位置 | 觸發 |
-|---|---|---|
-| 學習路徑產生器 | intro 區（首頁）| 點選 3 步驟 → 儲存計畫 |
-| 漢堡選單 | topbar 左側 ☰（mobile） | 點開出 sidebar |
-| 複習提醒 | sidebar nav-item 右側 icon | 章節完成超過 7/14/30 天自動顯示 |
-| 「我複習過了」按鈕 | 章節 h1 旁邊（過期才顯示） | 點一下重置 timer |
-| 待複習章節列表 | progress dashboard | 自動列出所有 ≥7 天的章節 |
-| 印刷模式 | Ctrl+P / 列印 | 自動加封面 + 移除互動 |
-| TradeJournal 策略分組 | Ch36 | 至少 1 筆已結 trade |
-| TradeJournal 標的 Top 5 | Ch36 | 至少 1 筆已結 trade |
-| TradeJournal 月度圖表 | Ch36 | 至少 2 個月有交易 |
-| TradeJournal 連勝/連虧警示 | Ch36 | 連續 ≥ 3 筆同方向 |
+1. 右下角 🤖 點開
+2. 第一次：貼 Gemini API key（從 https://aistudio.google.com/apikey 取得，免費 tier 即可）
+3. 問題輸入後送出
+4. 預設「帶入當前章節作為 context」勾選——AI 知道你正在讀哪章
+5. 對話歷史保留 30 則
+6. 點 ⚙️ 可重設 key、🗑 清對話、✕ 關閉
 
 ## 下一步
 
-1. 試用新功能：
-   - intro 區走過 LearningPathBuilder 3 步驟、儲存計畫看 sidebar highlight
-   - 手機 / 小螢幕測試 mobile 響應式
-   - 印刷預覽看封面（Ctrl+P）
-   - 等幾天後（或手動改 localStorage timestamp）看複習提醒
-2. 後續可擴展：
-   - LLM 助教介接（暫緩中）
+1. 試用 LLM 助教：
+   - 取 Gemini API key https://aistudio.google.com/apikey
+   - 貼進去測一個問題，例如：「Covered Call 跟 Wheel 差別」
+2. 試快速鍵：開頁面後按 <kbd>?</kbd> 看所有快速鍵
+3. PWA：用手機 Safari/Chrome 開線上版 → 加到主畫面，下次像 app 一樣開
+4. 後續可擴展：
    - 多語版本（英文）
-   - PWA（讓使用者「加到主畫面」當 app）
+   - Service Worker 離線快取（要拆出 sw.js）
+   - 績效追蹤連 Obsidian（手動匯出整合到 my-trades/）
 
 ## 卡點
 
