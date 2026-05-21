@@ -41,10 +41,15 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
 
 - **Stage 0（原型）**：Ch5 Covered Call + 2 互動元件（PayoffDiagram + GreeksLab）✅ 完成
 - **Stage 1 MVP**：14 章 + 4 互動 + 3 案例 ✅ 完成於 2026-05-21 早上
-- **Stage 2 完整**：全 29 章（Ch1-Ch29）+ 7 互動 + 8 案例 + 2 Quiz + 名詞表 ✅ 完成於 2026-05-21 中午
-  - Ch26 套利章節依使用者要求加重操作細節：5 種套利型態（期現/跨月/跨商品/Put-Call Parity/Box Spread）+ 可行性評分 + 實際下單流程
-  - 3 個新互動：MarginSimulator（保證金水位）/ IVTermStructure（期限結構）/ VolSkewExplorer（skew 視覺化）
-  - 名詞表分 5 大類 + 章節索引
+- **Stage 2 完整**：29 章 + 7 互動 + 8 案例 + 2 Quiz + 名詞表 ✅ 完成於 2026-05-21 中午
+  - Ch26 套利章節依使用者要求加重操作細節
+  - 3 個新互動：MarginSimulator / IVTermStructure / VolSkewExplorer
+- **Stage 3 完整**：31 章（含 Part Ⅷ Ch30-35）+ 9 互動 + 11 案例 + 7 Quiz + 名詞表 ✅ 完成於 2026-05-21 下午
+  - Part Ⅷ 進階主題：Ch30 LEAPS+PMCC / Ch31 VIX+VXX / Ch32 Synthetic / Ch33 Risk Reversal / Ch34 0-DTE / Ch35 Vol Surface
+  - 2 個新互動：PMCCBuilder（LEAPS 試算 vs CC 對比）/ SyntheticBuilder（合成部位拆腿視覺化）
+  - 6 個新 Quiz 覆蓋全 Part
+  - 3 個新案例：NVDA PMCC 1 年週期、2024 VIX 飆升避險、IRA Synthetic Short Stock
+  - UI 強化：favicon 內嵌 SVG、章節已讀追蹤（IntersectionObserver + localStorage + sidebar ✓ 標記）
 
 ## 互動元件介面（偽函式）
 

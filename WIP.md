@@ -1,29 +1,40 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-21 / Claude Stage 2 完整版完成
+最後更新：2026-05-21 / Claude Stage 3 完整版完成
 
 ## 現在狀態
 
-- Stage 2 完整版完成
-  - **章節**：Ch1-Ch29 全 29 章完整實作（無 stub）
-  - **互動元件 7 個**：PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · MarginSimulator · IVTermStructure · VolSkewExplorer
-  - **Quiz 2 個**：Part Ⅰ 基礎（5 題）/ Part Ⅳ 中級（5 題），含解析
-  - **案例庫 8 個**：0050 hedge / TSM Wheel / AAPL Collar / 台股 8% 暴跌 / SPY iron condor 5M / NVDA 財報 straddle 反例 / 期現套利實戰 / Wheel 卡住對策
-  - **名詞表**：5 個分類（基礎 / 策略 / Greeks 與指標 / 台股期貨 / 套利進階）含章節索引
-- 重點補完：使用者特別要求的「**純套利操作方式**」已在 <a href="#ch26">Ch26</a> 完整實作（5 種型態 + 可行性評分 + 實際下單流程 + 散戶 5 鐵則）
+- Stage 3 完整版完成
+  - **章節 31 章**：Ch1-29（Stage 2）+ Ch30-35（Stage 3 新增 Part Ⅷ）
+  - **互動元件 9 個**：PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · MarginSimulator · IVTermStructure · VolSkewExplorer · **PMCCBuilder（新）** · **SyntheticBuilder（新）**
+  - **Quiz 7 個（覆蓋全 Part）**：Part Ⅰ-Ⅷ + Part Ⅵ 套利各一個
+  - **案例庫 11 個**：含 NVDA PMCC 1 年週期、2024 VIX 飆升避險、Synthetic Long Stock 替代 IRA（新 3 案例）
+  - **UI 強化**：favicon 內嵌 SVG（解決 404）、章節已讀追蹤（IntersectionObserver + localStorage、sidebar 顯示 ✓）
 - 本機路徑：`$HOME/Dev/OPT/`
 - 線上：<https://people7771025.github.io/OPT/>
-- topbar/path-pill/footer 已更新為 Stage 2 完整版字樣
+- topbar/path-pill/footer 已更新為 Stage 3 完整版字樣
+
+## Obsidian 同步
+
+- 已加 `Investing/OPT/Part-VIII-進階/_Part-VIII-總覽.md`
+- 0-index.md 已加 Part Ⅷ section（Ch30-35）
 
 ## 下一步（等使用者試讀後決定）
 
 1. 使用者試讀重點：
-   - Ch1 套利補強 + Ch26 完整套利章是否解答「我想了解操作」的疑問
-   - MarginSimulator / IVTermStructure / VolSkewExplorer 三個新互動是否好用
-   - 5 個新案例的細節（特別是期現套利實戰、Wheel 卡住對策）
-   - 2 個 Quiz 的題目品質與解析深度
+   - Ch30 PMCC 是否符合需求（含 PMCC Builder 試算）
+   - Ch31 VIX/VXX 警告是否清楚
+   - Ch32 Synthetic Positions 與 SyntheticBuilder 是否好用
+   - Ch33 Risk Reversal vs Jade Lizard 概念是否清楚
+   - Ch34 0-DTE 警告是否充分
+   - Ch35 Vol Surface + 高階 Greeks 簡介是否好讀
+   - 7 個 Quiz 題目品質與解析深度
+   - 章節 ✓ 已讀標記是否符合預期
 2. 若有 typo / 字彙 / 公式錯誤回報後即時修正
-3. 若需要更多互動 / 案例可進 Stage 3：補 0-DTE 章、Synthetic Position lab、Beta hedging 動態 rebalance simulator
+3. 暫時可看的進一步擴展（如有興趣）：
+   - 介接 LLM 助教（先前暫緩）
+   - 績效追蹤 dashboard 連 Obsidian my-trades
+   - 多語版本（英文）
 
 ## 卡點
 
@@ -31,6 +42,5 @@
 
 ## 已知未做
 
-- 沒有 favicon（線上載入會有 1 個 404，不影響功能）
-- Stage 2 所有保證金 / IV / 權利金數字為示意值，已加註資料來源與「以期交所/券商公告為準」警語
-- Ch10 GreeksLab Black-Scholes 不含股息（與 STK yahoo_options 一致），影響 ITM call early exercise 計算精度 < 1%
+- 已知保證金 / IV / 權利金數字為示意值，全部已加註資料來源與「以官方為準」警語
+- Black-Scholes 不含股息（與 STK yahoo_options 一致），影響 ITM call early exercise 精度 < 1%
