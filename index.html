@@ -158,9 +158,42 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
   font-weight: 700;
   margin-right: 5px;
   font-size: 11px;
-  opacity: .75;
+  opacity: .55;
 }
 .sidebar a.nav-item.visited.active::before { opacity: 1; }
+.sidebar a.nav-item.completed { font-weight: 600; color: var(--fg); }
+.sidebar a.nav-item.completed::before {
+  content: "✓";
+  color: var(--accent);
+  font-weight: 700;
+  margin-right: 5px;
+  font-size: 12px;
+  opacity: 1;
+}
+
+/* 章節完成按鈕（h1 旁邊） */
+section[data-chapter] > h1 { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.completion-btn {
+  font-size: 12px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.completion-btn:hover { color: var(--accent); border-color: var(--accent); }
+.completion-btn.done { background: var(--accent); color: white; border-color: var(--accent); }
+.topbar .completion-counter {
+  font-size: 12px;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  margin-right: 4px;
+}
+.topbar .completion-counter .count { color: var(--accent); font-weight: 700; }
 .sidebar .badge-mini {
   display: inline-block; margin-left: 4px;
   font-size: 10px; padding: 1px 5px; border-radius: 3px;
@@ -482,9 +515,10 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 <body>
 
 <header class="topbar">
-  <div class="brand">衍生品自學系統<span class="sub">Stage 3 完整版</span></div>
+  <div class="brand">衍生品自學系統<span class="sub">Stage 4 完整版</span></div>
   <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
   <div class="actions">
+    <span class="completion-counter" id="completion-counter" title="已完成章節數">已完成 <span class="count">0</span> / 0</span>
     <button class="btn" id="goto-bookmark-btn" title="跳到上次標記位置" style="display:none;">📂</button>
     <button class="btn" id="set-bookmark-btn" title="把目前位置記下來">📍 標記</button>
     <button class="btn" id="theme-btn" title="切換深色 / 淺色主題">深色</button>
@@ -495,9 +529,9 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 <div class="layout">
   <aside class="sidebar">
     <div class="path-pill">
-      <b>Stage 3 完整版</b>：31 章 + 9 互動 + 11 案例 + 7 Quiz + 名詞表。
-      含進階主題（PMCC / VIX / Synthetic / 0-DTE / Vol Surface）。
-      sidebar 上的 ✓ 表示「已讀過」（localStorage 自動追蹤）。
+      <b>Stage 4 完整版</b>：32 章 + 12 互動 + 11 案例 + 7 Quiz + 名詞表（可搜尋）。
+      新增 IronCondorBuilder · TradeJournal · 章節完成標記。
+      sidebar 上的 ✓ 表示「已讀過」+ <strong>勾過「☐ 標為已完成」</strong> 變綠粗 ✓。
     </div>
 
     <div class="nav-group">
@@ -569,8 +603,10 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
     </div>
 
     <div class="nav-group">
-      <div class="nav-group-title">附錄</div>
+      <div class="nav-group-title">附錄 · 實戰工具</div>
+      <a class="nav-item" href="#ch36"><span class="ch-num">📓</span>實戰日誌 Trade Journal</a>
       <a class="nav-item" href="#glossary"><span class="ch-num">📖</span>名詞表（中英對照）</a>
+      <a class="nav-item" href="#progress"><span class="ch-num">📊</span>學習進度</a>
     </div>
   </aside>
 
@@ -2038,7 +2074,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <div class="scenario">
             <div class="when">情境 C</div>
             <div>到期 NVDA = $180（超過上腿）：仍封頂在 $160</div>
-            <div class="pnl pos">+$1,250（封頂，少賺裸 long call 的 $1,750）</div>
+            <div class="pnl pos">+$1,250（封頂，少賺裸 long call 的 $1,550）</div>
           </div>
         </div>
 
@@ -2170,6 +2206,23 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <li>標的近期方向明顯（突破 / 跳空）</li>
         <li>近期事件未過（IV 還會繼續變動）</li>
       </ul>
+
+      <h2>互動：Iron Condor Builder</h2>
+      <p>輸入標的 / IV / DTE / spread 寬度，自動推薦 short strike（±1.1×EM）+ 估算 4 腿權利金 → 顯示淨 credit、最大獲利/損失、上下 break-even、估算勝率與損益比。
+      改 IV 或 DTE 看 EM 與權利金怎麼動。</p>
+
+      <div class="widget"
+           data-component="ic"
+           data-spot="500"
+           data-iv-pct="65"
+           data-dte="35"
+           data-spread-width="8">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">🦅</span>IronCondorBuilder · 4 腿 IC 試算</div>
+          <div class="widget-meta">EM 推薦 + 勝率估算</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
     </section>
 
     <!-- ============================================================
@@ -3126,7 +3179,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <div class="widget" data-component="quiz" data-questions='[
         {"q":"以下哪個是「嚴格套利」的特徵？","opts":["有限風險","零風險 + 期初 0 成本 + 期末 ≥ 0","賺方向","收 theta"],"correct":1,"explain":"嚴格套利 = 零風險 + 期初 0 成本 + 期末必然 ≥ 0。例如 put-call parity 失衡瞬間。散戶幾乎做不到（毫秒級機會 + 程式單秒搶）。"},
         {"q":"散戶可實際操作的「軟套利」中可行性最高的是？","opts":["Put-Call Parity 套利","Calendar Spread","跨商品大小台價差","Box Spread"],"correct":1,"explain":"Calendar Spread（跨月套利）可行性 4 星，散戶可下多腿單、不需精確 hedge ratio、報酬期望 0.3-1.5%/月。可行性最高。"},
-        {"q":"年化基差過大時的期現套利，散戶最大的成本來源？","opts":["利息","券商強制平倉費","雙邊手續費 + 0050 證交稅 0.3%","保證金佔用"],"correct":2,"explain":"0050 證交稅 0.3% 是最致命的。MTX 期貨手續費小，但 0050 來回吃掉 ~0.3% 就讓很多年化 +6-8% 的基差變負報酬。散戶實際 edge 大概要年化基差 > +12% 才划算。"},
+        {"q":"年化基差過大時的期現套利，散戶最大的成本來源？","opts":["利息","券商強制平倉費","雙邊手續費 + 0050 ETF 證交稅 0.1%","保證金佔用"],"correct":2,"explain":"0050 是 ETF，賣出時證交稅率 0.1%（個股是 0.3%）。雖比個股低但仍有成本：MTX 期貨手續費小，但 0050 來回吃掉 ~0.15% 證券手續費 + 0.1% 證交稅，讓年化 +6-8% 的基差變邊際報酬。散戶實際 edge 大概要年化基差 > +10% 才划算。"},
         {"q":"Box Spread 真正的功能是？","opts":["賺確定的小錢","合成借貸工具，期末固定 = 期初付出","賭波動率","賭方向"],"correct":1,"explain":"Box Spread = 4 條腿合成的「確定借貸」。賣 box 收現金 → 到期付出固定差額，差距 = 你的借款利率。對機構 / 大戶有意義（隱含利率低於 margin 利率），散戶幾乎用不到。"},
         {"q":"散戶套利的 5 鐵則中，「不下單前必確認」的是？","opts":["有 colo 機房","雙邊掛單能成交（避免 leg risk）","用模擬倉跑過 3 年","API 串接券商"],"correct":1,"explain":"Leg risk 是套利最致命的——只成交一邊變裸部位，可能被市場後續走勢猛打。下單前必確認兩邊深度足夠 + 雙邊掛單都會成交。"}
       ]'>
@@ -3190,8 +3243,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           </div>
           <div class="scenario">
             <div class="when">情境 B</div>
-            <div>指數持平 20,000：股票持平、期貨 −$7.5k（賣出基差成本）</div>
-            <div class="pnl neg">−$7.5k</div>
+            <div>指數持平 20,000：股票持平、3 口 MTX short @ 20,050 收斂到 20,000 → 短倉 +$7.5k（基差收斂的助力）</div>
+            <div class="pnl pos">淨 +$7,500</div>
           </div>
           <div class="scenario">
             <div class="when">情境 C</div>
@@ -3453,16 +3506,17 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <p><strong>扣手續費後</strong>：</p>
         <ul>
           <li>MTX 來回 4 筆 × NT$30 = NT$120 + 期交稅 ≈ NT$80</li>
-          <li>0050 來回 0.1425% × 2 + 證交稅 0.3% ≈ NT$10,830</li>
-          <li>淨損益 ≈ NT$8,250 - NT$11,030 = <strong>-NT$2,780</strong></li>
+          <li>0050（ETF）來回 0.1425% × 2 + 證交稅 0.1%（ETF 稅率，個股才 0.3%）≈ NT$3,705</li>
+          <li>淨損益 ≈ NT$8,250 - NT$3,905 = <strong>+NT$4,345</strong>（仍勉強有利潤）</li>
         </ul>
 
         <p><strong>啟示</strong>：</p>
         <ul>
-          <li><strong>淨手續費吃光毛利</strong>——0050 的證交稅特別痛</li>
+          <li><strong>ETF 0.1% 證交稅比個股 0.3% 友善很多</strong>，但合計手續費 + 期交稅 + 證交稅仍會吃掉約 0.2% 報酬</li>
+          <li>實際邊際 edge 約 NT$4k / NT$1.9M = 0.23%（21 天），等於年化 ~4%，<strong>不算高但比定存好</strong></li>
           <li>實際上應改用「期貨 vs 股票期貨」對沖（兩邊都用期貨稅費小），但需要熟悉個股期搭配</li>
-          <li>或拉大規模（&gt; NT$1,000 萬）讓固定成本佔比下降</li>
-          <li><strong>結論：散戶的期現套利只有在「年化基差 &gt; +12%」+「規模 &gt; NT$500 萬」時才有 edge</strong></li>
+          <li>拉大規模（&gt; NT$500 萬）讓固定成本佔比下降，edge 才會明顯</li>
+          <li><strong>結論：散戶的期現套利在「年化基差 &gt; +8%」+「規模 &gt; NT$300 萬」時開始有合理 edge</strong></li>
         </ul>
       </div>
 
@@ -4182,7 +4236,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <ul>
           <li>Long $145 call 失效 = -$700</li>
           <li>Short $145 put 被 assign：必須以 $145 買進 100 股，市價 $130 = 浮虧 $1,500 + 收到 $620 權利金 = 淨 -$880</li>
-          <li>淨：-$700 - $880 - $80 = -$1,660（與 100 股 @ $145 虧 $1,500 接近，差異是 $80 淨成本 + roll-off）</li>
+          <li>淨：-$700 + (-$880) = -$1,580（call 已隱含 $700 含淨成本，不要重複扣 $80。與 100 股 @ $145 虧 $1,500 接近，差異是 short put 賣方部位的入場淨成本）</li>
         </ul>
 
         <p><strong>對比結論</strong>：synthetic long stock 行為 ≈ 100 股，但只佔用 ~$80 + put 賣方 margin（~$1,500）。
@@ -4265,8 +4319,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <div class="scenarios">
           <div class="scenario">
             <div class="when">情境 A</div>
-            <div>NVDA 漲到 $180：call 賺 $20 - $3.50 = +$1,650</div>
-            <div class="pnl pos">+$1,620</div>
+            <div>NVDA 漲到 $180：call intrinsic ($180−$160)×100 = +$2,000，扣 call 成本 $350 + 收 put 權利金 $320</div>
+            <div class="pnl pos">+$1,970</div>
           </div>
           <div class="scenario">
             <div class="when">情境 B</div>
@@ -4275,12 +4329,12 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           </div>
           <div class="scenario">
             <div class="when">情境 C</div>
-            <div>NVDA 跌到 $115：put 被 assign，以 $130 接 100 股</div>
-            <div class="pnl neg">-$1,500 接 - $320 + $0 - $30 = -$1,210</div>
+            <div>NVDA 跌到 $115：put 被 assign，以 $130 接 100 股，浮虧 $1,500，扣 call 成本 $350 + 收 put 權利金 $320</div>
+            <div class="pnl neg">-$1,530（持股浮虧 $1,500 + 淨權利金 -$30）</div>
           </div>
         </div>
 
-        <p><strong>啟示</strong>：跟「裸 long call」對比，risk reversal 把「看多的下檔風險」放大了（變成 short put 風險）；換來零成本。<strong>本質：對下檔有信心 / 願意以 $130 接到 NVDA 的人才該做</strong>。</p>
+        <p><strong>啟示</strong>：跟「裸 long call」對比，risk reversal 把「看多的下檔風險」放大了（變成 short put 風險）；換來接近零成本。<strong>本質：對下檔有信心 / 願意以 $130 接到 NVDA 的人才該做</strong>。</p>
       </div>
 
       <h3>什麼時候 Risk Reversal 適合</h3>
@@ -4515,8 +4569,60 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <div class="widget-body"></div>
       </div>
     </section>
+
+    <!-- ============================================================
+         Ch36 · 實戰日誌（TradeJournal widget）
+         ============================================================ -->
+    <section data-chapter="ch36">
+      <h1><span class="badge op">操作必讀</span>Ch36 · 實戰日誌（Trade Journal）</h1>
+      <p style="color: var(--fg-muted); margin-top: -2px;">
+        <em>Trade Journaling / Performance Tracking</em> · 記下每筆下單 + 統計勝率 / 損益。學完手冊後最重要的單一動作。
+      </p>
+
+      <h2>一句話總結</h2>
+      <p>「教材寫得清楚」與「實際操作有 edge」是兩件事——
+      只有<strong>持續紀錄 + 定期回顧</strong>才能發現自己的偏差、認知盲點、哪個策略真的適合你。
+      下方是內建的 trade journal，存在你的瀏覽器 localStorage，可匯出 JSON 備份到 Obsidian。</p>
+
+      <h2>怎麼用</h2>
+      <ol>
+        <li>每筆下單<strong>進場後立刻記</strong>：日期 / 標的 / 策略 / strike / 權利金 / 張數 / 狀態 <code>open</code></li>
+        <li>到期 / 平倉 / 被 assign / roll 時<strong>更新狀態</strong>：把 status 改 <code>closed/assigned/rolled</code>，填入 P/L</li>
+        <li>每月做一次<strong>回顧</strong>：勝率、累計損益、哪個策略表現好</li>
+        <li>定期<strong>匯出 JSON</strong> 備份到 Obsidian <code>Investing/OPT/my-trades/</code></li>
+      </ol>
+
+      <div class="widget" data-component="journal">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">📓</span>TradeJournal · 我的下單記錄</div>
+          <div class="widget-meta">localStorage · 可匯入匯出</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
+
+      <h2>紀錄品質的關鍵</h2>
+      <ul>
+        <li><strong>進場理由</strong>：不只記數字，把「當時 IV Percentile 在哪、看法是什麼、為什麼選這 strike」用 1-2 句話記在 Obsidian 對應的 my-trade 筆記內</li>
+        <li><strong>結束理由</strong>：到期失效 / 主動平倉 / 被 assign / roll，每個的決策邏輯都不同</li>
+        <li><strong>事後檢討</strong>：跟原本判斷比，哪裡對哪裡錯</li>
+      </ul>
+
+      <h2>看到累積 20+ 筆後可以開始看的指標</h2>
+      <ul>
+        <li><strong>整體勝率</strong>：50% 以下要檢討策略選擇</li>
+        <li><strong>損益比</strong>：平均贏 ÷ 平均輸，賣方策略應該 0.3-0.5（小贏多次 + 偶爾大虧）</li>
+        <li><strong>策略勝率分組</strong>：CC 80%、CSP 75%、IC 65% 是合理範圍</li>
+        <li><strong>標的勝率分組</strong>：某些標的特別合你 → 集中</li>
+        <li><strong>連續輸贏</strong>：連虧 3 次以上 → 降部位</li>
+      </ul>
+    </section>
+
+    <!-- ============================================================
+         名詞表（A-Z + 主題分類）
+         ============================================================ -->
+    <section data-chapter="glossary">
       <h1>名詞表（Glossary）</h1>
-      <p style="color: var(--fg-muted); margin-top: -2px;">中英對照 + 出現章節索引。建議搜尋（Ctrl+F）特定名詞。</p>
+      <p style="color: var(--fg-muted); margin-top: -2px;">中英對照 + 出現章節索引。<input type="search" id="glossary-search" placeholder="🔍 搜尋名詞..." style="margin-left:12px;background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font:inherit;font-size:13px;width:200px;"></p>
 
       <h2>選擇權基礎</h2>
       <table>
@@ -4615,9 +4721,20 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       </table>
     </section>
 
+    <!-- ============================================================
+         學習進度 dashboard
+         ============================================================ -->
+    <section data-chapter="progress">
+      <h1>📊 我的學習進度</h1>
+      <p style="color: var(--fg-muted); margin-top: -2px;">
+        每章 h1 旁邊有「☐ 標為已完成」按鈕。手動勾選後這頁與 sidebar 都會顯示 ✓。
+      </p>
+      <div id="progress-dashboard"></div>
+    </section>
+
     <div class="foot">
       <p>本系統純為學習用途，不構成投資建議。<br/>
-      OPT · Stage 3 完整版 · 2026-05-21 · <a href="https://github.com/people7771025/OPT" target="_blank" rel="noopener">GitHub</a></p>
+      OPT · Stage 4 完整版 · 2026-05-21 · <a href="https://github.com/people7771025/OPT" target="_blank" rel="noopener">GitHub</a></p>
     </div>
 
   </main>
@@ -6397,6 +6514,377 @@ const IVCrushAnimator = {
 };
 
 /* ============================================================
+   6i. IronCondorBuilder 元件（Ch16）
+   4 腿 Iron Condor 試算 + payoff
+   ============================================================ */
+const IronCondorBuilder = {
+  // 用 EM ≈ spot × √(IV/100 × DTE/365) × √(2/π)
+  estEM(spot, ivPct, dte) {
+    return spot * Math.sqrt(ivPct / 100 * dte / 365) * Math.sqrt(2 / Math.PI);
+  },
+
+  // 從 spot + EM 推薦 short strike（±1.1 EM）
+  recommendStrikes(spot, em, spreadWidth) {
+    const shortPut = Math.round((spot - 1.1 * em) / 5) * 5;
+    const longPut = shortPut - spreadWidth;
+    const shortCall = Math.round((spot + 1.1 * em) / 5) * 5;
+    const longCall = shortCall + spreadWidth;
+    return { shortPut, longPut, shortCall, longCall };
+  },
+
+  // 簡化權利金估算：以 30 delta 估，~0.5 × EM × (strike 距 spot 的因子)
+  estPremium(spot, strike, em, isCall) {
+    const distance = Math.abs(strike - spot) / em;
+    // distance ~1.1 → premium 大約 EM 的 0.25；distance ~1.5 → 0.12
+    const factor = Math.max(0.05, 0.4 / (1 + distance));
+    return Math.round(em * factor * 100) / 100;
+  },
+
+  render(container, state) {
+    const { spot, ivPct, dte, spreadWidth } = state;
+    const em = this.estEM(spot, ivPct, dte);
+    const rec = this.recommendStrikes(spot, em, spreadWidth);
+
+    // 使用者可覆寫的 strikes
+    const shortPut = state.shortPut ?? rec.shortPut;
+    const longPut = state.longPut ?? rec.longPut;
+    const shortCall = state.shortCall ?? rec.shortCall;
+    const longCall = state.longCall ?? rec.longCall;
+
+    // 估算 premiums
+    const spPremium = state.spPremium ?? this.estPremium(spot, shortPut, em, false);
+    const lpPremium = state.lpPremium ?? this.estPremium(spot, longPut, em, false);
+    const scPremium = state.scPremium ?? this.estPremium(spot, shortCall, em, true);
+    const lcPremium = state.lcPremium ?? this.estPremium(spot, longCall, em, true);
+
+    // 計算 IC 結果
+    const netCredit = (spPremium - lpPremium + scPremium - lcPremium) * 100;
+    const maxProfit = netCredit;
+    const maxLossDown = (shortPut - longPut) * 100 - netCredit;
+    const maxLossUp = (longCall - shortCall) * 100 - netCredit;
+    const maxLoss = Math.max(maxLossDown, maxLossUp);
+    const breakevenDown = shortPut - netCredit / 100;
+    const breakevenUp = shortCall + netCredit / 100;
+
+    // 簡易勝率估算（假設常態分配 + 1σ = EM）
+    // P(到期落在 short strike 之間) ≈ 從 Z-score 推
+    const zDown = (breakevenDown - spot) / em;
+    const zUp = (breakevenUp - spot) / em;
+    const cdf = z => 0.5 * (1 + (z >= 0 ? 1 : -1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)));
+    const winRate = (cdf(zUp) - cdf(zDown)) * 100;
+
+    // Payoff SVG
+    const W = 580, H = 220;
+    const M = { top: 30, right: 30, bottom: 40, left: 60 };
+    const innerW = W - M.left - M.right;
+    const innerH = H - M.top - M.bottom;
+    const xMin = longPut - 5, xMax = longCall + 5;
+
+    const calcPL = (price) => {
+      let pl = netCredit;
+      pl -= Math.max(shortPut - price, 0) * 100;  // short put loss when ITM
+      pl += Math.max(longPut - price, 0) * 100;   // long put protection
+      pl -= Math.max(price - shortCall, 0) * 100; // short call loss when ITM
+      pl += Math.max(price - longCall, 0) * 100;  // long call protection
+      return pl;
+    };
+
+    const steps = 100;
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+      const p = xMin + (xMax - xMin) * i / steps;
+      points.push({ price: p, pl: calcPL(p) });
+    }
+    const yMax = maxProfit * 1.3, yMin = -maxLoss * 1.2;
+    const x = p => M.left + (p - xMin) / (xMax - xMin) * innerW;
+    const y = pl => M.top + (1 - (pl - yMin) / (yMax - yMin)) * innerH;
+    const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(p.price).toFixed(1)} ${y(p.pl).toFixed(1)}`).join(' ');
+
+    // 標記 strikes
+    const markers = [
+      { val: longPut, label: `LP ${longPut}`, color: 'var(--info)' },
+      { val: shortPut, label: `SP ${shortPut}`, color: 'var(--accent)' },
+      { val: spot, label: `Spot ${spot}`, color: 'var(--fg)' },
+      { val: shortCall, label: `SC ${shortCall}`, color: 'var(--accent)' },
+      { val: longCall, label: `LC ${longCall}`, color: 'var(--info)' }
+    ].map(m => `
+      <line x1="${x(m.val)}" y1="${M.top}" x2="${x(m.val)}" y2="${M.top + innerH}" stroke="${m.color}" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+      <text x="${x(m.val)}" y="${M.top - 6}" text-anchor="middle" font-size="10" fill="${m.color}" font-family="var(--font-mono)">${m.label}</text>
+    `).join('');
+
+    const svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="max-height:240px;">
+      <line x1="${M.left}" y1="${y(0)}" x2="${M.left + innerW}" y2="${y(0)}" stroke="var(--border-strong)" stroke-width="1" stroke-dasharray="2,2"/>
+      ${markers}
+      <path d="${path}" stroke="var(--accent)" stroke-width="2.5" fill="none"/>
+      <text x="${M.left + innerW / 2}" y="${H - 4}" text-anchor="middle" class="axis-title">到期股價</text>
+    </svg>`;
+
+    container.innerHTML = `
+      <div class="widget-controls">
+        <div class="ctrl">
+          <label>標的現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="20" max="2000" step="1"></label>
+          <input type="range" min="50" max="800" step="1" value="${spot}" data-input="spot"/>
+        </div>
+        <div class="ctrl">
+          <label>IV Percentile (%) <input type="number" class="ctrl-num" data-input="ivPct" value="${ivPct}" min="10" max="120" step="1"></label>
+          <input type="range" min="20" max="100" step="1" value="${ivPct}" data-input="ivPct"/>
+        </div>
+        <div class="ctrl">
+          <label>DTE <input type="number" class="ctrl-num" data-input="dte" value="${dte}" min="1" max="180" step="1"></label>
+          <input type="range" min="7" max="90" step="1" value="${dte}" data-input="dte"/>
+        </div>
+        <div class="ctrl">
+          <label>Spread 寬度 <input type="number" class="ctrl-num" data-input="spreadWidth" value="${spreadWidth}" min="1" max="50" step="1"></label>
+          <input type="range" min="3" max="20" step="1" value="${spreadWidth}" data-input="spreadWidth"/>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;padding:10px 14px;background:var(--bg-sunken);border-radius:var(--radius);font-size:13px;line-height:1.7;">
+        <strong>4 腿配置（推薦 ±1.1 × EM）</strong>：<br/>
+        <span style="color:var(--info);">買 LP $${longPut}</span> · <span style="color:var(--accent);">賣 SP $${shortPut}</span> · <strong>Spot $${spot}</strong> · <span style="color:var(--accent);">賣 SC $${shortCall}</span> · <span style="color:var(--info);">買 LC $${longCall}</span><br/>
+        <strong>Expected Move (±1σ)</strong>: ±$${em.toFixed(2)}（範圍 $${(spot - em).toFixed(0)} ~ $${(spot + em).toFixed(0)}）
+      </div>
+
+      ${svg}
+
+      <div class="widget-stats" style="margin-top:12px;">
+        <div class="stat">
+          <div class="label">淨 Credit</div>
+          <div class="value pos">+$${netCredit.toFixed(0)}</div>
+        </div>
+        <div class="stat">
+          <div class="label">最大獲利</div>
+          <div class="value pos">+$${maxProfit.toFixed(0)}</div>
+        </div>
+        <div class="stat">
+          <div class="label">最大損失</div>
+          <div class="value neg">-$${maxLoss.toFixed(0)}</div>
+        </div>
+        <div class="stat">
+          <div class="label">勝率估計</div>
+          <div class="value">${winRate.toFixed(0)}%</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;padding:10px 14px;background:var(--bg-sunken);border-radius:var(--radius);font-size:13px;line-height:1.7;">
+        <strong>Break-even</strong>: $${breakevenDown.toFixed(2)} ~ $${breakevenUp.toFixed(2)}（區間 $${(breakevenUp - breakevenDown).toFixed(2)}）<br/>
+        <strong>損益比</strong>: 1 : ${(maxLoss / maxProfit).toFixed(1)}（賺 1 賠 ${(maxLoss / maxProfit).toFixed(1)}，要勝率 &gt; ${(maxLoss / (maxLoss + maxProfit) * 100).toFixed(0)}% 才正期望值）
+      </div>
+    `;
+
+    container.querySelectorAll('input[data-input]').forEach(input => {
+      const evt = input.type === 'number' ? 'change' : 'input';
+      input.addEventListener(evt, (e) => {
+        const val = parseFloat(e.target.value);
+        if (isNaN(val)) return;
+        // 改 spot/ivPct/dte/spreadWidth 重算推薦 strike（清空覆寫）
+        const newState = { spot, ivPct, dte, spreadWidth, [e.target.dataset.input]: val };
+        IronCondorBuilder.render(container, newState);
+      });
+    });
+  },
+  hydrate(widget) {
+    const body = widget.querySelector('.widget-body');
+    this.render(body, {
+      spot: parseFloat(widget.dataset.spot) || 500,
+      ivPct: parseFloat(widget.dataset.ivPct) || 60,
+      dte: parseFloat(widget.dataset.dte) || 35,
+      spreadWidth: parseFloat(widget.dataset.spreadWidth) || 8
+    });
+  }
+};
+
+/* ============================================================
+   6j. TradeJournal 元件（網頁端下單記錄器）
+   localStorage 存 trades + 統計
+   ============================================================ */
+const TradeJournal = {
+  KEY: 'opt/trades',
+
+  load() {
+    try { return JSON.parse(localStorage.getItem(this.KEY) || '[]'); } catch { return []; }
+  },
+  save(trades) {
+    try { localStorage.setItem(this.KEY, JSON.stringify(trades)); } catch {}
+  },
+
+  stats(trades) {
+    const closed = trades.filter(t => t.status !== 'open');
+    const wins = closed.filter(t => parseFloat(t.pnl) > 0).length;
+    const losses = closed.filter(t => parseFloat(t.pnl) <= 0).length;
+    const totalPnl = closed.reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
+    const winRate = closed.length > 0 ? (wins / closed.length * 100) : 0;
+    const avgWin = wins > 0 ? closed.filter(t => parseFloat(t.pnl) > 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / wins : 0;
+    const avgLoss = losses > 0 ? closed.filter(t => parseFloat(t.pnl) <= 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / losses : 0;
+    return { total: trades.length, open: trades.length - closed.length, closed: closed.length, wins, losses, totalPnl, winRate, avgWin, avgLoss };
+  },
+
+  render(container, state) {
+    const trades = this.load();
+    const stats = this.stats(trades);
+    const form = state.form || { date: new Date().toISOString().slice(0, 10), ticker: '', strategy: 'CC', strike: '', premium: '', qty: 1, status: 'open', pnl: '' };
+
+    const rows = trades.length === 0
+      ? `<tr><td colspan="8" style="text-align:center;color:var(--fg-subtle);padding:30px;">尚無紀錄。在上方填表後按「新增」開始追蹤。</td></tr>`
+      : trades.slice().reverse().map((t, idx) => {
+        const realIdx = trades.length - 1 - idx;
+        const pnlColor = parseFloat(t.pnl) > 0 ? 'var(--accent)' : (parseFloat(t.pnl) < 0 ? 'var(--danger)' : 'var(--fg-muted)');
+        return `
+          <tr>
+            <td>${t.date}</td>
+            <td><strong>${t.ticker}</strong></td>
+            <td>${t.strategy}</td>
+            <td>$${t.strike}</td>
+            <td>$${t.premium}</td>
+            <td>${t.qty}</td>
+            <td><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:${t.status === 'open' ? 'var(--info-soft)' : 'var(--bg-sunken)'};color:${t.status === 'open' ? 'var(--info)' : 'var(--fg-muted)'};">${t.status}</span></td>
+            <td style="color:${pnlColor};font-weight:600;font-family:var(--font-mono);">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + '$' + t.pnl : '—'}</td>
+            <td><button class="btn" data-action="delete" data-idx="${realIdx}" style="font-size:11px;padding:2px 8px;color:var(--danger);border-color:var(--danger);">刪</button></td>
+          </tr>
+        `;
+      }).join('');
+
+    container.innerHTML = `
+      <div style="padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);margin-bottom:14px;">
+        <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">新增交易</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
+          <input type="date" data-form="date" value="${form.date}" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <input type="text" data-form="ticker" value="${form.ticker}" placeholder="標的 NVDA" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <select data-form="strategy" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;">
+            ${['CC', 'CSP', 'PP', 'Collar', 'Wheel', 'Long Call', 'Long Put', 'Vertical', 'IC', 'Straddle', 'PMCC', '其他'].map(s => `<option ${form.strategy === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          <input type="number" data-form="strike" value="${form.strike}" placeholder="Strike" step="0.5" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <input type="number" data-form="premium" value="${form.premium}" placeholder="Premium" step="0.05" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <input type="number" data-form="qty" value="${form.qty}" placeholder="張數" min="1" step="1" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <select data-form="status" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;">
+            ${['open', 'closed', 'assigned', 'rolled'].map(s => `<option ${form.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          <input type="number" data-form="pnl" value="${form.pnl}" placeholder="P/L ($)" step="0.01" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <button class="btn" data-action="add" style="background:var(--accent);color:white;border-color:var(--accent);">+ 新增</button>
+        </div>
+      </div>
+
+      <div class="widget-stats" style="margin-bottom:12px;">
+        <div class="stat">
+          <div class="label">總筆數</div>
+          <div class="value">${stats.total}</div>
+        </div>
+        <div class="stat">
+          <div class="label">未結 / 已結</div>
+          <div class="value">${stats.open} / ${stats.closed}</div>
+        </div>
+        <div class="stat">
+          <div class="label">勝率</div>
+          <div class="value ${stats.winRate >= 50 ? 'pos' : ''}">${stats.winRate.toFixed(0)}%</div>
+        </div>
+        <div class="stat">
+          <div class="label">累計損益</div>
+          <div class="value ${stats.totalPnl >= 0 ? 'pos' : 'neg'}">${stats.totalPnl >= 0 ? '+' : ''}$${stats.totalPnl.toFixed(0)}</div>
+        </div>
+      </div>
+
+      <div style="max-height:340px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);">
+        <table style="width:100%;font-size:12.5px;margin:0;">
+          <thead style="position:sticky;top:0;background:var(--bg-sunken);">
+            <tr><th>日期</th><th>標的</th><th>策略</th><th>Strike</th><th>權利金</th><th>張</th><th>狀態</th><th>P/L</th><th></th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" data-action="export" style="font-size:12px;">📤 匯出 JSON</button>
+        <button class="btn" data-action="import" style="font-size:12px;">📥 匯入 JSON</button>
+        <button class="btn" data-action="clear" style="font-size:12px;color:var(--danger);border-color:var(--danger);">🗑 清空全部</button>
+        <input type="file" id="tj-import-file" accept=".json" style="display:none;"/>
+      </div>
+
+      <div style="margin-top:10px;font-size:12px;color:var(--fg-muted);">
+        💾 紀錄存在你瀏覽器 localStorage（瀏覽器清資料會遺失）。建議定期匯出 JSON 備份到 Obsidian。
+      </div>
+    `;
+
+    // Bind form inputs
+    container.querySelectorAll('[data-form]').forEach(el => {
+      el.addEventListener('input', (e) => {
+        form[e.target.dataset.form] = e.target.value;
+      });
+    });
+
+    // Add trade
+    container.querySelector('[data-action="add"]').addEventListener('click', () => {
+      if (!form.ticker || !form.strike) {
+        alert('請至少填標的與 Strike');
+        return;
+      }
+      const newTrades = TradeJournal.load();
+      newTrades.push({ ...form, id: Date.now() });
+      TradeJournal.save(newTrades);
+      TradeJournal.render(container, { form: { ...form, ticker: '', strike: '', premium: '', pnl: '' } });
+    });
+
+    // Delete trade
+    container.querySelectorAll('[data-action="delete"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        if (!confirm('刪除這筆紀錄？')) return;
+        const newTrades = TradeJournal.load();
+        newTrades.splice(idx, 1);
+        TradeJournal.save(newTrades);
+        TradeJournal.render(container, state);
+      });
+    });
+
+    // Export
+    container.querySelector('[data-action="export"]').addEventListener('click', () => {
+      const data = JSON.stringify(TradeJournal.load(), null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `opt-trades-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Import
+    container.querySelector('[data-action="import"]').addEventListener('click', () => {
+      container.querySelector('#tj-import-file').click();
+    });
+    container.querySelector('#tj-import-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const imported = JSON.parse(ev.target.result);
+          if (!Array.isArray(imported)) throw new Error('not array');
+          if (confirm(`匯入 ${imported.length} 筆？這會覆蓋目前的紀錄。`)) {
+            TradeJournal.save(imported);
+            TradeJournal.render(container, state);
+          }
+        } catch (err) {
+          alert('匯入失敗：' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Clear
+    container.querySelector('[data-action="clear"]').addEventListener('click', () => {
+      if (!confirm('確定清空全部紀錄？無法復原。')) return;
+      TradeJournal.save([]);
+      TradeJournal.render(container, state);
+    });
+  },
+
+  hydrate(widget) {
+    const body = widget.querySelector('.widget-body');
+    this.render(body, {});
+  }
+};
+
+/* ============================================================
    6. Hydration scanner（data-component 自動掛載）
    ============================================================ */
 function hydrateAll() {
@@ -6412,6 +6900,8 @@ function hydrateAll() {
   document.querySelectorAll('[data-component="synthetic"]').forEach(w => SyntheticBuilder.hydrate(w));
   document.querySelectorAll('[data-component="wheel"]').forEach(w => WheelSimulator.hydrate(w));
   document.querySelectorAll('[data-component="ivcrush"]').forEach(w => IVCrushAnimator.hydrate(w));
+  document.querySelectorAll('[data-component="ic"]').forEach(w => IronCondorBuilder.hydrate(w));
+  document.querySelectorAll('[data-component="journal"]').forEach(w => TradeJournal.hydrate(w));
 }
 
 /* ============================================================
@@ -6585,6 +7075,152 @@ function showSnackbar(text) {
 })();
 
 /* ============================================================
+   8c. 章節完成標記（completion - 手動勾選）
+   ============================================================ */
+const COMPLETED_KEY = 'opt/completed';
+const SKIP_CHAPTERS = ['intro', 'cases', 'glossary', 'progress'];
+
+function loadCompleted() {
+  try { return new Set(JSON.parse(localStorage.getItem(COMPLETED_KEY) || '[]')); } catch { return new Set(); }
+}
+function saveCompleted(set) {
+  try { localStorage.setItem(COMPLETED_KEY, JSON.stringify(Array.from(set))); } catch {}
+}
+function toggleCompletion(chapterId) {
+  const completed = loadCompleted();
+  if (completed.has(chapterId)) completed.delete(chapterId);
+  else completed.add(chapterId);
+  saveCompleted(completed);
+  applyCompletion();
+}
+
+function getTrackableChapters() {
+  return Array.from(document.querySelectorAll('section[data-chapter]'))
+    .filter(s => !SKIP_CHAPTERS.includes(s.dataset.chapter))
+    .map(s => s.dataset.chapter);
+}
+
+function applyCompletion() {
+  const completed = loadCompleted();
+  document.querySelectorAll('.sidebar a.nav-item').forEach(a => {
+    const id = (a.getAttribute('href') || '').replace('#', '');
+    a.classList.toggle('completed', id && completed.has(id));
+  });
+  document.querySelectorAll('.completion-btn').forEach(btn => {
+    const id = btn.dataset.chapter;
+    const done = completed.has(id);
+    btn.textContent = done ? '✓ 已完成' : '☐ 標為已完成';
+    btn.classList.toggle('done', done);
+  });
+  const trackable = getTrackableChapters();
+  const counter = document.getElementById('completion-counter');
+  if (counter) {
+    const doneCount = trackable.filter(c => completed.has(c)).length;
+    counter.querySelector('.count').textContent = doneCount;
+    counter.innerHTML = `已完成 <span class="count" style="color:var(--accent);font-weight:700;">${doneCount}</span> / ${trackable.length}`;
+  }
+  renderProgressDashboard();
+}
+
+function setupCompletionButtons() {
+  document.querySelectorAll('section[data-chapter] > h1').forEach(h1 => {
+    const section = h1.parentElement;
+    const id = section.dataset.chapter;
+    if (SKIP_CHAPTERS.includes(id)) return;
+    if (h1.querySelector('.completion-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'completion-btn';
+    btn.dataset.chapter = id;
+    btn.textContent = '☐ 標為已完成';
+    btn.title = '記下這章已讀完';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleCompletion(id);
+    });
+    h1.appendChild(btn);
+  });
+  applyCompletion();
+}
+
+function renderProgressDashboard() {
+  const container = document.getElementById('progress-dashboard');
+  if (!container) return;
+
+  const completed = loadCompleted();
+  const visited = loadVisited();
+
+  const parts = [
+    { name: 'Part Ⅰ · 共通基礎',    chs: ['ch1','ch2','ch3','ch4'] },
+    { name: 'Part Ⅱ · 鎖股實作',    chs: ['ch5','ch6','ch7','ch8','ch9'] },
+    { name: 'Part Ⅲ · 市場語言',    chs: ['ch10','ch11','ch12','ch13'] },
+    { name: 'Part Ⅳ · 多腿與事件',  chs: ['ch14','ch15','ch16','ch17','ch18','ch19'] },
+    { name: 'Part Ⅴ · 台股期貨',    chs: ['ch20','ch21','ch22','ch23','ch24','ch25','ch26'] },
+    { name: 'Part Ⅶ · 決策框架',    chs: ['ch27','ch28','ch29'] },
+    { name: 'Part Ⅷ · 進階主題',    chs: ['ch30','ch31','ch32','ch33','ch34','ch35'] },
+    { name: '附錄',                  chs: ['ch36'] }
+  ];
+
+  const html = parts.map(p => {
+    const total = p.chs.length;
+    const done = p.chs.filter(c => completed.has(c)).length;
+    const pct = (done / total * 100);
+    const color = pct === 100 ? 'var(--accent)' : pct >= 50 ? 'var(--info)' : 'var(--fg-muted)';
+    const chLinks = p.chs.map(c => {
+      const isCompleted = completed.has(c);
+      const isVisited = visited.has(c);
+      const status = isCompleted ? '✓' : (isVisited ? '·' : '○');
+      const linkColor = isCompleted ? 'var(--accent)' : (isVisited ? 'var(--info)' : 'var(--fg-subtle)');
+      return `<a href="#${c}" style="color:${linkColor};text-decoration:none;margin-right:10px;font-family:var(--font-mono);font-size:12.5px;">${status} ${c.toUpperCase()}</a>`;
+    }).join('');
+    return `
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <strong>${p.name}</strong>
+          <span style="font-family:var(--font-mono);color:${color};font-weight:600;">${done} / ${total} (${pct.toFixed(0)}%)</span>
+        </div>
+        <div style="height:6px;background:var(--bg-sunken);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${color};transition:width .4s;"></div>
+        </div>
+        <div style="margin-top:8px;">${chLinks}</div>
+      </div>
+    `;
+  }).join('');
+
+  const totalChs = parts.reduce((s, p) => s + p.chs.length, 0);
+  const totalDone = parts.reduce((s, p) => s + p.chs.filter(c => completed.has(c)).length, 0);
+  const totalVisited = parts.reduce((s, p) => s + p.chs.filter(c => visited.has(c) || completed.has(c)).length, 0);
+
+  container.innerHTML = `
+    <div style="margin-bottom:18px;padding:18px 20px;background:var(--bg-sunken);border-radius:var(--radius);">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;">
+        <div>
+          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;">總已完成</div>
+          <div style="font-size:26px;font-weight:700;color:var(--accent);font-family:var(--font-mono);">${totalDone} <span style="font-size:13px;color:var(--fg-muted);">/ ${totalChs}</span></div>
+          <div style="font-size:12px;color:var(--fg-muted);">${(totalDone/totalChs*100).toFixed(0)}% 完成</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;">已讀過</div>
+          <div style="font-size:26px;font-weight:700;color:var(--info);font-family:var(--font-mono);">${totalVisited} <span style="font-size:13px;color:var(--fg-muted);">/ ${totalChs}</span></div>
+          <div style="font-size:12px;color:var(--fg-muted);">含自動偵測 + 手動標記</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;">差距</div>
+          <div style="font-size:26px;font-weight:700;font-family:var(--font-mono);">${totalVisited - totalDone}</div>
+          <div style="font-size:12px;color:var(--fg-muted);">讀過但還沒標完成</div>
+        </div>
+      </div>
+    </div>
+    ${html}
+    <div style="margin-top:18px;padding:12px 14px;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--fg-muted);">
+      ✓ = 手動標完成 · · = 滾過（自動偵測） · ○ = 還沒讀。
+      到各章節 h1 旁邊點「☐ 標為已完成」按鈕來打勾。
+    </div>
+  `;
+}
+
+/* ============================================================
    8b. 章節已讀追蹤（visited chapters）
    ============================================================ */
 const VISITED_KEY = 'opt/visited';
@@ -6630,10 +7266,11 @@ function setupVisitedObserver() {
    9. 重置按鈕
    ============================================================ */
 document.getElementById('reset-btn').addEventListener('click', () => {
-  if (confirm('確定要清除閱讀進度、章節已讀標記、書籤與主題設定嗎？')) {
+  if (confirm('確定要清除閱讀進度、章節已讀標記、已完成章節、書籤與主題設定嗎？\n（Trade Journal 不會被清，獨立保留）')) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(VISITED_KEY);
     localStorage.removeItem(BOOKMARK_KEY);
+    localStorage.removeItem(COMPLETED_KEY);
     location.reload();
   }
 });
@@ -6641,11 +7278,38 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 /* ============================================================
    10. 啟動
    ============================================================ */
+function setupGlossarySearch() {
+  const input = document.getElementById('glossary-search');
+  if (!input) return;
+  const tables = document.querySelectorAll('section[data-chapter="glossary"] table');
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    tables.forEach(table => {
+      const rows = table.querySelectorAll('tbody tr');
+      let anyVisible = false;
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const match = q === '' || text.includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) anyVisible = true;
+      });
+      // Hide whole H2 group if no rows visible
+      const prev = table.previousElementSibling;
+      if (prev && prev.tagName === 'H2') {
+        prev.style.display = anyVisible ? '' : 'none';
+      }
+      table.style.display = anyVisible ? '' : 'none';
+    });
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   hydrateAll();
   updateProgress();
   updateActiveNav();
   setupVisitedObserver();
+  setupCompletionButtons();
+  setupGlossarySearch();
   // 回復上次閱讀位置（簡單版：scroll 到 lastScrollPct）
   const s = loadState();
   if (s.lastScrollPct && s.lastScrollPct > 5) {

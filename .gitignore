@@ -10,3 +10,4 @@ dist/
 .env.local
 *.swp
 *.swo
+.audit-report.md

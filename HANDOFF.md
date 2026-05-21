@@ -46,10 +46,14 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - 3 個新互動：MarginSimulator / IVTermStructure / VolSkewExplorer
 - **Stage 3 完整**：31 章（含 Part Ⅷ Ch30-35）+ 9 互動 + 11 案例 + 7 Quiz + 名詞表 ✅ 完成於 2026-05-21 下午
   - Part Ⅷ 進階主題：Ch30 LEAPS+PMCC / Ch31 VIX+VXX / Ch32 Synthetic / Ch33 Risk Reversal / Ch34 0-DTE / Ch35 Vol Surface
-  - 2 個新互動：PMCCBuilder（LEAPS 試算 vs CC 對比）/ SyntheticBuilder（合成部位拆腿視覺化）
-  - 6 個新 Quiz 覆蓋全 Part
-  - 3 個新案例：NVDA PMCC 1 年週期、2024 VIX 飆升避險、IRA Synthetic Short Stock
-  - UI 強化：favicon 內嵌 SVG、章節已讀追蹤（IntersectionObserver + localStorage + sidebar ✓ 標記）
+  - 2 個新互動：PMCCBuilder / SyntheticBuilder
+  - 6 個新 Quiz / 3 個新案例 / favicon / 章節已讀自動追蹤
+- **Stage 4 完整**：32 章 + 12 互動 + 11 案例 + 7 Quiz + 名詞表（可搜尋）+ 完整學習系統 ✅ 完成於 2026-05-21 傍晚
+  - Ch36 實戰日誌（含 TradeJournal widget）
+  - 2 個新互動：IronCondorBuilder（4 腿 IC 試算 + 勝率估算）/ TradeJournal（下單記錄器 + 匯入匯出 JSON）
+  - 章節完成系統：每章 h1 旁手動勾選 + topbar 進度數字 + 進度 dashboard（按 Part 分組）
+  - Glossary 搜尋過濾
+  - Agent 全面審查修正：Ch15 / Ch32 / Ch33 兩處 / Cases ① / Cases ⑦ ETF 稅率 / Quiz Ⅵ Q3
 
 ## 互動元件介面（偽函式）
 
