@@ -1,0 +1,9 @@
+name = "opt-sync"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+# OPT 跨裝置同步用的 KV。值是 { data, ts }，key 是 blob:<同步碼>。
+[[kv_namespaces]]
+binding = "OPT_SYNC"
+id = "26fb23dda7454804b81e137c844dcce9"

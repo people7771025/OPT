@@ -56,6 +56,54 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - PWA：manifest 內嵌（data URI）+ apple-touch-icon + theme-color；可加到主畫面當 app 用（iOS Safari + Android Chrome）
   - 快速鍵：J/K 上下章 / G 首頁 / B/M 書籤 / T 主題 / / 搜尋 / ? 說明 / Esc 關閉
 
+## 雲端跨裝置同步（2026-05-25 新增）
+
+需求來源：使用者反映「手機網頁標記的書籤（📍），電腦網頁看不到」。
+根因：所有進度存 localStorage，每裝置各自一份；Chrome 帳號同步不含網站 localStorage。
+
+架構（使用者選 B：雲端自動同步）：
+
+```
+瀏覽器 index.html (CloudSync)  ──GET/PUT──▶  Cloudflare Worker (opt-sync)  ──▶  KV (OPT_SYNC)
+   合併邏輯都在前端                          純儲存，key=blob:<同步碼>
+```
+
+- Worker repo 位置：`sync-worker/`（`wrangler.toml` + `src/index.js`）
+- 部署：`wrangler deploy --config sync-worker/wrangler.toml`（帳號 libertytimelove，已登入 OAuth）
+- 線上 Worker：`https://opt-sync.libertytimelove.workers.dev`，端點 `/v1/sync?code=XXXX`
+  - `GET` → `{ data, ts }`（無則 data:null）
+  - `PUT` body `{ data }` → `{ ok, ts }`
+- KV namespace：`OPT_SYNC` id `26fb23dda7454804b81e137c844dcce9`（binding 同名）
+- 同步碼：16 位英數，前端 `crypto.getRandomValues` 產生（字母去掉 0/O/1/I），同時當 ID 與密碼
+
+設計決策：
+| 項目 | 結論 | 理由 |
+|---|---|---|
+| 後端 | Cloudflare Worker + KV | 使用者已有 CF 帳號；免費 tier 夠；不需自架伺服器 |
+| 合併位置 | 全在前端 | Worker 維持純儲存，邏輯單一處好維護 |
+| 合併策略 | 不覆蓋、只聯集 | 已讀/已完成聯集、Trade Journal 依 `id` 聯集、書籤/計畫取較新 `ts`/`created` | 兩裝置都不丟資料 |
+| 同步什麼 | 書籤/已讀/已完成(+ts)/學習計畫/Trade Journal | 使用者要 Journal 跨裝置 |
+| 不同步 | Gemini API key（憑證）、主題/scroll（裝置偏好）、AI 對話 | 安全 / 各裝置自有偏好 |
+| 觸發 | 開頁面拉一次（有變動刷新一次，sessionStorage 防迴圈）+ 改動 debounce 4s 上傳 | 體驗近「自動」又不打斷 |
+
+安全：
+- CORS 只允許 `https://people7771025.github.io` + localhost（開發）；陌生來源 403
+- 同步碼必須 `^[A-Za-z0-9]{16}$`；body 上限 512KB
+- 端點 URL 寫在公開 index.html 是前端必然，真正門檻是同步碼（~80 bits）
+- KV id / Worker URL 非機密，可進 git；無任何 token/secret 進 repo
+
+已知限制（v1）：
+- 無帳號系統，同步碼遺失就拿不回該碼雲端資料
+- union 合併下「刪除」不跨裝置傳播（要徹底清空得每台都按重置；面板「清除雲端備份」只清當下，其他裝置若仍有資料下次會再上傳）
+- 同一筆 trade 在兩裝置都編輯：以最後同步的那台為準（無 per-trade updated ts）
+
+驗證（2026-05-25，localhost:8765 + Chrome DevTools MCP）：
+- 載入無 JS 錯誤；GET/PUT/壞碼 400/錯路徑 404/CORS allow+deny 全通過
+- 裝置1 推送 → 雲端正確存下
+- 裝置2 帶不同資料合併 → completed/trades 聯集、bookmark 取較新，無覆蓋
+- 全新隔離 context 貼碼 → 自動拉下完整進度、按鈕轉「☁️ 已同步」
+- 測試資料事後清空
+
 ## 互動元件介面（偽函式）
 
 ```js

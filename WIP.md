@@ -1,38 +1,39 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-21 / Claude Stage 6 完整版
+最後更新：2026-05-25 / Claude 雲端跨裝置同步
 
 ## 現在狀態
 
-- Stage 6 完整版
+- Stage 6 完整版 + **雲端跨裝置同步（新增）**
   - 章節 32 章 + 互動 13 個 + 案例 11 個 + Quiz 7 個 + 名詞表
-  - **新增**：
-    - **LLM 助教（OPT-tuned）**：右下浮動 🤖、貼 Gemini API key 啟用、chat panel 自動帶當前章節 context、對話歷史存 localStorage（上限 30 則）、回應內 [Ch5] 自動變連結
-    - **PWA**：manifest 內嵌 data URI、apple-touch-icon、theme-color、可加到主畫面
-    - **快速鍵**：<kbd>J</kbd>/<kbd>K</kbd> 上下章、<kbd>G</kbd> 首頁、<kbd>B</kbd>/<kbd>M</kbd> 書籤跳/標、<kbd>T</kbd> 切主題、<kbd>/</kbd> 聚焦搜尋、<kbd>?</kbd> 說明 panel、<kbd>Esc</kbd> 關閉
+  - LLM 助教（自帶 Gemini key）/ PWA / 快速鍵（既有）
+  - **雲端跨裝置同步**（解決「手機標記的書籤電腦看不到」）：
+    - 後端：Cloudflare Worker `opt-sync.libertytimelove.workers.dev` + KV `OPT_SYNC`，純儲存
+    - 前端：頂部 ☁️ 同步按鈕 → 面板可啟用/加入/立即同步/停用/清雲端
+    - 同步碼 = ID + 密碼（16 位英數，本機產生）
+    - 同步：書籤 / 已讀 / 已完成(+時間) / 學習計畫 / Trade Journal
+    - 不同步：Gemini API key、主題、scroll、AI 對話
+    - 合併「不覆蓋只聯集」：已讀/已完成聯集、Trade Journal 依 id 聯集、書籤/計畫取較新者
+    - 開頁面自動拉雲端、有變動就刷新一次；改動後 4 秒自動上傳
 - 線上：<https://people7771025.github.io/OPT/>
 
-## LLM 助教使用流程
+## 雲端同步使用流程
 
-1. 右下角 🤖 點開
-2. 第一次：貼 Gemini API key（從 https://aistudio.google.com/apikey 取得，免費 tier 即可）
-3. 問題輸入後送出
-4. 預設「帶入當前章節作為 context」勾選——AI 知道你正在讀哪章
-5. 對話歷史保留 30 則
-6. 點 ⚙️ 可重設 key、🗑 清對話、✕ 關閉
+1. 電腦頂部按 **☁️ 同步** → 「✨ 啟用並產生同步碼」→ 抄下 16 位碼
+2. 手機開同一網站 → ☁️ 同步 → 貼上同步碼 → 加入（會立刻拉下進度並刷新）
+3. 之後任一台改了書籤/進度，幾秒後自動上傳；另一台重開頁面就同步到
+4. 「重置」會在該台關閉同步（避免清掉的進度又被雲端拉回），雲端與其他裝置不受影響
 
 ## 下一步
 
-1. 試用 LLM 助教：
-   - 取 Gemini API key https://aistudio.google.com/apikey
-   - 貼進去測一個問題，例如：「Covered Call 跟 Wheel 差別」
-2. 試快速鍵：開頁面後按 <kbd>?</kbd> 看所有快速鍵
-3. PWA：用手機 Safari/Chrome 開線上版 → 加到主畫面，下次像 app 一樣開
-4. 後續可擴展：
-   - 多語版本（英文）
-   - Service Worker 離線快取（要拆出 sw.js）
-   - 績效追蹤連 Obsidian（手動匯出整合到 my-trades/）
+1. 實機試：電腦啟用拿碼 → 手機貼碼 → 互相標記驗證
+2. 後續可選：英文版、Service Worker 離線快取、績效連 Obsidian
 
 ## 卡點
 
 - 無
+
+## 維運備忘
+
+- 改 Worker 後重新部署：`wrangler deploy --config sync-worker/wrangler.toml`
+- 同步碼遺失＝拿不回該碼雲端資料（無帳號系統，碼即一切）；union 合併下「刪除」不會跨裝置傳播，要徹底清空需各台都按重置

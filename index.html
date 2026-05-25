@@ -748,6 +748,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
     <span class="completion-counter" id="completion-counter" title="已完成章節數">已完成 <span class="count">0</span> / 0</span>
     <button class="btn" id="goto-bookmark-btn" title="跳到上次標記位置" style="display:none;">📂</button>
     <button class="btn" id="set-bookmark-btn" title="把目前位置記下來">📍 標記</button>
+    <button class="btn" id="sync-btn" title="跨裝置同步" style="display:none;">☁️ 同步</button>
     <button class="btn" id="theme-btn" title="切換深色 / 淺色主題">深色</button>
     <button class="btn" id="reset-btn" title="清除閱讀進度">重置</button>
   </div>
@@ -6799,6 +6800,7 @@ const LearningPathBuilder = {
   },
   savePlan(plan) {
     try { localStorage.setItem(this.PLAN_KEY, JSON.stringify(plan)); } catch {}
+    window.CloudSync && CloudSync.scheduleSync();
   },
 
   computePlan(goal, hours, exp) {
@@ -7142,6 +7144,7 @@ const TradeJournal = {
   },
   save(trades) {
     try { localStorage.setItem(this.KEY, JSON.stringify(trades)); } catch {}
+    window.CloudSync && CloudSync.scheduleSync();
   },
 
   stats(trades) {
@@ -7595,6 +7598,7 @@ function saveBookmark() {
   localStorage.setItem(BOOKMARK_KEY, JSON.stringify(bookmark));
   showSnackbar(`已標記：${chapterLabel(chapterId)}`);
   updateBookmarkUI();
+  window.CloudSync && CloudSync.scheduleSync();
 }
 
 function loadBookmark() {
@@ -7691,12 +7695,14 @@ function toggleCompletion(chapterId) {
   saveCompletedTs(ts);
   applyCompletion();
   applyReviewMarkers();
+  window.CloudSync && CloudSync.scheduleSync();
 }
 function resetReviewTimer(chapterId) {
   const ts = loadCompletedTs();
   ts[chapterId] = Date.now();
   saveCompletedTs(ts);
   applyReviewMarkers();
+  window.CloudSync && CloudSync.scheduleSync();
 }
 function applyReviewMarkers() {
   const ts = loadCompletedTs();
@@ -7885,6 +7891,7 @@ function loadVisited() {
 }
 function saveVisited(set) {
   try { localStorage.setItem(VISITED_KEY, JSON.stringify(Array.from(set))); } catch {}
+  window.CloudSync && CloudSync.scheduleSync();
 }
 function applyVisitedToNav(set) {
   document.querySelectorAll('.sidebar a.nav-item').forEach(a => {
@@ -7919,16 +7926,272 @@ function setupVisitedObserver() {
 }
 
 /* ============================================================
+   8d. 雲端跨裝置同步（Cloudflare Worker + KV）
+   - 同步碼 = ID + 密碼；資料只進使用者自己的 KV
+   - 合併「不覆蓋、只聯集」：已讀/已完成取聯集、Trade Journal
+     依 id 聯集、書籤/計畫取較新者
+   - 不同步：Gemini API key、主題、scroll、AI 對話
+   ============================================================ */
+const CloudSync = {
+  ENDPOINT: 'https://opt-sync.libertytimelove.workers.dev/v1/sync',
+  CODE_KEY: 'opt/sync-code',
+  LAST_KEY: 'opt/sync-last',
+  KEYS: ['opt/bookmark', 'opt/visited', 'opt/completed', 'opt/completed-ts', 'opt/learning-plan', 'opt/trades'],
+  ALPHABET: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', // 去掉 0/O/1/I 等易混淆字
+  _timer: null,
+  _busy: false,
+
+  configured() { return !this.ENDPOINT.includes('PENDING'); },
+  enabled() { return !!this.getCode(); },
+  getCode() { return (localStorage.getItem(this.CODE_KEY) || '').trim(); },
+  setCode(c) { try { localStorage.setItem(this.CODE_KEY, c); } catch {} },
+  clearCode() { localStorage.removeItem(this.CODE_KEY); localStorage.removeItem(this.LAST_KEY); },
+  normalizeCode(s) { return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16); },
+  validCode(s) { return /^[A-Za-z0-9]{16}$/.test(s); },
+
+  genCode() {
+    const arr = new Uint32Array(16);
+    crypto.getRandomValues(arr);
+    let out = '';
+    for (let i = 0; i < 16; i++) out += this.ALPHABET[arr[i] % this.ALPHABET.length];
+    return out;
+  },
+
+  snapshot() {
+    const data = {};
+    for (const k of this.KEYS) {
+      const v = localStorage.getItem(k);
+      if (v == null) continue;
+      try { data[k] = JSON.parse(v); } catch { /* 壞資料就跳過 */ }
+    }
+    return data;
+  },
+
+  mergeKey(key, r, l) {
+    switch (key) {
+      case 'opt/visited':
+      case 'opt/completed':
+        return Array.from(new Set([...(Array.isArray(r) ? r : []), ...(Array.isArray(l) ? l : [])]));
+      case 'opt/completed-ts': {
+        const out = { ...(r && typeof r === 'object' ? r : {}) };
+        const lo = l && typeof l === 'object' ? l : {};
+        for (const id of Object.keys(lo)) out[id] = Math.max(Number(out[id] || 0), Number(lo[id] || 0));
+        return out;
+      }
+      case 'opt/bookmark':
+        return (Number(l && l.ts || 0) >= Number(r && r.ts || 0)) ? l : r;
+      case 'opt/learning-plan':
+        return (Number(l && l.created || 0) >= Number(r && r.created || 0)) ? l : r;
+      case 'opt/trades': {
+        const map = new Map();
+        (Array.isArray(r) ? r : []).forEach(t => { if (t && t.id != null) map.set(String(t.id), t); });
+        (Array.isArray(l) ? l : []).forEach(t => { if (t && t.id != null) map.set(String(t.id), t); }); // 同 id 以本機為準
+        return Array.from(map.values());
+      }
+      default:
+        return l;
+    }
+  },
+
+  mergeData(remote, local) {
+    const out = {};
+    const keys = new Set([...Object.keys(remote || {}), ...Object.keys(local || {})]);
+    for (const k of keys) {
+      const r = remote ? remote[k] : undefined;
+      const l = local ? local[k] : undefined;
+      if (r === undefined) out[k] = l;
+      else if (l === undefined) out[k] = r;
+      else out[k] = this.mergeKey(k, r, l);
+    }
+    return out;
+  },
+
+  applyLocal(merged) {
+    let changed = false;
+    for (const k of this.KEYS) {
+      if (merged[k] === undefined) continue;
+      const next = JSON.stringify(merged[k]);
+      if (next !== localStorage.getItem(k)) { try { localStorage.setItem(k, next); changed = true; } catch {} }
+    }
+    return changed;
+  },
+
+  async sync({ silent = false } = {}) {
+    if (!this.configured() || !this.enabled() || this._busy) return { changed: false };
+    this._busy = true;
+    if (!silent) this.setStatus('同步中…');
+    try {
+      const code = this.getCode();
+      const res = await fetch(`${this.ENDPOINT}?code=${encodeURIComponent(code)}`, { method: 'GET' });
+      if (!res.ok) throw new Error('GET ' + res.status);
+      const remote = (await res.json()).data || {};
+      const local = this.snapshot();
+      const merged = this.mergeData(remote, local);
+      const changed = this.applyLocal(merged);
+      const put = await fetch(`${this.ENDPOINT}?code=${encodeURIComponent(code)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: merged }),
+      });
+      if (!put.ok) throw new Error('PUT ' + put.status);
+      try { localStorage.setItem(this.LAST_KEY, String(Date.now())); } catch {}
+      if (!silent) this.setStatus('已同步 · ' + new Date().toLocaleTimeString());
+      this.updateButton();
+      return { changed };
+    } catch (e) {
+      if (!silent) this.setStatus('同步失敗：' + e.message);
+      return { changed: false, error: e };
+    } finally {
+      this._busy = false;
+    }
+  },
+
+  scheduleSync() {
+    if (!this.configured() || !this.enabled()) return;
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => this.sync({ silent: true }), 4000);
+  },
+
+  // 開頁面時：拉雲端 → 合併 → 若本機有變動就整頁刷新一次（每 session 至多一次，避免迴圈）
+  async syncOnLoad() {
+    if (!this.configured() || !this.enabled()) return;
+    const { changed } = await this.sync({ silent: true });
+    if (changed && !sessionStorage.getItem('opt/sync-reloaded')) {
+      sessionStorage.setItem('opt/sync-reloaded', '1');
+      location.reload();
+    }
+  },
+
+  /* ---- UI ---- */
+  updateButton() {
+    const btn = document.getElementById('sync-btn');
+    if (!btn) return;
+    btn.style.display = this.configured() ? '' : 'none';
+    if (!this.configured()) return;
+    btn.textContent = this.enabled() ? '☁️ 已同步' : '☁️ 同步';
+    btn.title = this.enabled() ? '雲端同步已啟用，點開設定' : '設定跨裝置同步';
+  },
+
+  setStatus(text) { const el = document.getElementById('sync-status'); if (el) el.textContent = text; },
+
+  initUI() {
+    document.getElementById('sync-btn')?.addEventListener('click', () => this.showPanel());
+    this.updateButton();
+  },
+
+  showPanel() {
+    const old = document.getElementById('sync-panel');
+    if (old) { old.remove(); return; }
+    const panel = document.createElement('div');
+    panel.id = 'sync-panel';
+    panel.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,.4);padding:24px 28px;z-index:200;max-width:440px;width:92%;';
+    panel.innerHTML = this.panelHTML();
+    document.body.appendChild(panel);
+    this.wirePanel(panel);
+  },
+
+  panelHTML() {
+    const head = `
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+        <strong style="font-size:16px;">☁️ 雲端同步</strong>
+        <button data-act="close" style="background:transparent;border:none;color:var(--fg-muted);font-size:18px;cursor:pointer;">✕</button>
+      </div>`;
+    if (this.enabled()) {
+      const last = localStorage.getItem(this.LAST_KEY);
+      const lastTxt = last ? new Date(Number(last)).toLocaleString() : '尚未同步';
+      return head + `
+        <p style="font-size:13px;color:var(--fg-muted);margin:0 0 6px;">在另一台裝置貼上這組同步碼，就會共用進度。</p>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+          <code style="flex:1;font-size:18px;letter-spacing:2px;background:var(--bg);padding:10px 12px;border-radius:8px;border:1px solid var(--border);text-align:center;">${this.getCode()}</code>
+          <button class="btn" data-act="copy">複製</button>
+        </div>
+        <div id="sync-status" style="font-size:12px;color:var(--fg-muted);margin-bottom:14px;">上次同步：${lastTxt}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn" data-act="now">🔄 立即同步</button>
+          <button class="btn" data-act="disable">停用（本機）</button>
+          <button class="btn" data-act="wipe" style="margin-left:auto;">清除雲端備份</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--fg-muted);margin-top:14px;line-height:1.6;">
+          🔒 同步碼等於密碼，請勿外流。資料只存在你自己的 Cloudflare，不經第三方。<br/>
+          同步：書籤 / 已讀 / 已完成 / 學習計畫 / Trade Journal。不同步：API key、主題。
+        </p>`;
+    }
+    return head + `
+      <p style="font-size:13px;color:var(--fg-muted);margin:0 0 14px;line-height:1.6;">
+        讓手機和電腦共用閱讀進度、書籤、學習計畫與 Trade Journal。<br/>
+        第一次用就按「啟用」拿一組同步碼；其他裝置貼上同一組碼即可。
+      </p>
+      <button class="btn" data-act="enable" style="width:100%;padding:10px;margin-bottom:14px;font-weight:600;">✨ 在這台啟用並產生同步碼</button>
+      <div style="font-size:13px;color:var(--fg-muted);margin-bottom:6px;">已經有同步碼？貼上加入：</div>
+      <div style="display:flex;gap:8px;">
+        <input id="sync-code-input" maxlength="19" placeholder="16 位同步碼" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:15px;letter-spacing:1px;text-transform:uppercase;">
+        <button class="btn" data-act="join">加入</button>
+      </div>
+      <div id="sync-status" style="font-size:12px;color:var(--fg-muted);margin-top:12px;"></div>
+      <p style="font-size:11.5px;color:var(--fg-muted);margin-top:12px;line-height:1.6;">🔒 資料只存在你自己的 Cloudflare，不經第三方。</p>`;
+  },
+
+  wirePanel(panel) {
+    const rebuild = () => { panel.innerHTML = this.panelHTML(); this.wirePanel(panel); };
+    panel.querySelector('[data-act="close"]')?.addEventListener('click', () => panel.remove());
+    panel.querySelector('[data-act="enable"]')?.addEventListener('click', async () => {
+      this.setCode(this.genCode());
+      this.updateButton();
+      await this.sync({ silent: true });
+      rebuild();
+      showSnackbar('已啟用雲端同步');
+    });
+    panel.querySelector('[data-act="join"]')?.addEventListener('click', async () => {
+      const code = this.normalizeCode(panel.querySelector('#sync-code-input')?.value || '');
+      if (!this.validCode(code)) { this.setStatus('同步碼要 16 位英數'); return; }
+      this.setCode(code);
+      this.updateButton();
+      this.setStatus('同步中…');
+      const { error } = await this.sync({ silent: false });
+      if (!error) { sessionStorage.setItem('opt/sync-reloaded', '1'); location.reload(); }
+    });
+    panel.querySelector('[data-act="copy"]')?.addEventListener('click', () => {
+      navigator.clipboard?.writeText(this.getCode()).then(() => showSnackbar('已複製同步碼')).catch(() => {});
+    });
+    panel.querySelector('[data-act="now"]')?.addEventListener('click', async () => {
+      const { changed, error } = await this.sync({ silent: false });
+      if (changed && !error) { sessionStorage.setItem('opt/sync-reloaded', '1'); location.reload(); }
+    });
+    panel.querySelector('[data-act="disable"]')?.addEventListener('click', () => {
+      if (!confirm('停用同步只會讓「這台」不再上傳/下載，雲端與其他裝置不受影響。確定？')) return;
+      this.clearCode();
+      this.updateButton();
+      rebuild();
+      showSnackbar('已停用同步（本機）');
+    });
+    panel.querySelector('[data-act="wipe"]')?.addEventListener('click', async () => {
+      if (!confirm('清除雲端上這組同步碼目前的備份。\n注意：若其他裝置還留著資料，它下次同步又會把資料傳上來——要徹底清空請在每台裝置都按「重置」。\n本機資料不受影響。確定？')) return;
+      try {
+        const r = await fetch(`${this.ENDPOINT}?code=${encodeURIComponent(this.getCode())}`, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: {} }),
+        });
+        this.setStatus(r.ok ? '已清除雲端備份' : '清除失敗：' + r.status);
+      } catch (e) { this.setStatus('清除失敗：' + e.message); }
+    });
+    panel.querySelector('#sync-code-input')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') panel.querySelector('[data-act="join"]')?.click();
+    });
+  },
+};
+window.CloudSync = CloudSync;
+
+/* ============================================================
    9. 重置按鈕
    ============================================================ */
 document.getElementById('reset-btn').addEventListener('click', () => {
-  if (confirm('確定要清除閱讀進度、章節已讀標記、已完成章節、書籤、學習計畫與主題設定嗎？\n（Trade Journal 不會被清，獨立保留）')) {
+  if (confirm('確定要清除閱讀進度、章節已讀標記、已完成章節、書籤、學習計畫與主題設定嗎？\n（Trade Journal 不會被清，獨立保留）\n（雲端同步會在這台關閉，雲端與其他裝置的資料不受影響）')) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(VISITED_KEY);
     localStorage.removeItem(BOOKMARK_KEY);
     localStorage.removeItem(COMPLETED_KEY);
     localStorage.removeItem(COMPLETED_TS_KEY);
     localStorage.removeItem('opt/learning-plan');
+    CloudSync.clearCode(); // 關閉本機同步，避免清掉的進度又被雲端拉回來
     location.reload();
   }
 });
@@ -8297,6 +8560,7 @@ function setupShortcuts() {
       showShortcutsPanel();
     } else if (e.key === 'Escape') {
       document.getElementById('shortcuts-panel')?.remove();
+      document.getElementById('sync-panel')?.remove();
       const llmPanel = document.getElementById('llm-panel');
       if (llmPanel && !llmPanel.hidden) LLMAssistant.togglePanel();
       const sidebar = document.querySelector('.sidebar');
@@ -8370,6 +8634,8 @@ window.addEventListener('DOMContentLoaded', () => {
   applyReviewMarkers();
   LearningPathBuilder.applyPlanHighlight();
   LLMAssistant.initUI();
+  CloudSync.initUI();
+  CloudSync.syncOnLoad();
   setupShortcuts();
   // 回復上次閱讀位置（簡單版：scroll 到 lastScrollPct）
   const s = loadState();
