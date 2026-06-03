@@ -56,6 +56,31 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - PWA：manifest 內嵌（data URI）+ apple-touch-icon + theme-color；可加到主畫面當 app 用（iOS Safari + Android Chrome）
   - 快速鍵：J/K 上下章 / G 首頁 / B/M 書籤 / T 主題 / / 搜尋 / ? 說明 / Esc 關閉
 
+## 全章「完成」內容補完（2026-06-03）
+
+使用者要求「繼續完成所有章節」。先做唯讀審查（多 agent 平行逐章評分 + 全檔一致性掃描），結論：36 章都有內容、無真正空章，但
+(a) 內文版本字樣停在 Stage 2/3（外框已是 Stage 6），讓人以為沒完成；(b) 約 10 章缺手冊自訂第一原則「具體 worked example（ticker/價格/權利金/strike/DTE 走一遍）」。
+
+依使用者選的「完整補完」方案處理三類：
+
+1. **10 薄章補 in-chapter 數字實算**（內容用對抗式工作流產生：generate → 獨立 reviewer 重算每個數字/方向/風報比，再由主執行緒逐一審閱、把 Ch9 過度冗長的「別重複算」說明精簡後才併入）：
+   - Ch9 三輪 Wheel（PLTR，CSP→CC→賣股，總權利金 $350 + 資本利得 $200，年化 32%/50%）
+   - Ch12 四指標合議（SPY 到期週：P/C 1.4 + skew +6pp(OTM±5%) + Max Pain $490 + OI 牆 → 箱型偏下磁吸）
+   - Ch18 方向對卻被 IV Crush 吃掉的 long straddle（成本 $36、漲 $25 < EM $46、IV 80→35 → −$900）
+   - Ch20 NT$100 萬選約（TX 名目 400 萬過大；MTX 1 口=足額；MXF 3–5 口微調；均 ~22x）
+   - Ch22 1 口 TX 多單轉倉現金流（近月 20,100→次月 20,150，50 點×$200=NT$10,000，多單付/空單收）
+   - Ch24 大額交易人判讀（淨變化 +4,000 且 OI 同步 +5,000 = 新多進場；勝率 53–56% caveat）
+   - Ch31 VXX 事件避險（$5,000：情境 A 持平仍 −8% contango 損耗、情境 B VIX 18→32 賺 +$2,600）
+   - Ch34 SPX 0-DTE Iron Condor（翼寬 15、收 $300、最大虧損 $1,200、BE 4987/5013、4:1 風報比、gamma 暴衝）
+   - Ch35 一張期權鏈讀 skew(+9pp)/期限結構(backwardation +12pp)
+   - Ch36 一筆從開倉到平倉填滿的範例日誌（NVDA CC，$3.20→$0.50 = +$270），串接勝率/損益比 heuristics
+2. **過時版本字樣清乾淨**：首頁綠框（35 章+實戰日誌 / 13 互動 / 8 Quiz）、Ch23→Ch25 引用、案例庫 11 案例、Ch29/Ch35 結語、兩個 Stage 0 開發註解、Ch18「Ch26 提過」改「詳述」。（Ch32 的「Ch26 提過」是正確的，Ch26 在 Ch32 之前，保留。）
+3. **側欄徽章一致化**：以「該章有具名互動工具」為準——移除 Ch5 殘留「✓ 完整」，補 Ch11 ✓IVTerm / Ch12 ✓Skew / Ch16 ✓Builder / Ch21 ✓Sim。
+
+驗證（Chrome DevTools MCP，python http.server:8765）：40 section + 全 HTML tag 平衡；10 個實算 h2 皆渲染為真元素、無 `&lt;h2&gt;` 逸出文字；抽查 wheel/skew/margin/ic/ivcrush/journal 六個元件都正常 hydrate；console 僅既有的 PWA SVG manifest icon warning，無 JS error；首頁計數確認顯示「35 章 / 13 互動」。
+
+備註：`.stub` / `.stub-section` CSS 已無任何章節使用（dead code），保留無害，日後可順手清。
+
 ## 雲端跨裝置同步（2026-05-25 新增）
 
 需求來源：使用者反映「手機網頁標記的書籤（📍），電腦網頁看不到」。

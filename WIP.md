@@ -1,28 +1,29 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-05-25 / Claude（雲端同步 + 手機版面修正）
+最後更新：2026-06-03 / Claude（完成所有章節：補實算 + 清過時字樣 + 徽章）
 
 ## 現在狀態
 
-- Stage 6 完整版 + 本輪新增，均已上線：
-  - **雲端跨裝置同步**：Cloudflare Worker `opt-sync.libertytimelove.workers.dev` + KV `OPT_SYNC`，前端頂部 ☁️ 按鈕。同步碼 16 位英數＝ID+密碼。同步書籤/已讀/已完成/學習計畫/Trade Journal；不同步 API key、主題。合併「不覆蓋只聯集」。`sync-worker/` 為原始碼。
-  - **手機放大字版面修正**：`text-size-adjust:100%`（關掉 Android font-boosting 亂放大）＋ `.topbar`/`.actions` 加 `flex-wrap`＋`.brand` 加 `white-space:nowrap`＋`.content` 加 `min-width:0`（修既有窄螢幕橫滑）。已用 Chrome DevTools MCP 驗證。
-- 線上：<https://people7771025.github.io/OPT/>（origin/main = 730c48f，前提是 WIP/HANDOFF commit 已推上）
+- **全部 36 章現在都「完成」到手冊自訂標準（每章皆有具體實算案例）**。本輪做了三件事：
+  1. **10 個薄章補上 in-chapter 數字實算**：Ch9 Wheel 三輪、Ch12 四指標合議(SPY)、Ch18 方向對卻被 IV Crush 吃掉的跨式、Ch20 NT$100萬選約、Ch22 轉倉現金流、Ch24 大額交易人判讀、Ch31 VXX 事件避險(contango 損耗)、Ch34 SPX 0-DTE Iron Condor、Ch35 skew/期限結構判讀、Ch36 範例日誌。每個案例都經對抗式數字複核（break-even / 最大虧損 / roll 成本 / 槓桿 / IV crush 等重算過）。
+  2. **清掉過時版本字樣**：首頁綠框（原寫 Stage 3 / 31 章 / 9 互動 / 7 Quiz → 改 35 章+實戰日誌 / 13 互動 / 8 Quiz）、Ch23 對 Ch25「規劃中/預覽版」、案例庫「Stage 1/2」、Ch29「結語（Stage 2）」、Ch35「Stage 3 完整版」、兩個 Stage 0 開發註解。
+  3. **側欄徽章一致化**：移除 Ch5 殘留的「✓ 完整」，補 Ch11 ✓IVTerm、Ch12 ✓Skew、Ch16 ✓Builder、Ch21 ✓Sim。
+- 驗證（Chrome DevTools，localhost:8765）：40 section / 全 tag 平衡、10 個實算 h2 都渲染成真元素無逸出、抽查 6 個互動元件都 hydrate、無 JS error（僅既有 PWA SVG 圖示 warning）。
+- 線上：<https://people7771025.github.io/OPT/>（push 後 Pages 自動部署）
 
-## 待確認（本輪未收尾的唯一事項）
+## 待確認（沿用上輪）
 
-- **跨裝置書籤同步效果未經使用者實機確認**：使用者回報「兩台同步碼一樣，但手機看不到電腦標的 📍 書籤」，當時被版面問題打斷、未回報對照測試結果。版面已修好上線。
-  - 下次請使用者測：電腦按 📍 → ☁️ 立即同步（顯示「已同步·時間」）→ 手機**完全關分頁重開** → 看頂端是否出現相同的 📂 Chx。
-  - 若仍不同步要查：手機端是否有自己較新 ts 的 bookmark 蓋掉、或推送時機（debounce 4s 未送出）。
+- **跨裝置書籤同步**仍待使用者實機確認：電腦按 📍 → ☁️ 立即同步（顯示「已同步·時間」）→ 手機**完全關分頁重開** → 看頂端是否出現相同 📂 Chx。若仍不同步查：手機端較新 ts 蓋掉、或 debounce 4s 未送出即關頁。
 
 ## 其他可選後續
 
-- PWA 圖示目前是 SVG（iOS apple-touch-icon / Android manifest 都不支援），加到主畫面圖示會是通用灰底；可換 PNG（192/512 內嵌）修好。
+- PWA 圖示換 PNG（修「加到主畫面是灰底」+ 消掉那個 manifest icon warning）。
 - 英文版 / Service Worker 離線快取 / 績效連 Obsidian。
+- `.stub` / `.stub-section` 那組 CSS 已無章節使用（dead code），可日後順手清掉。
 
 ## 卡點
 
-- 無（書籤同步屬「待使用者實機確認」，非技術卡點）。
+- 無。
 
 ## 維運備忘
 
