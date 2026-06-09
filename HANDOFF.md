@@ -55,6 +55,12 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
   - LLM 助教：自帶 Gemini API key（aistudio.google.com 取得），右下 🤖 浮動按鈕 → chat panel；系統 prompt OPT-tuned；對話自動帶當前章節 context；history 上限 30 則；回應內 [Ch5] 自動變連結
   - PWA：manifest 內嵌（data URI）+ apple-touch-icon + theme-color；可加到主畫面當 app 用（iOS Safari + Android Chrome）
   - 快速鍵：J/K 上下章 / G 首頁 / B/M 書籤 / T 主題 / / 搜尋 / ? 說明 / Esc 關閉
+- **Stage 7 學習閉環補強**：交易前 Gate + No-Trade Drill + Journal Coach ✅ 完成於 2026-06-09
+  - Ch27 StrategyPicker 由 3 維度決策表擴為 5 步 wizard：持倉 / 方向 / IV + 近期事件 + 流動性；結果頁新增 No-Go gate。
+  - 新增 PreTradeChecklist 元件（`data-component="pretrade"`）：六項交易前 Go / No-Go 檢查，硬性項目沒過即顯示 Gate 未通過。
+  - Ch27 新增 No-Trade Drill（3 題），訓練看空仍賣 CSP、財報前 long straddle、低流動性 iron condor 等反例。
+  - Ch36 TradeJournal 新增 Journal Coach，根據交易紀錄提示樣本太小、勝率偏低、平均虧損過大、連虧降部位、策略累計虧損、open 太久等回顧重點。
+  - 首頁計數同步為 35 章 + 14 互動 + 11 案例 + 9 Quiz + 名詞表。
 
 ## 全章「完成」內容補完（2026-06-03）
 
@@ -74,10 +80,12 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
    - Ch34 SPX 0-DTE Iron Condor（翼寬 15、收 $300、最大虧損 $1,200、BE 4987/5013、4:1 風報比、gamma 暴衝）
    - Ch35 一張期權鏈讀 skew(+9pp)/期限結構(backwardation +12pp)
    - Ch36 一筆從開倉到平倉填滿的範例日誌（NVDA CC，$3.20→$0.50 = +$270），串接勝率/損益比 heuristics
-2. **過時版本字樣清乾淨**：首頁綠框（35 章+實戰日誌 / 13 互動 / 8 Quiz）、Ch23→Ch25 引用、案例庫 11 案例、Ch29/Ch35 結語、兩個 Stage 0 開發註解、Ch18「Ch26 提過」改「詳述」。（Ch32 的「Ch26 提過」是正確的，Ch26 在 Ch32 之前，保留。）
+2. **過時版本字樣清乾淨**：首頁綠框（35 章+實戰日誌 / 13 互動 / 8 Quiz；2026-06-09 後為 14 互動 / 9 Quiz）、Ch23→Ch25 引用、案例庫 11 案例、Ch29/Ch35 結語、兩個 Stage 0 開發註解、Ch18「Ch26 提過」改「詳述」。（Ch32 的「Ch26 提過」是正確的，Ch26 在 Ch32 之前，保留。）
 3. **側欄徽章一致化**：以「該章有具名互動工具」為準——移除 Ch5 殘留「✓ 完整」，補 Ch11 ✓IVTerm / Ch12 ✓Skew / Ch16 ✓Builder / Ch21 ✓Sim。
 
-驗證（Chrome DevTools MCP，python http.server:8765）：40 section + 全 HTML tag 平衡；10 個實算 h2 皆渲染為真元素、無 `&lt;h2&gt;` 逸出文字；抽查 wheel/skew/margin/ic/ivcrush/journal 六個元件都正常 hydrate；console 僅既有的 PWA SVG manifest icon warning，無 JS error；首頁計數確認顯示「35 章 / 13 互動」。
+驗證（2026-06-03，Chrome DevTools MCP，python http.server:8765）：40 section + 全 HTML tag 平衡；10 個實算 h2 皆渲染為真元素、無 `&lt;h2&gt;` 逸出文字；抽查 wheel/skew/margin/ic/ivcrush/journal 六個元件都正常 hydrate；console 僅既有的 PWA SVG manifest icon warning，無 JS error；首頁計數確認顯示「35 章 / 13 互動」。
+
+驗證（2026-06-09，Codex）：`node` 解析 9 組 quiz JSON OK；抽出 `<script>` 後 `new Function()` JS parser OK；功能存在性檢查 OK。瀏覽器 localhost 實跑因本環境 Browser enterprise policy 擋 `127.0.0.1`，未做互動實跑。
 
 備註：`.stub` / `.stub-section` CSS 已無任何章節使用（dead code），保留無害，日後可順手清。
 

@@ -759,7 +759,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 <div class="layout">
   <aside class="sidebar">
     <div class="path-pill">
-      <b>Stage 6 完整版</b>：35 章 + 13 互動 + 11 案例 + 7 Quiz + 名詞表。
+      <b>Stage 6 完整版</b>：35 章 + 14 互動 + 11 案例 + 9 Quiz + 名詞表。
       新增 <strong>LLM 助教（自帶 Gemini key）/ PWA 加到主畫面 / 快速鍵</strong>。
       右下 🤖 開助教 · 按 <kbd>?</kbd> 看快速鍵說明。
     </div>
@@ -849,7 +849,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <h1>美股期權 + 台股期貨自學系統</h1>
       <div class="subtitle">OPT · Derivatives Self-Study Handbook</div>
       <div class="meta">
-        Stage 6 完整版 · 35 章 + 13 互動 + 11 案例 + 7 Quiz · LLM 助教 · PWA<br/>
+        Stage 6 完整版 · 35 章 + 14 互動 + 11 案例 + 9 Quiz · LLM 助教 · PWA<br/>
         2026-05-21<br/>
         people7771025/OPT
       </div>
@@ -896,9 +896,9 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <div class="callout success">
         <div class="callout-title">✓ 完整版範圍（Stage 6）</div>
         <p style="margin-top: 6px;">已完整實作 <b>35 章</b>（Ch1–Ch35，每章皆含具體實算案例）+ <b>實戰日誌</b>（Ch36）+
-        <b>13 個互動元件</b>（PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · MarginSimulator · IVTermStructure · VolSkewExplorer · WheelSimulator · IVCrushAnimator · IronCondorBuilder · <b>PMCCBuilder · SyntheticBuilder</b> · TradeJournal）+
+        <b>14 個互動元件</b>（PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · <b>PreTradeChecklist</b> · MarginSimulator · IVTermStructure · VolSkewExplorer · WheelSimulator · IVCrushAnimator · IronCondorBuilder · <b>PMCCBuilder · SyntheticBuilder</b> · TradeJournal）+
         <b>11 個實戰案例</b>（含 NVDA PMCC 1 年週期、2024 VIX 飆升避險、Synthetic Long Stock 替代 IRA 等）+
-        <b>8 個 Quiz</b>（覆蓋全 Part）+ <b>完整中英對照名詞表</b> + <b>雲端跨裝置同步</b> + <b>AI 助教</b>。</p>
+        <b>9 個 Quiz</b>（覆蓋全 Part）+ <b>完整中英對照名詞表</b> + <b>雲端跨裝置同步</b> + <b>AI 助教</b>。</p>
         <p style="margin-top: 6px;">Part Ⅷ <a href="#ch30">進階主題</a> 含 PMCC、VIX 與 VXX、Synthetic Positions、Risk Reversal、0-DTE、Vol Surface + 高階 Greeks。</p>
       </div>
     </section>
@@ -4493,6 +4493,31 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <div class="widget-body"></div>
       </div>
 
+      <h2>交易前檢查：沒過就不下單</h2>
+      <p>StrategyPicker 只回答「哪一類策略合理」。真正要不要下單，還要過交易前 gate：最大虧損、部位大小、事件風險、流動性、出場條件。下面六項有任何硬性項目沒過，就先不要下單。</p>
+
+      <div class="widget" data-component="pretrade">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">✅</span>PreTradeChecklist · 交易前 Gate</div>
+          <div class="widget-meta">6 項檢查 → Go / No-Go</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
+
+      <h2>練習：什麼時候應該選「不交易」</h2>
+      <p>選擇權學到最後，最值錢的能力常常不是會組多腿，而是知道哪些情境沒有 edge。以下幾題故意設計成「手癢但不該做」。</p>
+
+      <div class="widget" data-component="quiz" data-questions='[
+        {"q":"你持有現金想接某股票，但你對未來 1 個月看空，IV Percentile 70%。StrategyPicker 最保守的答案應該是？","opts":["賣 CSP，因為 IV 高權利金多","不操作，避免主動接正在下跌的標的","買 Long Call 反彈","做 Iron Condor"],"correct":1,"explain":"CSP 的本質是願意用 strike 接股。你若看空，賣 CSP 等於拿權利金換更高機率接到下跌標的，這不是折價買入，是用錯工具。"},
+        {"q":"財報前你想買 NVDA Long Straddle，因為覺得會大漲或大跌。下單前最該先確認什麼？","opts":["只要方向大就一定賺","Expected Move 是否被權利金完整反映，以及財報後 IV crush 會吃掉多少價值","K 線今天是不是紅 K","券商手續費是否為 0"],"correct":1,"explain":"Long Straddle 買的是波動率，不是單純買方向。若市場已把 expected move 定得很高，事件後 IV crush 可能讓方向對也賠錢。"},
+        {"q":"你想做 4 腿 Iron Condor，但期權鏈 bid/ask spread 很寬、OI 很少。合理做法是？","opts":["照做，因為多腿一定分散風險","先不做或換高流動性標的，否則進出場滑價可能吃掉 edge","加大張數補回滑價","改成更短 DTE"],"correct":1,"explain":"流動性不足會讓理論 payoff 失真。多腿每一腿都可能被點差吃掉，尤其調整或停損時成本更高，這是典型 No-Go。"}
+      ]'>
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">📝</span>No-Trade Drill · 不交易練習</div>
+        </div>
+        <div class="widget-body"></div>
+      </div>
+
       <div class="callout warn">
         <div class="callout-title">⚠️ 這張表的限制</div>
         <p style="margin-top: 6px;">
@@ -4682,7 +4707,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <h2>Part Ⅶ 小測驗</h2>
       <div class="widget" data-component="quiz" data-questions='[
-        {"q":"StrategyPicker 的 3 個維度是？","opts":["時間 / 金額 / 標的","持倉狀態 / 方向看法 / IV 環境","勝率 / 損益比 / 信心度","新手 / 中級 / 高手"],"correct":1,"explain":"3 維度 = ① 持倉（有現股 / 持有現金 / 純方向）× ② 看法（看多 / 中性 / 看空）× ③ IV（>50% / <50%），共 3×3×2 = 18 格決策表。"},
+        {"q":"決策表的 3 個核心維度是？","opts":["時間 / 金額 / 標的","持倉狀態 / 方向看法 / IV 環境","勝率 / 損益比 / 信心度","新手 / 中級 / 高手"],"correct":1,"explain":"核心決策表仍是 ① 持倉（有現股 / 持有現金 / 純方向）× ② 看法（看多 / 中性 / 看空）× ③ IV（>50% / <50%），共 3×3×2 = 18 格；StrategyPicker 另外加事件與流動性 gate。"},
         {"q":"Ch28 建議的「單筆部位上限」？","opts":["帳戶 0.1%","帳戶 2-5%","帳戶 20%","沒有上限"],"correct":1,"explain":"單筆 < 帳戶 2-5%，一次黑天鵝 -50% 也不會破產。同 sector < 15-25%、總期權+期貨曝險 < 50%。"},
         {"q":"Kelly Criterion 算出 f* = -0.05 時應該？","opts":["反向操作","下注 5%","不下任何注（負期望值）","按 5% 賠率調整"],"correct":2,"explain":"f* 為負代表「該機率 × 賠率」組合的數學期望值為負。Kelly 明確告訴你：不該下注。實務上會用 Half-Kelly 或 Quarter-Kelly 來容忍估計誤差。"},
         {"q":"VIX 飆升 > 30 時 Ch28 建議？","opts":["加碼","維持原部位","降到平常的 50% 部位","全清"],"correct":2,"explain":"VIX > 30 = 恐慌環境，市場波動極大。Ch28 建議降到平常 50% 部位避免被連續打。重大事件前（FOMC/大選）甚至降到 30%。"},
@@ -5756,6 +5781,10 @@ const Math2 = {
   }
 };
 
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 /* ============================================================
    2. PayoffDiagram 元件
    ============================================================ */
@@ -6302,6 +6331,70 @@ const StockHedgeCalc = {
 };
 
 /* ============================================================
+   4j. PreTradeChecklist 元件（Ch27）
+   交易前 gate：沒過就不下單
+   ============================================================ */
+const PreTradeChecklist = {
+  KEY: 'opt/pretrade-check',
+  ITEMS: [
+    { k: 'thesis', label: '我能用一句話說明這筆交易的 thesis', hint: '例如：持股中性、IVP 75%，賣 30 delta CC 收租。' },
+    { k: 'maxloss', label: '我已算出最大可能虧損，且能承受', hint: '多腿要算 spread width；CSP 要用接股後下跌情境想。', hard: true },
+    { k: 'size', label: '單筆最大虧損不超過帳戶風險預算', hint: '新策略先用最小張數；連虧後降部位。', hard: true },
+    { k: 'event', label: '我確認近期事件與 IV crush / gap 風險', hint: '財報、FOMC、CPI、除權息、FDA 都可能改變策略。' },
+    { k: 'liquidity', label: '期權鏈流動性足夠，點差不會吃掉 edge', hint: 'OI、volume、bid/ask spread 都要看。', hard: true },
+    { k: 'exit', label: '我已寫下出場條件：獲利、虧損、roll 或到期', hint: '沒有 exit plan 的交易最容易變成凹單。', hard: true }
+  ],
+  load() { try { return JSON.parse(localStorage.getItem(this.KEY) || '{}'); } catch { return {}; } },
+  save(d) { try { localStorage.setItem(this.KEY, JSON.stringify(d)); } catch {} window.CloudSync && CloudSync.scheduleSync(); },
+  status(d) {
+    const checked = this.ITEMS.filter(i => d[i.k]).length;
+    const hardMissing = this.ITEMS.filter(i => i.hard && !d[i.k]);
+    const score = Math.round(checked / this.ITEMS.length * 100);
+    if (hardMissing.length) return { score, color: 'var(--danger)', title: 'Gate 未通過：先不要下單', detail: '硬性缺口：' + hardMissing.map(i => i.label).join('、') };
+    if (score < 100) return { score, color: 'var(--warn)', title: 'Gate 有條件通過：小部位或先補資料', detail: '還有檢查項未完成，先不要放大部位。' };
+    return { score, color: 'var(--accent)', title: 'Gate 通過：可進入下單前最後確認', detail: '仍需以實際券商報價、保證金與帳戶限制為準。' };
+  },
+  render(body, d) {
+    const st = this.status(d);
+    body.innerHTML = `
+      <div style="padding:8px 4px;">
+        <div style="margin-bottom:14px;padding:14px 16px;background:var(--bg-sunken);border:1px solid ${st.color};border-radius:var(--radius);">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap;">
+            <div style="font-weight:700;color:${st.color};">${st.title}</div>
+            <div style="font-family:var(--font-mono);font-weight:800;color:${st.color};">${st.score}%</div>
+          </div>
+          <div style="margin-top:6px;font-size:12.5px;color:var(--fg-muted);line-height:1.6;">${esc(st.detail)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;">
+          ${this.ITEMS.map(item => `<label style="display:block;padding:10px 12px;background:${d[item.k] ? 'rgba(4,120,87,0.10)' : 'var(--bg-elev)'};border:1px solid ${d[item.k] ? 'var(--accent)' : (item.hard ? 'var(--warn)' : 'var(--border)')};border-radius:var(--radius-sm);font-size:13px;line-height:1.55;cursor:pointer;">
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <input type="checkbox" data-check="${item.k}" ${d[item.k] ? 'checked' : ''} style="margin-top:3px;">
+              <div><strong>${esc(item.label)}</strong>${item.hard ? ' <span style="color:var(--warn);font-size:11px;">必過</span>' : ''}<div style="color:var(--fg-muted);font-size:12px;margin-top:2px;">${esc(item.hint)}</div></div>
+            </div>
+          </label>`).join('')}
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn" data-action="reset" style="font-size:12px;">清空 checklist</button>
+          <span style="font-size:11.5px;color:var(--fg-muted);">每次準備交易前重跑一次，不要拿上次的通過狀態當保證。</span>
+        </div>
+      </div>`;
+    body.querySelectorAll('[data-check]').forEach(cb => cb.addEventListener('change', () => {
+      const next = { ...d, [cb.dataset.check]: cb.checked };
+      this.save(next);
+      this.render(body, next);
+    }));
+    body.querySelector('[data-action="reset"]').addEventListener('click', () => {
+      if (!confirm('清空這份交易前 checklist？')) return;
+      this.save({});
+      this.render(body, {});
+    });
+  },
+  hydrate(widget) {
+    this.render(widget.querySelector('.widget-body'), this.load());
+  }
+};
+
+/* ============================================================
    5. StrategyPicker 元件（Ch27）
    5 step wizard → 推薦策略 + 章節連結
    ============================================================ */
@@ -6357,6 +6450,23 @@ const StrategyPicker = {
         { v: 'high',    label: 'IV Percentile > 50%（賣方甜蜜區）', hint: '高 IV，期權貴' },
         { v: 'low',     label: 'IV Percentile < 50%（買方有利）',   hint: '低 IV，期權便宜' }
       ]
+    },
+    {
+      key: 'event',
+      q: '近期是否有重大事件？',
+      opts: [
+        { v: 'none',     label: '沒有明確事件', hint: '普通行情，可照決策表走' },
+        { v: 'earnings', label: '財報 / 產品發表 / FDA / 除權息', hint: 'IV crush、gap、assignment 風險要先檢查' },
+        { v: 'macro',    label: 'FOMC / CPI / 大選 / 系統性事件', hint: '指數波動可能快速穿越價位' }
+      ]
+    },
+    {
+      key: 'liquidity',
+      q: '期權鏈流動性如何？',
+      opts: [
+        { v: 'tight', label: '點差窄、OI/成交量足夠', hint: '較適合執行' },
+        { v: 'wide',  label: '點差寬、OI 少、成交量薄', hint: '多腿策略容易被滑價吃掉' }
+      ]
     }
   ],
 
@@ -6371,18 +6481,26 @@ const StrategyPicker = {
       const labelMap = {
         stock: '持有現股', cash: '持有現金想接', pure: '純方向',
         bull:  '看多',     neutral: '中性',      bear: '看空',
-        high:  'IV > 50%', low: 'IV < 50%'
+        high:  'IV > 50%', low: 'IV < 50%',
+        none: '無重大事件', earnings: '有財報/個別事件', macro: '有總經事件',
+        tight: '流動性正常', wide: '流動性不足'
       };
 
       const badgeClass = rec.badge;
       const chapterLink = rec.anchor
         ? `<a href="#${rec.anchor}" style="color:var(--accent);font-weight:600;">→ 查 ${rec.chapter}</a>`
         : '<span style="color:var(--fg-subtle);">無對應章節</span>';
+      const gate = [];
+      if (answers.liquidity === 'wide') gate.push('期權鏈點差寬 / OI 薄，先不要做多腿或短天期策略；滑價可能吃掉 edge。');
+      if (answers.event === 'earnings' && /Long Call|Long Put|Straddle/.test(rec.strategy)) gate.push('財報前買方策略要先估 expected move 與 IV crush；方向對也可能賠錢。');
+      if (answers.event === 'earnings' && /Covered Call|Cash-Secured Put|CSP|CC/.test(rec.strategy)) gate.push('財報前賣方策略有 gap 與 assignment 風險，部位需降到平常以下。');
+      if (answers.event === 'macro' && /Iron Condor|CSP|Bull Put|Bear Call/.test(rec.strategy)) gate.push('系統性事件前賣方策略容易被單日波動穿越，先等事件落地或縮小部位。');
+      const gateOk = gate.length === 0;
 
       container.innerHTML = `
         <div style="padding:8px 4px;">
           <div style="font-size:12px;color:var(--fg-muted);margin-bottom:8px;">
-            你的回答：${labelMap[answers.position]} · ${labelMap[answers.direction]} · ${labelMap[answers.iv]}
+            你的回答：${labelMap[answers.position]} · ${labelMap[answers.direction]} · ${labelMap[answers.iv]} · ${labelMap[answers.event]} · ${labelMap[answers.liquidity]}
           </div>
           <div style="margin:18px 0;padding:18px 20px;background:var(--bg-sunken);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;">
             <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:4px;">推薦策略</div>
@@ -6394,6 +6512,12 @@ const StrategyPicker = {
               <b>為什麼：</b>${rec.why}
             </div>
             <div style="font-size:13px;">${chapterLink}</div>
+          </div>
+          <div style="margin:14px 0;padding:14px 16px;background:${gateOk ? 'rgba(4,120,87,0.10)' : 'rgba(190,18,60,0.10)'};border:1px solid ${gateOk ? 'var(--accent)' : 'var(--danger)'};border-radius:var(--radius);">
+            <div style="font-weight:700;color:${gateOk ? 'var(--accent)' : 'var(--danger)'};">${gateOk ? '交易前 Gate：可進入 checklist' : '交易前 Gate：先不要直接下單'}</div>
+            <div style="margin-top:6px;font-size:13px;line-height:1.65;color:var(--fg-muted);">
+              ${gateOk ? '沒有明顯事件或流動性阻礙；下一步請用下方交易前 checklist 確認最大虧損、出場條件與部位大小。' : gate.map(esc).join('<br>')}
+            </div>
           </div>
           <button class="btn" data-action="restart" style="margin-top:8px;">重新選擇</button>
         </div>
@@ -7923,6 +8047,41 @@ const TradeJournal = {
     return { streak, type };
   },
 
+  reviewHints(trades) {
+    const stats = this.stats(trades);
+    const stratStats = this.strategyStats(trades);
+    const streak = this.streakStatus(trades);
+    const hints = [];
+    if (stats.closed === 0) {
+      hints.push({ tone: 'info', title: '先累積樣本', text: '目前還沒有已結束交易。每筆進場先記 open，平倉後補 P/L，至少累積 20 筆才開始看勝率。' });
+      return hints;
+    }
+    if (stats.closed < 20) {
+      hints.push({ tone: 'info', title: '樣本仍小', text: `目前已結 ${stats.closed} 筆，只能看紀律與紀錄品質；不要太早用勝率判斷策略好壞。` });
+    }
+    if (stats.closed >= 5 && stats.winRate < 50) {
+      hints.push({ tone: 'warn', title: '勝率偏低', text: `已結 ${stats.closed} 筆、勝率 ${stats.winRate.toFixed(0)}%。先回看 Ch27：是否常在 IV/方向/事件不匹配時硬做？` });
+    }
+    if (stats.avgWin > 0 && stats.avgLoss < 0 && Math.abs(stats.avgLoss) > stats.avgWin * 3) {
+      hints.push({ tone: 'warn', title: '虧損吃掉太多小贏', text: `平均贏 $${stats.avgWin.toFixed(0)}、平均輸 $${Math.abs(stats.avgLoss).toFixed(0)}。賣方策略可以小贏多次，但要有明確停損/roll 規則。` });
+    }
+    if (streak && streak.type === 'loss' && streak.streak >= 3) {
+      hints.push({ tone: 'danger', title: '連虧降部位', text: `連續 ${streak.streak} 筆虧損。依 Ch28 規則，下一輪部位先降 50%，並暫停新策略。` });
+    }
+    const weak = stratStats.find(s => s.total >= 3 && s.pnl < 0);
+    if (weak) {
+      hints.push({ tone: 'warn', title: `${weak.strategy} 需要回顧`, text: `${weak.strategy} 已結 ${weak.total} 筆、累計 P/L ${weak.pnl >= 0 ? '+' : ''}$${weak.pnl.toFixed(0)}。請檢查是否進場條件太鬆、DTE/strike 選擇不一致。` });
+    }
+    const openAged = trades.filter(t => t.status === 'open' && t.date && (Date.now() - new Date(t.date).getTime()) / 86400000 > 45);
+    if (openAged.length) {
+      hints.push({ tone: 'warn', title: '未結部位太久', text: `有 ${openAged.length} 筆 open 超過 45 天。請確認是刻意持有、roll 中，還是忘了更新狀態。` });
+    }
+    if (hints.length === 0) {
+      hints.push({ tone: 'success', title: '紀錄狀態健康', text: '目前沒有明顯警示。維持每筆交易都有進場理由、最大虧損、出場條件與事後檢討。' });
+    }
+    return hints;
+  },
+
   renderMonthlyChart(monthly) {
     if (monthly.length < 2) return '';
     const W = 540, H = 140;
@@ -7960,6 +8119,7 @@ const TradeJournal = {
     const tkrStats = this.tickerStats(trades);
     const monthly = this.monthlyPnL(trades);
     const streak = this.streakStatus(trades);
+    const reviewHints = this.reviewHints(trades);
     const form = state.form || { date: new Date().toISOString().slice(0, 10), ticker: '', strategy: 'CC', strike: '', premium: '', qty: 1, status: 'open', pnl: '' };
 
     const rows = trades.length === 0
@@ -8030,6 +8190,16 @@ const TradeJournal = {
           </p>
         </div>
       ` : ''}
+
+      <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
+        <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">Journal Coach · 本月檢討提示</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">
+          ${reviewHints.map(h => `<div style="padding:10px 12px;background:var(--bg-elev);border:1px solid ${h.tone === 'danger' ? 'var(--danger)' : (h.tone === 'warn' ? 'var(--warn)' : (h.tone === 'success' ? 'var(--accent)' : 'var(--border)'))};border-radius:var(--radius-sm);font-size:12.5px;line-height:1.55;">
+            <div style="font-weight:700;color:${h.tone === 'danger' ? 'var(--danger)' : (h.tone === 'warn' ? 'var(--warn)' : (h.tone === 'success' ? 'var(--accent)' : 'var(--info)'))};margin-bottom:3px;">${esc(h.title)}</div>
+            <div style="color:var(--fg-muted);">${esc(h.text)}</div>
+          </div>`).join('')}
+        </div>
+      </div>
 
       ${stratStats.length > 0 ? `
         <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
@@ -8184,6 +8354,7 @@ function hydrateAll() {
   document.querySelectorAll('[data-component="payoff"]').forEach(w => PayoffDiagram.hydrate(w));
   document.querySelectorAll('[data-component="greeks"]').forEach(w => GreeksLab.hydrate(w));
   document.querySelectorAll('[data-component="hedge"]').forEach(w => StockHedgeCalc.hydrate(w));
+  document.querySelectorAll('[data-component="pretrade"]').forEach(w => PreTradeChecklist.hydrate(w));
   document.querySelectorAll('[data-component="picker"]').forEach(w => StrategyPicker.hydrate(w));
   document.querySelectorAll('[data-component="margin"]').forEach(w => MarginSimulator.hydrate(w));
   document.querySelectorAll('[data-component="ivterm"]').forEach(w => IVTermStructure.hydrate(w));

@@ -5,7 +5,7 @@
 
 ## 線上版
 
-> 開發中，部署後填入 GitHub Pages 連結。
+🔗 **<https://people7771025.github.io/OPT/>**
 
 ## 怎麼用
 
@@ -33,7 +33,8 @@
 - **Part Ⅳ** 多腿與事件：Vertical Spreads、Iron Condor、Straddle、財報 IV Crush
 - **Part Ⅴ** 台股期貨：TX / MTX / 微台、保證金、結算、轉倉、基差、十大交易人、Beta Hedging
 - **Part Ⅵ** 實戰場景案例庫（8+ 個具體案例，含台股美股混合）
-- **Part Ⅶ** 決策框架與 cheatsheet
+- **Part Ⅶ** 決策框架、交易前 Gate、風險預算與 cheatsheet
+- **Ch36** 實戰日誌：交易紀錄、策略分組、Journal Coach 檢討提示
 
 ## 互動元件
 
@@ -42,6 +43,8 @@
 - **StockHedgeCalc** — 持股組合 → 台指期避險口數試算
 - **MarginSimulator** — 台指期保證金水位試算
 - **StrategyPicker** — 5 step 決策樹推薦策略
+- **PreTradeChecklist** — 交易前 Go / No-Go 檢查
+- **TradeJournal** — 下單紀錄、策略勝率分組、Journal Coach 檢討提示
 
 ## ⚠️ 重要聲明
 
