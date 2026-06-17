@@ -63,6 +63,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+section[data-chapter] { scroll-margin-top: 56px; }
 body {
   background: var(--bg);
   color: var(--fg);
@@ -867,7 +868,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <div class="callout">
         <div class="callout-title">這份手冊解決什麼問題？</div>
         <p style="margin-top: 6px;">
-          如果你已經在看 IV Percentile、P/C Ratio、Max Pain、基差、保證金率，但**指標背後的原理**與**該怎麼用來做決定**還沒打通——這份手冊就是為你寫的。
+          如果你已經在看 IV Percentile、P/C Ratio、Max Pain、基差、保證金率，但<b>指標背後的原理</b>與<b>該怎麼用來做決定</b>還沒打通——這份手冊就是為你寫的。
           四個學習目標：賺取超額報酬、鎖住現股獲利、台股期貨避險 / 槓桿、聽得懂別人講策略。
         </p>
       </div>
@@ -898,7 +899,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <p style="margin-top: 6px;">已完整實作 <b>35 章</b>（Ch1–Ch35，每章皆含具體實算案例）+ <b>實戰日誌</b>（Ch36）+
         <b>14 個互動元件</b>（PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · <b>PreTradeChecklist</b> · MarginSimulator · IVTermStructure · VolSkewExplorer · WheelSimulator · IVCrushAnimator · IronCondorBuilder · <b>PMCCBuilder · SyntheticBuilder</b> · TradeJournal）+
         <b>11 個實戰案例</b>（含 NVDA PMCC 1 年週期、2024 VIX 飆升避險、Synthetic Long Stock 替代 IRA 等）+
-        <b>9 個 Quiz</b>（覆蓋全 Part）+ <b>完整中英對照名詞表</b> + <b>雲端跨裝置同步</b> + <b>AI 助教</b>。</p>
+        <b>9 個 Quiz</b>（覆蓋全 Part）+ <b>完整中英對照名詞表</b> + <b>雲端跨裝置同步</b> + <b>LLM 助教</b>。</p>
         <p style="margin-top: 6px;">Part Ⅷ <a href="#ch30">進階主題</a> 含 PMCC、VIX 與 VXX、Synthetic Positions、Risk Reversal、0-DTE、Vol Surface + 高階 Greeks。</p>
       </div>
     </section>
@@ -1304,7 +1305,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <li>太長（&gt; 60 天）：權利金看起來大，但「年化權利金率」其實偏低；且鎖死部位太久，錯過 IV 環境變化的調整機會</li>
           <li>30–45 天剛好是 theta decay 加速、又能容納一次月線波動的甜蜜區</li>
         </ul>
-        <p>假設今天 5/21，挑 <strong>35 天後到期</strong>（6/25 週五）。</p>
+        <p>假設今天 5/21，挑 <strong>35 天後到期</strong>（6/25 到期日）。</p>
 
         <h3>Step 2 · 決定 Strike</h3>
         <p>原則：<strong>看 delta 而不是看「OTM 幾 %」</strong>。delta 是「被 assign 的近似機率」。</p>
@@ -1528,7 +1529,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
          Ch7 · Protective Put
          ============================================================ -->
     <section data-chapter="ch7">
-      <h1><span class="badge op">操作必讀</span>Ch7 · Protective Put（保護性買權）</h1>
+      <h1><span class="badge op">操作必讀</span>Ch7 · Protective Put（保護性賣權）</h1>
       <p style="color: var(--fg-muted); margin-top: -2px;">
         <em>Protective Put / 保護性賣權</em> · 「替手上股票買保險」最直觀的方式。
       </p>
@@ -1618,7 +1619,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <summary>關鍵字</summary>
         <table>
           <tr><th>中文</th><th>英文</th></tr>
-          <tr><td>保護性買權</td><td>Protective Put / Married Put</td></tr>
+          <tr><td>保護性賣權</td><td>Protective Put / Married Put</td></tr>
           <tr><td>合成 long call</td><td>Synthetic Long Call</td></tr>
           <tr><td>自負額</td><td>Deductible（沒履約 strike 之上那段）</td></tr>
         </table>
@@ -2284,7 +2285,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       </p>
       <p>實務上前者夠用——拿 ATM Call + ATM Put 加起來就是市場對「該到期日 ±1σ 範圍」的定價。</p>
 
-      <h2>實例：NVDA 財報前 7 天</h2>
+      <h2>實例：NVDA 財報前夕（用財報後到期的選擇權鏈）</h2>
       <div class="case">
         <div class="case-header">
           <span class="case-tag">案例</span>
@@ -2416,7 +2417,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <ul>
         <li><strong>絕對看好特定事件</strong>（你有非市場可知的訊息——但這是內線交易）</li>
         <li><strong>賭極端跳幅</strong>（買 OTM lottery ticket，明知 80%+ 機率虧光）</li>
-        <li><strong>替現股代替倉</strong>：買 LEAPS（&gt; 1 年到期）取代現股，槓桿更低</li>
+        <li><strong>替現股代替倉</strong>：買 LEAPS（&gt; 1 年到期）取代現股，用較少資金取得近似現股的曝險（槓桿更高、佔用資金更少）</li>
       </ul>
       <p>更常見的：<strong>用 Vertical Spread（Ch15）取代裸長</strong>——同樣方向但鎖死成本。</p>
     </section>
@@ -2882,7 +2883,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <ul>
         <li><strong>權利金實現損益</strong>：海外資本利得，併入海外所得</li>
         <li>個人海外所得 &lt; 100 萬 / 年（綜合所得稅基本免稅額）：可不申報</li>
-        <li>海外所得 100 萬 - 750 萬（基本所得免稅額 670 萬）：申報但實際多半免稅</li>
+        <li>海外所得 100 萬 - 750 萬（基本所得額免稅額 750 萬）：申報但實際多半免稅</li>
         <li>海外所得 &gt; 750 萬：適用 20% 稅率（最低稅負制）</li>
         <li><strong>被 assign 後股票賣出</strong>：另外算（不是期權交易，是股票交易）</li>
       </ul>
@@ -2919,10 +2920,10 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <h2>⑤ 台股期貨稅與費</h2>
       <ul>
         <li><strong>手續費</strong>：MTX/TX 約 NT$30/口（來回 NT$60）</li>
-        <li><strong>期交稅</strong>：契約金額 × 0.00002（盤中沖銷則 × 0.00001）</li>
+        <li><strong>期交稅</strong>：契約金額 × 0.00002（股價指數期貨無當沖減半，買賣各課一次；當沖減半是股票證交稅的規定）</li>
         <li><strong>所得稅</strong>：期貨損益免納所得稅（但需申報基本所得）</li>
       </ul>
-      <p>實例：TX 一口在 20,000 點來回，手續費 NT$60 + 期交稅 ≈ NT$160（盤中沖銷 NT$80）。</p>
+      <p>實例：TX 一口在 20,000 點來回，手續費 NT$60 + 期交稅 ≈ NT$160（買賣各 NT$80，無當沖減半）。</p>
 
       <h2>Part Ⅳ 小測驗</h2>
       <p>5 題策略選擇 + 風險判讀。</p>
@@ -3036,7 +3037,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <div class="callout warn">
         <div class="callout-title">⚠️ 1 口大台會吃掉你的整個帳戶</div>
         <p style="margin-top: 6px;">
-          1 口 TX 名目 NT$400 萬，是你資金的 <strong>4 倍</strong>。保證金雖只佔 184,000，但只要指數逆向走 <strong>184,000 ÷ 200 = 920 點</strong>（約 4.6%），你的權益就賠掉等同一整口保證金；逆向走約 <strong>(1,000,000 − 184,000) ÷ 200 ≈ 4,080 點</strong>（約 20%）帳戶就見底。對 NT$100 萬而言，大台是「全押」等級的曝險，<strong>不建議</strong>。
+          1 口 TX 名目 NT$400 萬，是你資金的 <strong>4 倍</strong>。保證金雖只佔 184,000，但只要指數逆向走 <strong>184,000 ÷ 200 = 920 點</strong>（約 4.6%），你的權益就賠掉等同一整口保證金；逆向走約 <strong>1,000,000 ÷ 200 = 5,000 點</strong>（約 25%）整個帳戶就賠光見底。對 NT$100 萬而言，大台是「全押」等級的曝險，<strong>不建議</strong>。
         </p>
       </div>
 
@@ -3331,6 +3332,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <li><strong>+2 ~ +5%</strong>：正常正基差（反映無風險利率 - 預期股息率）</li>
         <li><strong>&gt; +5%</strong>：偏多熱度（謹慎，可能反指標）</li>
         <li><strong>-2 ~ +2%</strong>：對稱，多空意見分歧</li>
+        <li><strong>-5 ~ -2%</strong>：偏空避險（市場轉趨保守）</li>
         <li><strong>&lt; -5%</strong>：強烈避險（黑天鵝 / 大跌前夕）</li>
       </ul>
 
@@ -3345,7 +3347,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <li>加權指數 20,050 點</li>
           <li>TX 近月 20,100 點（離結算 18 天）</li>
           <li>基差 = 20,100 − 20,050 = +50 點</li>
-          <li>年化基差 = 50 / 20,050 / (18 / 365) × 100% ≈ <strong>+5.05%</strong></li>
+          <li>年化基差 = 50 / 20,050 / (18 / 365) × 100% ≈ <strong>+5.06%</strong></li>
         </ul>
         <p><strong>判讀</strong>：剛好踩到「偏多熱度」的邊界。可能反映：</p>
         <ul>
@@ -3646,7 +3648,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         </li>
       </ol>
 
-      <h3>實例：基差 +5% 太貴的套利</h3>
+      <h3>實例：基差 +6.5% 太貴的套利</h3>
       <div class="case">
         <div class="case-header">
           <span class="case-tag">案例</span>
@@ -4034,7 +4036,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <div class="scenario">
             <div class="when">情境 A</div>
             <div>AAPL → $225（+15%）：被 call 以 $215 賣走，封頂</div>
-            <div class="pnl pos">+$2,020（淨入 + 200 × 10 stock + 0 - 0）</div>
+            <div class="pnl pos">+$2,020（Collar 淨入 $20 + 100 股 ×（$215−$195）= $20 + $2,000）</div>
           </div>
           <div class="scenario">
             <div class="when">情境 B</div>
@@ -4080,7 +4082,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         </ol>
 
         <p><strong>選擇與結果</strong>：第 3 條 + 第 2 條混合。盤前匯入 NT$150k，盤中 -7% 時平倉，實際成交 18,560 附近。
-        虧損 NT$216k，比直接被斷頭少 NT$20k。</p>
+        虧損 NT$216k，比直接被斷頭少 NT$24k。</p>
 
         <p><strong>事後檢討</strong>：問題不在「應對」，在「<strong>進場前就不該滿倉</strong>」。
         如果原本只 1 口多單（保證金 NT$46k），虧 NT$72k 還在容忍範圍——不會被斷頭。
@@ -4185,7 +4187,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <ul>
           <li>加權指數 19,850（小漲 0.25%）</li>
           <li>TX 近月 19,890（基差收斂到 +40 點）</li>
-          <li>年化基差降到 +5.2%（已收斂大半）</li>
+          <li>年化基差降到約 +10.5%（基差已收斂大半，但因剩 7 天、年化會放大）</li>
         </ul>
 
         <p><strong>主動平倉決定</strong>：</p>
@@ -4198,14 +4200,14 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <p><strong>扣手續費後</strong>：</p>
         <ul>
           <li>MTX 來回 4 筆 × NT$30 = NT$120 + 期交稅 ≈ NT$80</li>
-          <li>0050（ETF）來回 0.1425% × 2 + 證交稅 0.1%（ETF 稅率，個股才 0.3%）≈ NT$3,705</li>
-          <li>淨損益 ≈ NT$8,250 - NT$3,905 = <strong>+NT$4,345</strong>（仍勉強有利潤）</li>
+          <li>0050（ETF）來回 0.1425% × 2 + 證交稅 0.1%（ETF 稅率，個股才 0.3%）= 0.285%×190萬 + 0.1%×190萬 ≈ NT$7,315</li>
+          <li>淨損益 ≈ NT$8,250 - NT$7,515 = <strong>+NT$735</strong>（edge 已很薄）</li>
         </ul>
 
         <p><strong>啟示</strong>：</p>
         <ul>
-          <li><strong>ETF 0.1% 證交稅比個股 0.3% 友善很多</strong>，但合計手續費 + 期交稅 + 證交稅仍會吃掉約 0.2% 報酬</li>
-          <li>實際邊際 edge 約 NT$4k / NT$1.9M = 0.23%（21 天），等於年化 ~4%，<strong>不算高但比定存好</strong></li>
+          <li><strong>ETF 0.1% 證交稅比個股 0.3% 友善很多</strong>，但合計手續費 + 期交稅 + 證交稅仍會吃掉約 0.4% 報酬</li>
+          <li>實際邊際 edge 約 NT$735 / NT$1.9M = 0.04%（21 天），等於年化 ~0.7%，<strong>幾乎被成本吃光</strong></li>
           <li>實際上應改用「期貨 vs 股票期貨」對沖（兩邊都用期貨稅費小），但需要熟悉個股期搭配</li>
           <li>拉大規模（&gt; NT$500 萬）讓固定成本佔比下降，edge 才會明顯</li>
           <li><strong>結論：散戶的期現套利在「年化基差 &gt; +8%」+「規模 &gt; NT$300 萬」時開始有合理 edge</strong></li>
@@ -4312,7 +4314,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <li>12 月 LEAPS 內在價值：$200 - $100 = $100 × 100 = $10,000</li>
           <li>加上殘餘時間價值 ~$8 → 賣出 $10,800</li>
           <li>LEAPS 損益：$10,800 - $5,500 = <strong>+$5,300</strong></li>
-          <li>12 個月權利金累計：$450×8 + $500×3 + $540 = <strong>+$5,400</strong>（11 個月，第 12 月不賣）</li>
+          <li>12 個月權利金累計：450+420+480+500+510+550+540+520+500+480+450 = <strong>+$5,400</strong>（11 個月，第 12 月不賣）</li>
           <li>總損益：<strong>+$10,700 / $5,500 = +194.5%</strong></li>
         </ul>
 
@@ -4437,7 +4439,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <ul>
         <li><strong>有現股</strong>：已持有標的 100 股以上（適合 CC / Collar / Protective Put）</li>
         <li><strong>持有現金</strong>：想接這支股票但還沒進場（適合 CSP）</li>
-        <li><strong>沒持倉</strong>：純看市場方向，不一定要持有現股（適合 Vertical Spread / 單腿期權）</li>
+        <li><strong>沒持倉（純方向）</strong>：純看市場方向，不一定要持有現股（適合 Vertical Spread / 單腿期權）</li>
       </ul>
 
       <h3>維度 2：方向看法</h3>
@@ -4569,8 +4571,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <h2>實務調整：分數 Kelly（half-Kelly / quarter-Kelly）</h2>
       <p>純 Kelly 假設你<strong>知道真實勝率</strong>。實務上你估的勝率有誤差，所以採「Kelly × 0.5」或「Kelly × 0.25」較安全：</p>
       <ul>
-        <li>Half-Kelly：報酬接近全 Kelly 但波動小很多</li>
-        <li>Quarter-Kelly：報酬約 75% Kelly 但 drawdown 大幅下降</li>
+        <li>Half-Kelly：成長率約全 Kelly 的 75%，但波動小很多</li>
+        <li>Quarter-Kelly：成長率約全 Kelly 的 40-45%，但 drawdown 大幅下降</li>
         <li>實務建議：不熟的策略用 Quarter-Kelly，熟練後升 Half</li>
       </ul>
 
@@ -4625,7 +4627,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <ul>
         <li><strong>VIX</strong>：芝加哥選擇權交易所的「恐慌指數」，反映 SPX 期權 30 天 implied volatility</li>
         <li><strong>VIX 期貨 / VIX 期權</strong>：直接交易波動率</li>
-        <li><strong>VXX / UVXY</strong>：追蹤 VIX 期貨的 ETN，但「<strong>結構性 decay</strong>」（contango 損耗）讓長期持有必虧</li>
+        <li><strong>VXX / UVXY</strong>：追蹤 VIX 期貨的產品（VXX 是 ETN、UVXY 是 1.5x 槓桿 ETF），但「<strong>結構性 decay</strong>」（contango 損耗）讓長期持有必虧</li>
         <li><strong>實務用途</strong>：短期避險用（持 1-3 天）、不長持</li>
       </ul>
 
@@ -4736,7 +4738,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <h2>為什麼叫「Poor Man's」</h2>
       <p>傳統 Covered Call 需要持有 100 股，NVDA $145 = $14,500/張現股成本。
-      PMCC 改用 1 張 LEAPS call（如 18 個月 $100 strike，70 delta，權利金 $5,500）取代——資金只需 38%，但 delta 暴險 70%。</p>
+      PMCC 改用 1 張 LEAPS call（如 18 個月 $100 strike，78 delta，權利金 $5,500）取代——資金只需 38%，但 delta 暴險 78%。</p>
 
       <table>
         <thead><tr><th></th><th>傳統 CC</th><th>PMCC</th></tr></thead>
@@ -4744,7 +4746,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <tr><td>持倉</td><td>100 股 @ $145 = $14,500</td><td>1 張 LEAPS $100 call @ $55 = $5,500</td></tr>
           <tr><td>每月賣 30 delta call</td><td>$160 strike @ $4.50 → $450</td><td>$160 strike @ $4.50 → $450</td></tr>
           <tr><td>權利金/月 ÷ 投入資金</td><td>$450 / $14,500 = 3.1%</td><td>$450 / $5,500 = 8.2%</td></tr>
-          <tr><td>NVDA 漲到 $200</td><td>+$5,500（被 cap 在 $160 賣出 + 權利金）</td><td>類似（LEAPS 漲幅 - 短 call 損失）</td></tr>
+          <tr><td>NVDA 漲到 $200</td><td>+$1,950（被 cap 在 $160 賣出 +$1,500 + 權利金 $450）</td><td>類似（LEAPS 漲幅 - 短 call 損失）</td></tr>
           <tr><td>NVDA 跌到 $80</td><td>-$6,500（持股大虧）</td><td>-$5,500（LEAPS 大幅虧損但有限）</td></tr>
         </tbody>
       </table>
@@ -5032,7 +5034,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <ul>
           <li>Long $145 call 失效 = -$700</li>
           <li>Short $145 put 被 assign：必須以 $145 買進 100 股，市價 $130 = 浮虧 $1,500 + 收到 $620 權利金 = 淨 -$880</li>
-          <li>淨：-$700 + (-$880) = -$1,580（call 已隱含 $700 含淨成本，不要重複扣 $80。與 100 股 @ $145 虧 $1,500 接近，差異是 short put 賣方部位的入場淨成本）</li>
+          <li>淨：-$700 + (-$880) = -$1,580（換個算法更直觀：淨權利金 -$80 ＋ 現股式損失 -$1,500 ＝ -$1,580。比 100 股 @ $145 純多虧的 $80，正是兩腿合計付出的淨借方成本）</li>
         </ul>
 
         <p><strong>對比結論</strong>：synthetic long stock 行為 ≈ 100 股，但只佔用 ~$80 + put 賣方 margin（~$1,500）。
@@ -5102,7 +5104,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <span class="case-title">NVDA · 看多但要省成本</span>
         </div>
 
-        <p><strong>觀察</strong>：NVDA $145，看多到 $170，IV Percentile 65%（put 較貴）。</p>
+        <p><strong>觀察</strong>：NVDA $145，看多到 $170，IV Percentile 65%（賣方權利金較肥），且 vol skew 偏空（put 比 call 貴）。</p>
 
         <p><strong>下單</strong>：</p>
         <ul>
@@ -5607,7 +5609,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
          ============================================================ -->
     <section data-chapter="glossary">
       <h1>名詞表（Glossary）</h1>
-      <p style="color: var(--fg-muted); margin-top: -2px;">中英對照 + 出現章節索引。<input type="search" id="glossary-search" placeholder="🔍 搜尋名詞..." style="margin-left:12px;background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font:inherit;font-size:13px;width:200px;"></p>
+      <p style="color: var(--fg-muted); margin-top: -2px;">中英對照 + 出現章節索引。<input type="search" id="glossary-search" aria-label="搜尋名詞" placeholder="🔍 搜尋名詞..." style="margin-left:12px;background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font:inherit;font-size:13px;width:200px;"></p>
 
       <h2>選擇權基礎</h2>
       <table>
@@ -5634,7 +5636,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <tbody>
           <tr><td>掩護性買權</td><td>Covered Call (CC)</td><td>Ch5</td><td>持股 + 賣 OTM call 收租金</td></tr>
           <tr><td>現金擔保賣權</td><td>Cash-Secured Put (CSP)</td><td>Ch6</td><td>現金 + 賣 OTM put 等接股</td></tr>
-          <tr><td>保護性買權</td><td>Protective Put</td><td>Ch7</td><td>持股 + 買 put 當下檔保險</td></tr>
+          <tr><td>保護性賣權</td><td>Protective Put</td><td>Ch7</td><td>持股 + 買 put 當下檔保險</td></tr>
           <tr><td>領口策略</td><td>Collar</td><td>Ch8</td><td>持股 + 買 OTM put + 賣 OTM call</td></tr>
           <tr><td>輪轉策略</td><td>Wheel Strategy</td><td>Ch9</td><td>CSP 接股 → CC 賣股 → 重複</td></tr>
           <tr><td>多單 Call/Put</td><td>Long Call / Long Put</td><td>Ch14</td><td>付權利金買單張期權</td></tr>
@@ -5969,7 +5971,7 @@ const PayoffDiagram = {
         </div>
         <div class="ctrl">
           <label>Premium 權利金 <input type="number" class="ctrl-num" data-input="premium" value="${firstOpt.premium.toFixed(2)}" min="0.05" max="50" step="0.05"></label>
-          <input type="range" min="0.5" max="20" step="0.1" value="${firstOpt.premium}" data-input="premium"/>
+          <input type="range" min="0.05" max="50" step="0.05" value="${firstOpt.premium}" data-input="premium"/>
         </div>
       </div>
     ` : '';
@@ -6057,7 +6059,8 @@ const GreeksLab = {
     const M = { top: 20, right: 30, bottom: 40, left: 60 };
     const innerW = W - M.left - M.right;
     const innerH = H - M.top - M.bottom;
-    const xMin = strike * 0.6, xMax = strike * 1.4;
+    const lo = Math.min(strike, spot), hi = Math.max(strike, spot);
+    const xMin = lo * 0.75, xMax = hi * 1.25;
 
     const curve = [];
     const steps = 100;
@@ -6158,11 +6161,11 @@ const GreeksLab = {
         </div>
         <div class="ctrl">
           <label>DTE 剩餘天數 <input type="number" class="ctrl-num" data-input="dte" value="${dte}" min="1" max="730" step="1"></label>
-          <input type="range" min="1" max="180" step="1" value="${dte}" data-input="dte"/>
+          <input type="range" min="1" max="730" step="1" value="${dte}" data-input="dte"/>
         </div>
         <div class="ctrl">
           <label>IV 隱含波動率 (%) <input type="number" class="ctrl-num" data-input="iv" value="${iv}" min="5" max="200" step="1"></label>
-          <input type="range" min="10" max="120" step="1" value="${iv}" data-input="iv"/>
+          <input type="range" min="5" max="200" step="1" value="${iv}" data-input="iv"/>
         </div>
       </div>
       <div class="preset-row">
@@ -6473,19 +6476,18 @@ const StrategyPicker = {
   render(container, state) {
     const { step, answers } = state;
     const totalSteps = this.STEPS.length;
+    const labelMap = {
+      stock: '持有現股', cash: '持有現金想接', pure: '純方向',
+      bull:  '看多',     neutral: '中性',      bear: '看空',
+      high:  'IV > 50%', low: 'IV < 50%',
+      none: '無重大事件', earnings: '有財報/個別事件', macro: '有總經事件',
+      tight: '流動性正常', wide: '流動性不足'
+    };
 
     // 結果頁
     if (step >= totalSteps) {
       const key = `${answers.position}-${answers.direction}-${answers.iv}`;
       const rec = this.DECISIONS[key];
-      const labelMap = {
-        stock: '持有現股', cash: '持有現金想接', pure: '純方向',
-        bull:  '看多',     neutral: '中性',      bear: '看空',
-        high:  'IV > 50%', low: 'IV < 50%',
-        none: '無重大事件', earnings: '有財報/個別事件', macro: '有總經事件',
-        tight: '流動性正常', wide: '流動性不足'
-      };
-
       const badgeClass = rec.badge;
       const chapterLink = rec.anchor
         ? `<a href="#${rec.anchor}" style="color:var(--accent);font-weight:600;">→ 查 ${rec.chapter}</a>`
@@ -6534,7 +6536,7 @@ const StrategyPicker = {
       <div style="padding:8px 4px;">
         <div style="font-size:12px;color:var(--fg-muted);margin-bottom:14px;">
           步驟 ${step + 1} / ${totalSteps}
-          <span style="float:right;">${Object.entries(answers).map(([k,v]) => `<span style="color:var(--accent);">✓</span> ${v}`).join(' · ')}</span>
+          <span style="float:right;">${Object.entries(answers).map(([k,v]) => `<span style="color:var(--accent);">✓</span> ${labelMap[v] || v}`).join(' · ')}</span>
         </div>
         <div style="font-size:16px;font-weight:600;margin-bottom:14px;">${current.q}</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -6662,9 +6664,9 @@ const MarginSimulator = {
       <div style="margin-top:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);font-size:13px;line-height:1.7;">
         <div style="color:var(--fg-muted);font-size:11px;margin-bottom:4px;letter-spacing:.04em;">DISTANCE TO TRIGGER</div>
         <div>距 Margin Call（補繳警告）<strong style="color:var(--warn);">${Math.abs(pointsToMarginCall).toFixed(0)} 點</strong>
-          → ${side === 'long' ? '跌到' : '漲到'} <strong>${Math.round(current + pointsToMarginCall * (-dir))}</strong> 點</div>
+          → ${side === 'long' ? '跌到' : '漲到'} <strong>${Math.round(current - Math.abs(pointsToMarginCall) * dir)}</strong> 點</div>
         <div>距 強制平倉（斷頭）<strong style="color:var(--danger);">${Math.abs(pointsToLiquidation).toFixed(0)} 點</strong>
-          → ${side === 'long' ? '跌到' : '漲到'} <strong>${Math.round(current + pointsToLiquidation * (-dir))}</strong> 點</div>
+          → ${side === 'long' ? '跌到' : '漲到'} <strong>${Math.round(current - Math.abs(pointsToLiquidation) * dir)}</strong> 點</div>
       </div>
     `;
     container.querySelectorAll('input[data-input], select[data-input]').forEach(el => {
@@ -6750,7 +6752,7 @@ const IVTermStructure = {
     const ctrls = points.map((p, i) => `
       <div class="ctrl">
         <label>${p.dte} DTE IV (%) <input type="number" class="ctrl-num" data-idx="${i}" value="${p.iv}" min="5" max="200" step="1"></label>
-        <input type="range" min="10" max="100" step="1" value="${p.iv}" data-idx="${i}"/>
+        <input type="range" min="5" max="200" step="1" value="${p.iv}" data-idx="${i}"/>
       </div>
     `).join('');
 
@@ -6780,7 +6782,7 @@ const IVTermStructure = {
    ============================================================ */
 const VolSkewExplorer = {
   render(container, state) {
-    const { spot, otmPct, putIv, callIv } = state;
+    const { spot, putIv, callIv } = state;
     const W = 580, H = 220;
     const M = { top: 20, right: 30, bottom: 50, left: 50 };
     const innerW = W - M.left - M.right;
@@ -7028,13 +7030,6 @@ const PMCCBuilder = {
     const pmccBreakeven = leapsStrike + leapsPremium - shortPremium;
     const ccBreakeven = spot - shortPremium;
 
-    // 最大獲利情境（短 call 被穿，假設未來 LEAPS roll 出去）
-    // 簡化：到期 spot = shortStrike 時 LEAPS 估值（用 delta 線性近似）
-    const spotAtMax = shortStrike;
-    const leapsValueAtMax = Math.max(spotAtMax - leapsStrike, 0) + leapsPremium * 0.3;  // 殘餘時間價值
-    const pmccMaxProfit = (leapsValueAtMax - leapsPremium + shortPremium) * 100;
-    const ccMaxProfit = (shortStrike - spot + shortPremium) * 100;
-
     container.innerHTML = `
       <div class="widget-controls">
         <div class="ctrl">
@@ -7087,7 +7082,7 @@ const PMCCBuilder = {
       <div class="callout" style="margin-top:14px;">
         <div class="callout-title">📌 PMCC 資金效率優勢</div>
         <p style="margin-top:6px;font-size:13px;">
-          PMCC 用 <strong>${(pmccCost / stockCost * 100).toFixed(0)}%</strong> 的傳統 CC 資金，獲得近似行為。
+          PMCC 用 <strong>${(pmccCost / stockCost * 100).toFixed(0)}%</strong> 的傳統 CC 資金，取得約 <strong>${(leapsDelta * 100).toFixed(0)}%</strong> 現股的 delta 曝險（行為近似現股）。
           月收 ROI 為傳統 CC 的 <strong>${(parseFloat(pmccROI) / parseFloat(ccROI)).toFixed(1)}x</strong>。
           但代價：LEAPS roll-out 成本、流動性、無股息。
         </p>
@@ -7300,7 +7295,7 @@ const WheelSimulator = {
           phase = 'CC';
         }
       } else {
-        const ccStrike = spot * 1.03;  // 30 delta 約 +3% OTM
+        const ccStrike = Math.max(spot * 1.03, costBasis);  // 30 delta 約 +3% OTM，但不低於接股成本 costBasis（呼應本節「CC strike 設在有效成本之上才穩賺」）
         cash += premium;
         const assigned = newSpot > ccStrike;
         log.push({
@@ -7405,7 +7400,7 @@ const WheelSimulator = {
         <div class="callout-title">📌 模擬說明</div>
         <p style="margin-top:6px;font-size:13px;">
           這是<strong>蒙地卡羅單路徑</strong>模擬（每輪股價隨機）。換 seed 看 100 次後再評估「策略期望值」。
-          IV Percentile 越高 → 每輪權利金越多但波動也大。月波動度過高（&gt; 15%）會頻繁卡在 CC 階段（被 assign 賣股）。
+          IV Percentile 越高 → 每輪權利金越多但波動也大。月波動度過高（&gt; 15%）時 CSP 接股、CC 賣股都更頻繁；真正「卡住」是股價跌破成本後 call 一直失效、賣不掉股票而被迫反覆續賣 CC。
         </p>
       </div>
     `;
@@ -7447,28 +7442,28 @@ const IVCrushAnimator = {
     { t: 7,   label: 'T+7d',  desc: '財報後 1 週',  ivPct: 28 }
   ],
 
-  // 估算 ATM straddle 價值 ≈ 0.8 × spot × σ × √(T/365)
-  // 用「現在 IV / 一年平均 IV」近似 σ
-  // 簡化：價值 = factor × (IV% / 30) × (1 + actualMove/100)
-  straddleValue(ivPct, daysFromEntry, actualMovePct) {
-    const baseIv = 30;
-    const ivRatio = ivPct / baseIv;
-    const intrinsic = Math.abs(actualMovePct) * 0.5;  // 部分 actualMove 進入內在價值
-    const extrinsic = Math.max(0.05, ivRatio * 0.08 - daysFromEntry * 0.0015);  // theta 衰減
-    return Math.max(intrinsic + extrinsic, 0.05);
+  // 估算 ATM straddle 價值（教學簡化版，spot 正規化為 100，故價值「美元」≈「% of spot」）
+  // 到期日固定在財報後第 7 天（EXPIRY=7）；外在價值 ≈ 0.8 × spot × σ × √(DTE/365)，隨 theta + 財報後 IV crush 衰減
+  // 內在價值 = |實際跳幅%|（ATM straddle 到期時的內在價值即等於標的移動幅度）
+  straddleValue(ivPct, phaseT, actualMovePct) {
+    const SPOT = 100, EXPIRY = 7;
+    const dte = Math.max(0, EXPIRY - phaseT);
+    const extrinsic = 0.8 * SPOT * (ivPct / 100) * Math.sqrt(dte / 365);  // 時間 + IV 溢價（IV crush 後大幅縮水）
+    const intrinsic = Math.abs(actualMovePct) / 100 * SPOT;               // 財報後實際跳幅轉成內在價值
+    return extrinsic + intrinsic;
   },
 
   render(container, state) {
     const { entryDay, actualMovePct } = state;
     const entryPhase = this.PHASES.find(p => p.t === entryDay) || this.PHASES[1];
-    const entryValue = this.straddleValue(entryPhase.ivPct, 0, 0);
+    const entryValue = this.straddleValue(entryPhase.ivPct, entryPhase.t, 0);
 
     // 在每個 phase 算 straddle 損益
     const timeline = this.PHASES.map(p => {
       const days = p.t - entryDay;
       if (p.t < entryDay) return { ...p, days, value: null, pl: null };  // 還沒進場
       const actualUsed = p.t >= 0 ? actualMovePct : 0;  // 財報後才算實際跳幅
-      const v = this.straddleValue(p.ivPct, days, actualUsed);
+      const v = this.straddleValue(p.ivPct, p.t, actualUsed);
       const pl = ((v - entryValue) / entryValue) * 100;
       return { ...p, days, value: v, pl };
     });
@@ -7547,10 +7542,12 @@ const IVCrushAnimator = {
 
     // 結論文字
     const finalPl = timeline[timeline.length - 1].pl;
+    const emPct = entryValue;  // SPOT 正規化為 100，進場權利金（美元）≈ Expected Move（%）
+    const absMove = Math.abs(actualMovePct);
     let verdict = '';
-    if (finalPl > 30) verdict = `✅ 跳幅 ±${Math.abs(actualMovePct)}% 大於 EM，Long Straddle 賺到 +${finalPl.toFixed(0)}%`;
-    else if (finalPl > 0) verdict = `🟡 跳幅 ±${Math.abs(actualMovePct)}% 接近 EM，小賺 +${finalPl.toFixed(0)}%`;
-    else verdict = `❌ 跳幅 ±${Math.abs(actualMovePct)}% 不夠抵 IV crush + theta，虧 ${finalPl.toFixed(0)}%（典型反例）`;
+    if (finalPl > 8) verdict = `✅ 跳幅 ±${absMove}% 大於 Expected Move（±${emPct.toFixed(1)}%），Long Straddle 賺 +${finalPl.toFixed(0)}%`;
+    else if (finalPl >= -8) verdict = `🟡 跳幅 ±${absMove}% 約等於 Expected Move（±${emPct.toFixed(1)}%），勉強打平（${finalPl >= 0 ? '+' : ''}${finalPl.toFixed(0)}%）`;
+    else verdict = `❌ 跳幅 ±${absMove}% 小於 Expected Move（±${emPct.toFixed(1)}%），不夠抵 IV crush + theta，虧 ${finalPl.toFixed(0)}%（典型反例）`;
 
     container.innerHTML = `
       ${svg}
@@ -7743,7 +7740,7 @@ const LearningPathBuilder = {
       <div style="padding:8px 4px;">
         <div style="font-size:12px;color:var(--fg-muted);margin-bottom:14px;">
           步驟 ${step + 1} / 3
-          <span style="float:right;">${Object.entries(choices).map(([k, v]) => `<span style="color:var(--accent);">✓</span> ${stepDef ? '' : ''}${v}`).join(' · ')}</span>
+          <span style="float:right;">${Object.entries(choices).map(([k, v]) => { const M = {goal:LearningPathBuilder.GOALS,hours:LearningPathBuilder.HOURS,exp:LearningPathBuilder.EXPERIENCE}; const nm = (M[k] && M[k][v] && M[k][v].name) || v; return `<span style="color:var(--accent);">✓</span> ${nm}`; }).join(' · ')}</span>
         </div>
         <div style="font-size:16px;font-weight:600;margin-bottom:14px;">${stepDef.q}</div>
         <div style="display:flex;flex-direction:column;gap:8px;">${optsHTML}</div>
@@ -7804,7 +7801,7 @@ const IronCondorBuilder = {
   // 簡化權利金估算：以 30 delta 估，~0.5 × EM × (strike 距 spot 的因子)
   estPremium(spot, strike, em, isCall) {
     const distance = Math.abs(strike - spot) / em;
-    // distance ~1.1 → premium 大約 EM 的 0.25；distance ~1.5 → 0.12
+    // distance ~1.1 → factor ≈ 0.19；distance ~1.5 → factor ≈ 0.16（factor = 0.4/(1+distance)，下限 0.05）
     const factor = Math.max(0.05, 0.4 / (1 + distance));
     return Math.round(em * factor * 100) / 100;
   },
@@ -7911,7 +7908,7 @@ const IronCondorBuilder = {
       <div style="margin-top:14px;padding:10px 14px;background:var(--bg-sunken);border-radius:var(--radius);font-size:13px;line-height:1.7;">
         <strong>4 腿配置（推薦 ±1.1 × EM）</strong>：<br/>
         <span style="color:var(--info);">買 LP $${longPut}</span> · <span style="color:var(--accent);">賣 SP $${shortPut}</span> · <strong>Spot $${spot}</strong> · <span style="color:var(--accent);">賣 SC $${shortCall}</span> · <span style="color:var(--info);">買 LC $${longCall}</span><br/>
-        <strong>Expected Move (±1σ)</strong>: ±$${em.toFixed(2)}（範圍 $${(spot - em).toFixed(0)} ~ $${(spot + em).toFixed(0)}）
+        <strong>Expected Move（預期平均移動，約 0.8σ）</strong>: ±$${em.toFixed(2)}（範圍 $${(spot - em).toFixed(0)} ~ $${(spot + em).toFixed(0)}）
       </div>
 
       ${svg}
@@ -7983,7 +7980,7 @@ const TradeJournal = {
     const wins = closed.filter(t => parseFloat(t.pnl) > 0).length;
     const losses = closed.filter(t => parseFloat(t.pnl) <= 0).length;
     const totalPnl = closed.reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
-    const winRate = closed.length > 0 ? (wins / closed.length * 100) : 0;
+    const winRate = (wins + losses) > 0 ? (wins / (wins + losses) * 100) : 0;
     const avgWin = wins > 0 ? closed.filter(t => parseFloat(t.pnl) > 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / wins : 0;
     const avgLoss = losses > 0 ? closed.filter(t => parseFloat(t.pnl) <= 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / losses : 0;
     return { total: trades.length, open: trades.length - closed.length, closed: closed.length, wins, losses, totalPnl, winRate, avgWin, avgLoss };
@@ -8910,6 +8907,7 @@ const CloudSync = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data: merged }),
+        keepalive: true,  // 讓關頁時補送的 PUT 仍能完成
       });
       if (!put.ok) throw new Error('PUT ' + put.status);
       try { localStorage.setItem(this.LAST_KEY, String(Date.now())); } catch {}
@@ -8928,6 +8926,15 @@ const CloudSync = {
     if (!this.configured() || !this.enabled()) return;
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.sync({ silent: true }), 4000);
+  },
+
+  // 頁面被隱藏 / 關閉時，若有尚未送出的 debounce 變更就立刻補送一次
+  // （修正「改完書籤等狀態後 4 秒內關分頁 / 切到背景，雲端漏同步」的問題）
+  flush() {
+    if (!this._timer) return;            // 沒有待送出的變更
+    clearTimeout(this._timer);
+    this._timer = null;
+    if (this.configured() && this.enabled()) this.sync({ silent: true });
   },
 
   // 開頁面時：拉雲端 → 合併 → 若本機有變動就整頁刷新一次（每 session 至多一次，避免迴圈）
@@ -8954,6 +8961,9 @@ const CloudSync = {
 
   initUI() {
     document.getElementById('sync-btn')?.addEventListener('click', () => this.showPanel());
+    // 關頁 / 切背景前補送待同步的變更（visibilitychange 在切分頁、關閉前都會先觸發）
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') this.flush(); });
+    window.addEventListener('pagehide', () => this.flush());
     this.updateButton();
   },
 
@@ -9502,6 +9512,8 @@ function setupGlossarySearch() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  // section 只有 data-chapter、沒有 id → 補上 id，讓側欄與內文的 #錨點連結能原生平滑捲動
+  document.querySelectorAll('section[data-chapter]').forEach(s => { if (!s.id) s.id = s.dataset.chapter; });
   hydrateAll();
   updateProgress();
   updateActiveNav();

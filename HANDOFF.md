@@ -89,6 +89,20 @@ Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行
 
 備註：`.stub` / `.stub-section` CSS 已無任何章節使用（dead code），保留無害，日後可順手清。
 
+## 全站多代理健檢 + 修正（2026-06-17）
+
+用多代理工作流（per-章 + per-元件 + 跨欄目，對抗式複核）掃完整站，修了約 35 處。
+
+**架構相關（會影響行為，接手必讀）：**
+- **頁內錨點導覽原本全壞**：`<section>` 只有 `data-chapter` 沒有 `id`，側欄 `<a href="#chN">` 與內文「見 ChXX」全部跳不動（只有鍵盤 J/K 的 `gotoChapter` 能動）。修法：`DOMContentLoaded` 開頭補 `s.id = s.dataset.chapter` + CSS `section[data-chapter]{scroll-margin-top:56px}`（topbar 49px）。原生平滑捲動 + 所有動態 `#` 連結一次修好。
+- **雲端同步「改完 4 秒內關頁就漏送」根因找到並修掉**（對應舊 WIP「書籤同步待確認」）：`scheduleSync` 是 4s debounce，但沒有任何 unload/visibility flush。加 `CloudSync.flush()` + `visibilitychange(hidden)`/`pagehide` listener（initUI 註冊）+ PUT 加 `keepalive:true`。trades 合併雖是 local-wins，但日誌只有新增/刪除、無編輯，不會真的衝突，未動。
+- **IVCrushAnimator 模型重寫**：原 `straddleValue` 內在/外在價值差約 100 倍量綱，預設（進場 T-7、跳幅 7%）顯示約 +2323% 假獲利，與本章「方向對也會被 IV crush 吃掉」完全相反。改成量綱一致的權利金模型（spot 正規化 100、EXPIRY=7、外在=0.8·spot·σ·√(DTE/365)、內在=|跳幅%|），EM 隨進場 IV 變動；verdict 改用真實 EM% 門檻。驗證：T-7/7%→-19% ❌、12.5%→+45% ✅、T-1/7%→-30%、T-14/7%→約打平。
+- **MarginSimulator 空單觸發價位算反**：原式對多空都算成 current−D，空單應為 current+D。改 `current - Math.abs(pts)*dir`，long 跌到 19785 / short 漲到 20215。
+
+**內容/數字（文字修正）：** ch7 Protective Put 三處「保護性買權」→「賣權」；ch20 帳戶見底 5,000 點；ch30 傳統 CC +$1,950 + LEAPS 78 delta；案例⑨ 權利金分解、案例④ −NT$24k、案例⑦ 0050 手續費 NT$7,315（連動淨損益 +NT$735 / 年化 ~0.7%，結論更保守=更誠實）+ 年化基差 +10.5%；ch14 LEAPS 槓桿方向；ch28 Kelly 成長率；ch19 期交稅當沖不減半 + 最低稅負免稅額 750 萬（已查財政部 mof.gov.tw）；ch33 IV Pctl vs skew；ch13/ch23/ch26/ch29/ch32/ch5/ch27 小修；TradeJournal 勝率分母；GreeksLab 現價標記出框；StrategyPicker/LearningPath 麵包屑顯示中文；PMCC 死碼清掉 + Delta 控制接上顯示；PayoffDiagram/IVTermStructure/GreeksLab 滑桿範圍對齊。
+
+驗證（2026-06-17，Claude）：`new Function()` 解析整段 JS OK；9 組 quiz JSON OK；section 40/40 平衡；IVCrush/MarginSim 數值用 node 重算過。**因本機 Chrome profile 被佔用，無法做瀏覽器互動實跑**，建議手動視覺抽查（側欄捲動 / IVCrush 預設顯示虧損 / 同步關頁 flush）。
+
 ## 雲端跨裝置同步（2026-05-25 新增）
 
 需求來源：使用者反映「手機網頁標記的書籤（📍），電腦網頁看不到」。

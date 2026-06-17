@@ -1,32 +1,28 @@
 # WIP — OPT · 衍生品自學系統
 
-最後更新：2026-06-09（台北時間）/ Codex（學習閉環補強：交易前 Gate + No-Trade Drill + Journal Coach）
+最後更新：2026-06-17（台北時間）/ Claude（全站多代理健檢 + 約 35 處修正）
 
 ## 現在狀態
 
-- **全部 36 章現在都「完成」到手冊自訂標準，並補上交易前 / 交易後學習閉環**。
-- 本輪補強：
-  1. **Ch27 StrategyPicker 從 3 維度擴成 5 步**：原本「持倉 / 方向 / IV」保留為核心決策表，新增「近期事件」與「期權鏈流動性」gate；結果頁會在財報/FOMC/點差過寬等情境提示「先不要直接下單」。
-  2. **新增 PreTradeChecklist 互動元件**：六項交易前 Go / No-Go 檢查（thesis、最大虧損、部位大小、事件、流動性、出場條件），硬性項目沒過就顯示 Gate 未通過。
-  3. **新增 No-Trade Drill**：Ch27 增加 3 題「應該不交易」練習，訓練 CSP 看空、財報前 long straddle、低流動性 iron condor 等反例。
-  4. **Ch36 TradeJournal 新增 Journal Coach**：根據交易紀錄提示樣本太小、勝率偏低、平均虧損過大、連虧降部位、某策略累計虧損、open 太久等檢討重點。
-  5. 首頁計數更新為 **35 章 + 14 互動 + 11 案例 + 9 Quiz + 名詞表**。
-- 驗證：`node` 解析 9 組 quiz JSON OK；抽出 `<script>` 後 `new Function()` JS parser OK；功能存在性檢查 OK。瀏覽器 localhost 實跑因本環境 Browser enterprise policy 擋 `127.0.0.1`，未做互動實跑。
-- 2026-06-03 全章補完摘要：
-  1. **10 個薄章補上 in-chapter 數字實算**：Ch9 Wheel 三輪、Ch12 四指標合議(SPY)、Ch18 方向對卻被 IV Crush 吃掉的跨式、Ch20 NT$100萬選約、Ch22 轉倉現金流、Ch24 大額交易人判讀、Ch31 VXX 事件避險(contango 損耗)、Ch34 SPX 0-DTE Iron Condor、Ch35 skew/期限結構判讀、Ch36 範例日誌。每個案例都經對抗式數字複核（break-even / 最大虧損 / roll 成本 / 槓桿 / IV crush 等重算過）。
-  2. **清掉過時版本字樣**：首頁綠框（原寫 Stage 3 / 31 章 / 9 互動 / 7 Quiz → 改 35 章+實戰日誌 / 13 互動 / 8 Quiz）、Ch23 對 Ch25「規劃中/預覽版」、案例庫「Stage 1/2」、Ch29「結語（Stage 2）」、Ch35「Stage 3 完整版」、兩個 Stage 0 開發註解。
-  3. **側欄徽章一致化**：移除 Ch5 殘留的「✓ 完整」，補 Ch11 ✓IVTerm、Ch12 ✓Skew、Ch16 ✓Builder、Ch21 ✓Sim。
-- 線上：<https://people7771025.github.io/OPT/>（push 後 Pages 自動部署）
+- 用多代理工作流對全站（36 章 + 16 互動元件 + 跨欄目）做對抗式健檢，修了約 35 處，已 commit + push（Pages 自動部署）。
+- **最重要的兩個發現（都已修）**：
+  1. **頁內錨點導覽原本全壞**：側欄點章節、內文「見 ChXX」都跳不動（section 缺 id）。已補 id + scroll-margin-top，現在會平滑捲動。
+  2. **雲端同步「改完 4 秒內關頁就漏送」根因找到並修掉**（就是舊「書籤同步待確認」）：debounce 沒有 flush；已加 visibilitychange/pagehide flush + keepalive。
+- **修對的關鍵錯誤**：IVCrushAnimator 原本預設顯示約 +2323% 假獲利（與本章 IV crush 教訓相反）已重寫模型；MarginSimulator 空單觸發價位算反；ch7 Protective Put 三處誤譯「買權」→「賣權」；ch20/ch30/案例⑦⑨④ 數字；ch19 稅務（期交稅當沖不減半、免稅額 750 萬，已查財政部）等。
+- 驗證：JS `new Function()` OK、9 quiz JSON OK、section 40/40、IVCrush/MarginSim 數值 node 重算過。**未做瀏覽器互動實跑（本機 Chrome profile 被佔用）**。
+- 線上：<https://people7771025.github.io/OPT/>
 
-## 待確認（沿用上輪）
+## 待確認 / 建議手動抽查
 
-- **跨裝置書籤同步**仍待使用者實機確認：電腦按 📍 → ☁️ 立即同步（顯示「已同步·時間」）→ 手機**完全關分頁重開** → 看頂端是否出現相同 📂 Chx。若仍不同步查：手機端較新 ts 蓋掉、或 debounce 4s 未送出即關頁。
+- 側欄點任一章節是否平滑捲動到該章（錨點修復）。
+- IVCrushAnimator 預設（進場 T-7、跳幅 7%）是否顯示「❌ 虧」而非獲利。
+- 雲端同步：電腦改書籤後**馬上關分頁** → 手機重開是否看到（flush 修復）。
 
 ## 其他可選後續
 
-- PWA 圖示換 PNG（修「加到主畫面是灰底」+ 消掉那個 manifest icon warning）。
-- 英文版 / Service Worker 離線快取 / 績效連 Obsidian。
-- `.stub` / `.stub-section` 那組 CSS 已無章節使用（dead code），可日後順手清掉。
+- 滑桿/數字框範圍不一致：已修 PayoffDiagram/IVTermStructure/GreeksLab；WheelSim/IronCondor/MarginSim 還有幾個（widen vs tighten 方向待定，低優先）。
+- IronCondor 勝率用 0.8σ 當 1σ：已改標籤為「預期平均移動，約 0.8σ」，未動勝率算法（保守）。
+- PWA 圖示換 PNG；英文版 / Service Worker 離線快取。
 
 ## 卡點
 
@@ -35,4 +31,4 @@
 ## 維運備忘
 
 - 改 Worker 重部署：`wrangler deploy --config sync-worker/wrangler.toml`
-- iOS 從主畫面開是 standalone 模式（無 Safari 工具列/擴充），使用者選擇維持現狀不改。
+- iOS 從主畫面開是 standalone 模式，使用者選擇維持現狀不改。
