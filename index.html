@@ -7832,10 +7832,11 @@ const IronCondorBuilder = {
     const breakevenDown = shortPut - netCredit / 100;
     const breakevenUp = shortCall + netCredit / 100;
 
-    // 簡易勝率估算（假設常態分配 + 1σ = EM）
-    // P(到期落在 short strike 之間) ≈ 從 Z-score 推
-    const zDown = (breakevenDown - spot) / em;
-    const zUp = (breakevenUp - spot) / em;
+    // 簡易勝率估算（假設常態分配）。em 是「預期平均移動」≈ σ×√(2/π)≈0.8σ，
+    // 算勝率要先還原成真正 1σ，否則 Z 被高估、勝率灌水約 10+ 個百分點。
+    const sigma = em / 0.7979;
+    const zDown = (breakevenDown - spot) / sigma;
+    const zUp = (breakevenUp - spot) / sigma;
     const cdf = z => 0.5 * (1 + (z >= 0 ? 1 : -1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)));
     const winRate = (cdf(zUp) - cdf(zDown)) * 100;
 
