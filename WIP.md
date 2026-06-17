@@ -21,7 +21,7 @@
 ## 其他可選後續
 
 - 滑桿/數字框範圍不一致：已修 PayoffDiagram/IVTermStructure/GreeksLab；WheelSim/IronCondor/MarginSim 還有幾個（widen vs tighten 方向待定，低優先）。
-- IronCondor 勝率用 0.8σ 當 1σ：已改標籤為「預期平均移動，約 0.8σ」，未動勝率算法（保守）。
+- (已修 2026-06-17) IronCondor 勝率原把 0.8σ 當 1σ → 改用真正 1σ（em÷0.7979）算，預設 74%→63%（誠實值）；EM 標籤也改為「預期平均移動，約 0.8σ」。
 - PWA 圖示換 PNG；英文版 / Service Worker 離線快取。
 
 ## 卡點
