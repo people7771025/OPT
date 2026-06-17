@@ -6241,15 +6241,15 @@ const StockHedgeCalc = {
     const controlsHTML = `
       <div class="widget-controls">
         <div class="ctrl">
-          <label>持股總市值（NT$）<input type="number" class="ctrl-num" data-input="totalValue" value="${totalValue}" min="100000" max="200000000" step="10000"></label>
+          <label>持股總市值（NT$）<input type="number" class="ctrl-num" data-input="totalValue" value="${totalValue}" min="200000" max="20000000" step="10000"></label>
           <input type="range" min="200000" max="20000000" step="100000" value="${totalValue}" data-input="totalValue"/>
         </div>
         <div class="ctrl">
-          <label>組合 Beta <input type="number" class="ctrl-num" data-input="beta" value="${beta.toFixed(2)}" min="0.1" max="3.0" step="0.01"></label>
+          <label>組合 Beta <input type="number" class="ctrl-num" data-input="beta" value="${beta.toFixed(2)}" min="0.3" max="2.0" step="0.01"></label>
           <input type="range" min="0.3" max="2.0" step="0.05" value="${beta}" data-input="beta"/>
         </div>
         <div class="ctrl">
-          <label>加權指數 <input type="number" class="ctrl-num" data-input="indexLevel" value="${indexLevel}" min="10000" max="30000" step="10"></label>
+          <label>加權指數 <input type="number" class="ctrl-num" data-input="indexLevel" value="${indexLevel}" min="15000" max="25000" step="10"></label>
           <input type="range" min="15000" max="25000" step="50" value="${indexLevel}" data-input="indexLevel"/>
         </div>
         <div class="ctrl">
@@ -6631,15 +6631,15 @@ const MarginSimulator = {
           </select>
         </div>
         <div class="ctrl">
-          <label>口數 <input type="number" class="ctrl-num" data-input="qty" value="${qty}" min="1" max="100" step="1"></label>
+          <label>口數 <input type="number" class="ctrl-num" data-input="qty" value="${qty}" min="1" max="20" step="1"></label>
           <input type="range" min="1" max="20" step="1" value="${qty}" data-input="qty"/>
         </div>
         <div class="ctrl">
-          <label>進場點數 <input type="number" class="ctrl-num" data-input="entry" value="${entry}" min="5000" max="40000" step="1"></label>
+          <label>進場點數 <input type="number" class="ctrl-num" data-input="entry" value="${entry}" min="15000" max="25000" step="1"></label>
           <input type="range" min="15000" max="25000" step="50" value="${entry}" data-input="entry"/>
         </div>
         <div class="ctrl">
-          <label>目前點數 <input type="number" class="ctrl-num" data-input="current" value="${current}" min="5000" max="40000" step="1"></label>
+          <label>目前點數 <input type="number" class="ctrl-num" data-input="current" value="${current}" min="15000" max="25000" step="1"></label>
           <input type="range" min="15000" max="25000" step="50" value="${current}" data-input="current"/>
         </div>
       </div>
@@ -6856,11 +6856,11 @@ const VolSkewExplorer = {
       ${svg}
       <div class="widget-controls">
         <div class="ctrl">
-          <label>Put IV @ -5% strike (%) <input type="number" class="ctrl-num" data-input="putIv" value="${putIv}" min="5" max="200" step="1"></label>
+          <label>Put IV @ -5% strike (%) <input type="number" class="ctrl-num" data-input="putIv" value="${putIv}" min="10" max="100" step="1"></label>
           <input type="range" min="10" max="100" step="1" value="${putIv}" data-input="putIv"/>
         </div>
         <div class="ctrl">
-          <label>Call IV @ +5% strike (%) <input type="number" class="ctrl-num" data-input="callIv" value="${callIv}" min="5" max="200" step="1"></label>
+          <label>Call IV @ +5% strike (%) <input type="number" class="ctrl-num" data-input="callIv" value="${callIv}" min="10" max="100" step="1"></label>
           <input type="range" min="10" max="100" step="1" value="${callIv}" data-input="callIv"/>
         </div>
       </div>
@@ -7033,27 +7033,27 @@ const PMCCBuilder = {
     container.innerHTML = `
       <div class="widget-controls">
         <div class="ctrl">
-          <label>NVDA 現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="50" max="500" step="1"></label>
+          <label>NVDA 現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="80" max="250" step="1"></label>
           <input type="range" min="80" max="250" step="1" value="${spot}" data-input="spot"/>
         </div>
         <div class="ctrl">
-          <label>LEAPS Strike <input type="number" class="ctrl-num" data-input="leapsStrike" value="${leapsStrike}" min="10" max="300" step="5"></label>
+          <label>LEAPS Strike <input type="number" class="ctrl-num" data-input="leapsStrike" value="${leapsStrike}" min="60" max="160" step="5"></label>
           <input type="range" min="60" max="160" step="5" value="${leapsStrike}" data-input="leapsStrike"/>
         </div>
         <div class="ctrl">
-          <label>LEAPS 權利金 <input type="number" class="ctrl-num" data-input="leapsPremium" value="${leapsPremium}" min="1" max="200" step="0.5"></label>
+          <label>LEAPS 權利金 <input type="number" class="ctrl-num" data-input="leapsPremium" value="${leapsPremium}" min="20" max="100" step="0.5"></label>
           <input type="range" min="20" max="100" step="1" value="${leapsPremium}" data-input="leapsPremium"/>
         </div>
         <div class="ctrl">
-          <label>LEAPS Delta <input type="number" class="ctrl-num" data-input="leapsDelta" value="${leapsDelta}" min="0.3" max="0.95" step="0.01"></label>
+          <label>LEAPS Delta <input type="number" class="ctrl-num" data-input="leapsDelta" value="${leapsDelta}" min="0.5" max="0.9" step="0.01"></label>
           <input type="range" min="0.5" max="0.9" step="0.01" value="${leapsDelta}" data-input="leapsDelta"/>
         </div>
         <div class="ctrl">
-          <label>短 Call Strike <input type="number" class="ctrl-num" data-input="shortStrike" value="${shortStrike}" min="50" max="500" step="1"></label>
+          <label>短 Call Strike <input type="number" class="ctrl-num" data-input="shortStrike" value="${shortStrike}" min="120" max="200" step="1"></label>
           <input type="range" min="120" max="200" step="1" value="${shortStrike}" data-input="shortStrike"/>
         </div>
         <div class="ctrl">
-          <label>短 Call 權利金 <input type="number" class="ctrl-num" data-input="shortPremium" value="${shortPremium}" min="0.1" max="50" step="0.1"></label>
+          <label>短 Call 權利金 <input type="number" class="ctrl-num" data-input="shortPremium" value="${shortPremium}" min="1" max="15" step="0.1"></label>
           <input type="range" min="1" max="15" step="0.1" value="${shortPremium}" data-input="shortPremium"/>
         </div>
       </div>
@@ -7204,11 +7204,11 @@ const SyntheticBuilder = {
           </select>
         </div>
         <div class="ctrl">
-          <label>標的現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="20" max="500" step="1"></label>
+          <label>標的現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="50" max="300" step="1"></label>
           <input type="range" min="50" max="300" step="1" value="${spot}" data-input="spot"/>
         </div>
         <div class="ctrl">
-          <label>Strike <input type="number" class="ctrl-num" data-input="strike" value="${strike}" min="20" max="500" step="1"></label>
+          <label>Strike <input type="number" class="ctrl-num" data-input="strike" value="${strike}" min="50" max="300" step="1"></label>
           <input type="range" min="50" max="300" step="1" value="${strike}" data-input="strike"/>
         </div>
       </div>
@@ -7343,27 +7343,27 @@ const WheelSimulator = {
     container.innerHTML = `
       <div class="widget-controls">
         <div class="ctrl">
-          <label>起始標的價 <input type="number" class="ctrl-num" data-input="startSpot" value="${state.startSpot}" min="20" max="500" step="1"></label>
+          <label>起始標的價 <input type="number" class="ctrl-num" data-input="startSpot" value="${state.startSpot}" min="50" max="300" step="1"></label>
           <input type="range" min="50" max="300" step="1" value="${state.startSpot}" data-input="startSpot"/>
         </div>
         <div class="ctrl">
-          <label>IV Percentile (%) <input type="number" class="ctrl-num" data-input="ivPercentile" value="${state.ivPercentile}" min="10" max="100" step="1"></label>
+          <label>IV Percentile (%) <input type="number" class="ctrl-num" data-input="ivPercentile" value="${state.ivPercentile}" min="20" max="90" step="1"></label>
           <input type="range" min="20" max="90" step="1" value="${state.ivPercentile}" data-input="ivPercentile"/>
         </div>
         <div class="ctrl">
-          <label>輪次（每輪約 1 月）<input type="number" class="ctrl-num" data-input="rounds" value="${state.rounds}" min="1" max="36" step="1"></label>
+          <label>輪次（每輪約 1 月）<input type="number" class="ctrl-num" data-input="rounds" value="${state.rounds}" min="3" max="24" step="1"></label>
           <input type="range" min="3" max="24" step="1" value="${state.rounds}" data-input="rounds"/>
         </div>
         <div class="ctrl">
-          <label>月均漂移 (%) <input type="number" class="ctrl-num" data-input="monthlyDrift" value="${state.monthlyDrift}" min="-10" max="10" step="0.1"></label>
+          <label>月均漂移 (%) <input type="number" class="ctrl-num" data-input="monthlyDrift" value="${state.monthlyDrift}" min="-3" max="3" step="0.1"></label>
           <input type="range" min="-3" max="3" step="0.1" value="${state.monthlyDrift}" data-input="monthlyDrift"/>
         </div>
         <div class="ctrl">
-          <label>月波動度 (%) <input type="number" class="ctrl-num" data-input="monthlyVol" value="${state.monthlyVol}" min="1" max="30" step="0.5"></label>
+          <label>月波動度 (%) <input type="number" class="ctrl-num" data-input="monthlyVol" value="${state.monthlyVol}" min="3" max="20" step="0.5"></label>
           <input type="range" min="3" max="20" step="0.5" value="${state.monthlyVol}" data-input="monthlyVol"/>
         </div>
         <div class="ctrl">
-          <label>Seed（換 seed 看其他情境）<input type="number" class="ctrl-num" data-input="seed" value="${state.seed}" min="1" max="999999" step="1"></label>
+          <label>Seed（換 seed 看其他情境）<input type="number" class="ctrl-num" data-input="seed" value="${state.seed}" min="1" max="100" step="1"></label>
           <input type="range" min="1" max="100" step="1" value="${state.seed}" data-input="seed"/>
         </div>
       </div>
@@ -7562,7 +7562,7 @@ const IVCrushAnimator = {
           </select>
         </div>
         <div class="ctrl">
-          <label>實際財報後跳幅 (%) <input type="number" class="ctrl-num" data-input="actualMovePct" value="${actualMovePct}" min="-50" max="50" step="0.5"></label>
+          <label>實際財報後跳幅 (%) <input type="number" class="ctrl-num" data-input="actualMovePct" value="${actualMovePct}" min="-25" max="25" step="0.5"></label>
           <input type="range" min="-25" max="25" step="0.5" value="${actualMovePct}" data-input="actualMovePct"/>
         </div>
       </div>
@@ -7889,19 +7889,19 @@ const IronCondorBuilder = {
     container.innerHTML = `
       <div class="widget-controls">
         <div class="ctrl">
-          <label>標的現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="20" max="2000" step="1"></label>
+          <label>標的現價 <input type="number" class="ctrl-num" data-input="spot" value="${spot}" min="50" max="800" step="1"></label>
           <input type="range" min="50" max="800" step="1" value="${spot}" data-input="spot"/>
         </div>
         <div class="ctrl">
-          <label>IV Percentile (%) <input type="number" class="ctrl-num" data-input="ivPct" value="${ivPct}" min="10" max="120" step="1"></label>
+          <label>IV Percentile (%) <input type="number" class="ctrl-num" data-input="ivPct" value="${ivPct}" min="20" max="100" step="1"></label>
           <input type="range" min="20" max="100" step="1" value="${ivPct}" data-input="ivPct"/>
         </div>
         <div class="ctrl">
-          <label>DTE <input type="number" class="ctrl-num" data-input="dte" value="${dte}" min="1" max="180" step="1"></label>
+          <label>DTE <input type="number" class="ctrl-num" data-input="dte" value="${dte}" min="7" max="90" step="1"></label>
           <input type="range" min="7" max="90" step="1" value="${dte}" data-input="dte"/>
         </div>
         <div class="ctrl">
-          <label>Spread 寬度 <input type="number" class="ctrl-num" data-input="spreadWidth" value="${spreadWidth}" min="1" max="50" step="1"></label>
+          <label>Spread 寬度 <input type="number" class="ctrl-num" data-input="spreadWidth" value="${spreadWidth}" min="3" max="20" step="1"></label>
           <input type="range" min="3" max="20" step="1" value="${spreadWidth}" data-input="spreadWidth"/>
         </div>
       </div>
