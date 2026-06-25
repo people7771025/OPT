@@ -5784,7 +5784,7 @@ const Math2 = {
 };
 
 function esc(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 /* ============================================================
@@ -8127,14 +8127,14 @@ const TradeJournal = {
         const pnlColor = parseFloat(t.pnl) > 0 ? 'var(--accent)' : (parseFloat(t.pnl) < 0 ? 'var(--danger)' : 'var(--fg-muted)');
         return `
           <tr>
-            <td>${t.date}</td>
-            <td><strong>${t.ticker}</strong></td>
-            <td>${t.strategy}</td>
-            <td>$${t.strike}</td>
-            <td>$${t.premium}</td>
-            <td>${t.qty}</td>
-            <td><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:${t.status === 'open' ? 'var(--info-soft)' : 'var(--bg-sunken)'};color:${t.status === 'open' ? 'var(--info)' : 'var(--fg-muted)'};">${t.status}</span></td>
-            <td style="color:${pnlColor};font-weight:600;font-family:var(--font-mono);">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + '$' + t.pnl : '—'}</td>
+            <td>${esc(t.date)}</td>
+            <td><strong>${esc(t.ticker)}</strong></td>
+            <td>${esc(t.strategy)}</td>
+            <td>$${esc(t.strike)}</td>
+            <td>$${esc(t.premium)}</td>
+            <td>${esc(t.qty)}</td>
+            <td><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:${t.status === 'open' ? 'var(--info-soft)' : 'var(--bg-sunken)'};color:${t.status === 'open' ? 'var(--info)' : 'var(--fg-muted)'};">${esc(t.status)}</span></td>
+            <td style="color:${pnlColor};font-weight:600;font-family:var(--font-mono);">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + '$' + esc(t.pnl) : '—'}</td>
             <td><button class="btn" data-action="delete" data-idx="${realIdx}" style="font-size:11px;padding:2px 8px;color:var(--danger);border-color:var(--danger);">刪</button></td>
           </tr>
         `;
@@ -8145,7 +8145,7 @@ const TradeJournal = {
         <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">新增交易</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
           <input type="date" data-form="date" value="${form.date}" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <input type="text" data-form="ticker" value="${form.ticker}" placeholder="標的 NVDA" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <input type="text" data-form="ticker" value="${esc(form.ticker)}" placeholder="標的 NVDA" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
           <select data-form="strategy" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;">
             ${['CC', 'CSP', 'PP', 'Collar', 'Wheel', 'Long Call', 'Long Put', 'Vertical', 'IC', 'Straddle', 'PMCC', '其他'].map(s => `<option ${form.strategy === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
@@ -8226,7 +8226,7 @@ const TradeJournal = {
             <tbody>
               ${tkrStats.map(t => `
                 <tr>
-                  <td><strong>${t.ticker}</strong></td>
+                  <td><strong>${esc(t.ticker)}</strong></td>
                   <td style="text-align:right;font-family:var(--font-mono);">${t.total}</td>
                   <td style="text-align:right;font-family:var(--font-mono);color:${t.winRate >= 60 ? 'var(--accent)' : (t.winRate < 40 ? 'var(--danger)' : 'var(--fg)')};">${t.winRate.toFixed(0)}%</td>
                   <td style="text-align:right;font-family:var(--font-mono);color:${t.pnl >= 0 ? 'var(--accent)' : 'var(--danger)'};">${t.pnl >= 0 ? '+' : ''}$${t.pnl.toFixed(0)}</td>
