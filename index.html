@@ -23,7 +23,7 @@
   --bg-sunken: #f1f1ef;
   --fg: #1c1c1c;
   --fg-muted: #6b6b6b;
-  --fg-subtle: #9b9b9b;
+  --fg-subtle: #6f6f6f;       /* 由 #9b9b9b（2.66:1）調深至 AA：vs bg 4.81 / vs 白卡 5.02 */
   --border: #e4e4e2;
   --border-strong: #c8c8c5;
   --accent: #047857;          /* emerald-700 */
@@ -45,7 +45,7 @@
   --bg-sunken: #0a0f1f;
   --fg: #e2e8f0;               /* slate-200 */
   --fg-muted: #94a3b8;         /* slate-400 */
-  --fg-subtle: #64748b;        /* slate-500 */
+  --fg-subtle: #8a99ad;        /* 由 #64748b（3.75:1）調亮至 AA：vs bg 6.16 / vs elev 5.04 */
   --border: #334155;           /* slate-700 */
   --border-strong: #475569;
   --accent: #34d399;           /* emerald-400 */
@@ -54,6 +54,7 @@
   --danger: #fb7185;           /* rose-400 */
   --info: #60a5fa;             /* blue-400 */
   --info-soft: #1e3a8a;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);   /* 深色加深 alpha，否則 slider thumb 陰影沿用 .05 幾乎不可見 */
   --shadow-md: 0 4px 12px rgba(0,0,0,.4);
 }
 
@@ -63,6 +64,20 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* 鍵盤焦點環（WCAG 2.4.7）：滑鼠點擊不顯示、鍵盤 Tab 才顯示 */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: inherit; }
+:focus:not(:focus-visible) { outline: none; }
+
+/* 減少動態（前庭敏感）：關閉平滑捲動與所有過場/動畫 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
 section[data-chapter] { scroll-margin-top: 56px; }
 body {
   background: var(--bg);
@@ -102,16 +117,22 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
 }
 .topbar .progress-fill {
   height: 100%; width: 0;
-  background: linear-gradient(90deg, var(--accent), var(--info));
+  background: var(--accent);   /* 原為 emerald→blue 漸層，改純 accent 融入整體克制的單色設計語言 */
   transition: width .3s;
 }
 .topbar .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .btn {
   font: inherit; font-size: 13px;
   padding: 6px 12px;
+  min-height: 36px;
   background: var(--bg-elev); color: var(--fg);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
   cursor: pointer; transition: all .15s;
+}
+/* 行動裝置：所有按鈕命中區 ≥44px（避免誤刪真實紀錄）；小型 inline 鈕也撐滿 44px 觸控區 */
+@media (max-width: 900px) {
+  .btn { min-height: 44px; }
+  .btn[data-action="delete"] { min-height: 44px; min-width: 44px; }
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn.active { background: var(--accent); color: white; border-color: var(--accent); }
@@ -512,8 +533,9 @@ details[open] { background: var(--bg-sunken); }
 .ctrl input[type="range"] {
   width: 100%; -webkit-appearance: none; appearance: none;
   height: 4px; background: var(--bg-sunken); border-radius: 2px;
-  outline: none;
 }
+/* 滑鼠操作時不顯示焦點框，但鍵盤聚焦時 thumb 補光暈（見下方 :focus-visible 規則） */
+.ctrl input[type="range"]:focus:not(:focus-visible) { outline: none; }
 .ctrl input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
   width: 14px; height: 14px; border-radius: 50%;
@@ -524,6 +546,14 @@ details[open] { background: var(--bg-sunken); }
   width: 14px; height: 14px; border-radius: 50%;
   background: var(--accent); cursor: pointer;
   border: 2px solid var(--bg-elev);
+}
+/* 鍵盤聚焦：thumb 加 emerald 光暈，讓 slider 焦點可見 */
+.ctrl input[type="range"]:focus-visible { outline: none; }
+.ctrl input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ctrl input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .ctrl input.ctrl-num {
   background: transparent;
@@ -572,6 +602,28 @@ details[open] { background: var(--bg-sunken); }
   font-family: inherit;
 }
 .preset-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* TradeJournal 表單欄位：原本 9 個欄位各帶一長串重複 inline style、無 focus/hover、padding 過擠。
+   抽成 .tj-field，統一高度與字級、補 emerald 焦點環，與 .ctrl-num 體驗一致。 */
+.tj-field {
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 7px 10px; min-height: 36px; font: inherit; font-size: 13px;
+  transition: border-color .12s, box-shadow .12s;
+}
+.tj-field:hover { border-color: var(--border-strong); }
+.tj-field:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* 決策樹(Ch27)/Quiz 選項：hover/focus 改用 CSS（原本用 JS mouseenter，鍵盤與觸控完全無回饋）。
+   base 邊框/底色為 inline style，故 hover/focus 需 !important 才能覆蓋；選中態(submitted)仍由 JS 切。 */
+.picker-opt:hover, .picker-opt:focus-visible,
+.quiz-opt:not([disabled]):hover, .quiz-opt:not([disabled]):focus-visible {
+  border-color: var(--accent) !important;
+  background: var(--bg-sunken) !important;
+}
 
 svg.chart { display: block; width: 100%; height: auto; max-height: 400px; }
 svg.chart .axis { stroke: var(--border-strong); stroke-width: 1; }
@@ -5753,6 +5805,10 @@ const Math2 = {
   // Black-Scholes：sigma 是「年化波動率」十進位（IV=55% 傳 0.55）
   // T 是年化時間（DTE/365）；r 是無風險利率十進位（4.5% 傳 0.045）
   bs(S, K, T, r, sigma, isCall) {
+    // 防呆：S/K 非正值（使用者清空或打 0）會讓 log(S/K) 變 NaN/−∞，整組 Greeks 變 NaN
+    if (!(S > 0) || !(K > 0)) {
+      return { price: NaN, delta: NaN, gamma: NaN, theta: NaN, vega: NaN, rho: NaN };
+    }
     if (T <= 0 || sigma <= 0) {
       // 到期日當日或 IV=0 時 fallback
       const intrinsic = isCall ? Math.max(S - K, 0) : Math.max(K - S, 0);
@@ -5815,6 +5871,29 @@ const PayoffDiagram = {
     return total;
   },
 
+  // 判斷部位兩端的邊際斜率，找出「無限風險」端。
+  // 取樣點求 max/min 永遠是有限數，會把裸賣 call 的無限虧損顯示成被截斷的有限值；
+  // 這裡彙總所有 leg 在 price→∞（上端）與 price→0（下端）的淨 P/L 斜率：
+  //   stock buy=+qty / sell=−qty（兩端皆然）
+  //   call 在高價端 slope = +qty×100×dir（買=+, 賣=−）；低價端為 0
+  //   put  在低價端 slope = −qty×100×dir（put 隨股價下跌而漲，對 P/L 斜率為負×dir）；高價端為 0
+  // 上端淨斜率 >0 → 最大獲利無限（+∞）；<0 → 最大虧損無限（−∞，如裸賣 call / 空頭股票）。
+  // 下端股價有 0 下限，真正最大虧損發生在 price=0（有限），故下端不會是 −∞，
+  //   但要用 price=0 的真實 P/L 當下界，避免取樣窗未觸底而少算（如裸賣 put / 持股）。
+  boundaryRisk(legs) {
+    let upperSlope = 0;
+    for (const leg of legs) {
+      const dir = leg.action === 'buy' ? 1 : -1;
+      if (leg.side === 'stock') upperSlope += dir * leg.qty;
+      else if (leg.side === 'call') upperSlope += dir * leg.qty * 100;
+      // put 高價端斜率為 0，不影響上端
+    }
+    return {
+      maxProfitInfinite: upperSlope > 0,   // 上端淨斜率為正 → 獲利無限
+      maxLossInfinite: upperSlope < 0,     // 上端淨斜率為負 → 虧損無限
+    };
+  },
+
   // 找到 P/L = 0 的價格點（break-even）
   findBreakevens(legs, xMin, xMax) {
     const out = [];
@@ -5839,13 +5918,15 @@ const PayoffDiagram = {
     const innerW = W - M.left - M.right;
     const innerH = H - M.top - M.bottom;
 
-    const spot = state.spot;
+    // 防呆：spot 夾到極小正值，避免 spot=0 時 X 範圍塌成單點、scale 除零導致破圖
+    const spot = Math.max(Number(state.spot) || 0, 0.01);
     const legs = state.legs;
 
     // X range: spot ± 30%
     const range = Math.max(0.3, ...legs.map(l => l.strike ? Math.abs(l.strike - spot) / spot : 0)) * 1.3 + 0.15;
     const xMin = spot * (1 - range);
     const xMax = spot * (1 + range);
+    const xSpan = (xMax - xMin) || 1;
 
     // Calc points
     const steps = 200;
@@ -5863,7 +5944,7 @@ const PayoffDiagram = {
     const yMin = yMinRaw - yPad;
 
     // Scales
-    const x = p => M.left + (p - xMin) / (xMax - xMin) * innerW;
+    const x = p => M.left + (p - xMin) / xSpan * innerW;
     const y = pl => M.top + (1 - (pl - yMin) / (yMax - yMin)) * innerH;
 
     // Build path
@@ -5932,8 +6013,13 @@ const PayoffDiagram = {
     });
 
     // Max profit / max loss
-    const maxProfit = Math.max(...points.map(p => p.pl));
-    const maxLoss = Math.min(...points.map(p => p.pl));
+    const risk = this.boundaryRisk(legs);
+    // 真實下界：股價可達 0，取樣窗未必觸底，故補上 price=0 的 P/L 一起取極值
+    const plAtZero = this.calcExpiryPL(legs, 0);
+    const sampledMax = Math.max(...points.map(p => p.pl), plAtZero);
+    const sampledMin = Math.min(...points.map(p => p.pl), plAtZero);
+    const maxProfit = risk.maxProfitInfinite ? Infinity : sampledMax;
+    const maxLoss = risk.maxLossInfinite ? -Infinity : sampledMin;
     const currentPL = this.calcExpiryPL(legs, spot);
 
     // SVG
@@ -5985,11 +6071,13 @@ const PayoffDiagram = {
         </div>
         <div class="stat">
           <div class="label">最大獲利</div>
-          <div class="value pos">${isFinite(maxProfit) ? '+$' + maxProfit.toFixed(0) : '∞'}</div>
+          <div class="value pos">${isFinite(maxProfit) ? '+$' + maxProfit.toFixed(0) : '+∞（無限）'}</div>
+          ${!isFinite(maxProfit) ? '<div style="font-size:10.5px;color:var(--fg-muted);margin-top:2px;line-height:1.3;">此端獲利無上限（取樣值僅為截斷）</div>' : ''}
         </div>
         <div class="stat">
           <div class="label">最大虧損</div>
-          <div class="value neg">${isFinite(maxLoss) ? '$' + maxLoss.toFixed(0) : '−∞'}</div>
+          <div class="value neg">${isFinite(maxLoss) ? '$' + maxLoss.toFixed(0) : '−∞（無限）'}</div>
+          ${!isFinite(maxLoss) ? '<div style="font-size:10.5px;color:var(--danger);margin-top:2px;line-height:1.3;font-weight:600;">此端風險無限，務必設停損或加保護腿</div>' : ''}
         </div>
         <div class="stat">
           <div class="label">Break-even</div>
@@ -6048,7 +6136,10 @@ const PayoffDiagram = {
    ============================================================ */
 const GreeksLab = {
   render(container, state) {
-    const { spot, strike, dte, iv, rate, isCall } = state;
+    const { dte, iv, rate, isCall } = state;
+    // 防呆：spot/strike 夾到極小正值，避免 log(0)/除零導致 NaN 圖與破圖
+    const spot = Math.max(Number(state.spot) || 0, 0.01);
+    const strike = Math.max(Number(state.strike) || 0, 0.01);
     const T = Math.max(dte / 365, 0.001);
     const sigma = iv / 100;
     const r = rate / 100;
@@ -6108,43 +6199,45 @@ const GreeksLab = {
     </svg>`;
 
     // Greeks grid
-    const fmt = (v, d=3) => (v >= 0 ? '+' : '') + v.toFixed(d);
+    // NaN/Inf 防呆：S/K 非正值時 bs() 回 NaN，這裡顯示「—」而非 NaN
+    const fmt = (v, d=3) => Number.isFinite(v) ? (v >= 0 ? '+' : '') + v.toFixed(d) : '—';
+    const fmtNum = (v, d=2) => Number.isFinite(v) ? v.toFixed(d) : '—';
     const greeksHTML = `
       <div class="greek-grid">
         <div class="greek-cell delta">
           <div class="greek-name">Δ Delta<span class="gloss">方向敏感度</span></div>
           <div class="greek-val">${fmt(g.delta, 3)}</div>
-          <div class="greek-hint">股價漲 $1 → 期權漲 $${(g.delta * 1).toFixed(2)}<br/>≈ ${(Math.abs(g.delta) * 100).toFixed(0)}% 被 assign 機率</div>
+          <div class="greek-hint">股價漲 $1 → 期權漲 $${fmtNum(g.delta, 2)}<br/>≈ ${fmtNum(Math.abs(g.delta) * 100, 0)}% 被 assign 機率（以 delta 粗估，非精確履約機率）</div>
         </div>
         <div class="greek-cell gamma">
           <div class="greek-name">Γ Gamma<span class="gloss">Δ 變化速度</span></div>
           <div class="greek-val">${fmt(g.gamma, 4)}</div>
-          <div class="greek-hint">股價漲 $1 → delta 變化 ${(g.gamma).toFixed(4)}<br/>${dte < 10 ? '⚠️ 接近到期，gamma 高' : ''}</div>
+          <div class="greek-hint">股價漲 $1 → delta 變化 ${fmtNum(g.gamma, 4)}<br/>${dte < 10 ? '⚠️ 接近到期，gamma 高' : ''}</div>
         </div>
         <div class="greek-cell theta">
           <div class="greek-name">Θ Theta<span class="gloss">時間衰減</span></div>
           <div class="greek-val">${fmt(g.theta, 3)}</div>
-          <div class="greek-hint">每過 1 天，期權價值 ${g.theta < 0 ? '減少' : '增加'} $${Math.abs(g.theta).toFixed(3)}</div>
+          <div class="greek-hint">每過 1 天，期權價值 ${g.theta < 0 ? '減少' : '增加'} $${fmtNum(Math.abs(g.theta), 3)}</div>
         </div>
         <div class="greek-cell vega">
           <div class="greek-name">𝜈 Vega<span class="gloss">IV 敏感度</span></div>
           <div class="greek-val">${fmt(g.vega, 3)}</div>
-          <div class="greek-hint">IV 漲 1pp（如 55→56% ）<br/>→ 期權漲 $${g.vega.toFixed(3)}</div>
+          <div class="greek-hint">IV 漲 1pp（如 55→56% ）<br/>→ 期權漲 $${fmtNum(g.vega, 3)}</div>
         </div>
         <div class="greek-cell rho">
           <div class="greek-name">Ρ Rho<span class="gloss">利率敏感度</span></div>
           <div class="greek-val">${fmt(g.rho, 4)}</div>
-          <div class="greek-hint">利率漲 1pp → 期權漲 $${g.rho.toFixed(4)}<br/>多數情境可忽略</div>
+          <div class="greek-hint">利率漲 1pp → 期權漲 $${fmtNum(g.rho, 4)}<br/>多數情境可忽略</div>
         </div>
       </div>
     `;
 
     // Exposure row（持有 1 張選擇權 vs 等效股數）
-    const eqShares = Math.round(g.delta * 100);
+    const eqShares = Number.isFinite(g.delta) ? Math.round(g.delta * 100) : '—';
     const expoHTML = `
       <div class="expo-row">
         <div>1 張 ${isCall ? 'Call' : 'Put'} K=$${strike} ≈ <span class="expo-val">${eqShares} 股</span>的方向曝險</div>
-        <div>期權理論價：<span class="expo-val">$${g.price.toFixed(2)}</span> / 股</div>
+        <div>期權理論價：<span class="expo-val">$${fmtNum(g.price, 2)}</span> / 股</div>
       </div>
     `;
 
@@ -6552,10 +6645,8 @@ const StrategyPicker = {
       </div>
     `;
 
-    // hover effect
+    // hover/focus 改由 CSS 處理（見 .picker-opt:hover,:focus-visible），鍵盤/觸控也有回饋
     container.querySelectorAll('.picker-opt').forEach(btn => {
-      btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--accent)'; btn.style.background = 'var(--bg-sunken)'; });
-      btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--border)'; btn.style.background = 'var(--bg-elev)'; });
       btn.addEventListener('click', () => {
         const newAnswers = { ...answers, [current.key]: btn.dataset.val };
         StrategyPicker.render(container, { step: step + 1, answers: newAnswers });
@@ -6984,8 +7075,7 @@ const Quiz = {
 
     if (!submitted) {
       container.querySelectorAll('.quiz-opt').forEach(btn => {
-        btn.addEventListener('mouseenter', () => { btn.style.borderColor = 'var(--accent)'; btn.style.background = 'var(--bg-sunken)'; });
-        btn.addEventListener('mouseleave', () => { btn.style.borderColor = 'var(--border)'; btn.style.background = 'var(--bg-elev)'; });
+        // hover/focus 改由 CSS 處理（見 .quiz-opt:hover,:focus-visible），鍵盤/觸控也有回饋
         btn.addEventListener('click', () => {
           const newAnswers = [...answers];
           newAnswers[idx] = parseInt(btn.dataset.i);
@@ -7290,8 +7380,10 @@ const WheelSimulator = {
         });
         if (newSpot < cspStrike) {
           stockShares = 100;
-          costBasis = cspStrike;
-          cash -= cspStrike * 100;  // 支付買股
+          // 有效接股成本 = 履約價 − 每股權利金（premium 是每 100 股總額，需還原每股）
+          // 呼應內文「有效成本 = 38 − 1.20 = 36.80」；現金流仍照履約價支付，故 totalEquity 不變
+          costBasis = cspStrike - premium / 100;
+          cash -= cspStrike * 100;  // 支付買股（毛履約價，現金面不變）
           phase = 'CC';
         }
       } else {
@@ -7856,13 +7948,18 @@ const IronCondorBuilder = {
       return pl;
     };
 
+    // 防呆：賣方淨權利金（netCredit）必須 > 0，否則損益比/勝率會除以 0、payoff y 軸反轉
+    const validCredit = netCredit > 0 && maxProfit > 0;
+
     const steps = 100;
     const points = [];
     for (let i = 0; i <= steps; i++) {
       const p = xMin + (xMax - xMin) * i / steps;
       points.push({ price: p, pl: calcPL(p) });
     }
-    const yMax = maxProfit * 1.3, yMin = -maxLoss * 1.2;
+    // y 範圍夾正，避免 netCredit<0 時 yMax/yMin 反號造成圖上下顛倒
+    const yMax = Math.max(maxProfit, 0) * 1.3 || 100;
+    const yMin = Math.min(-maxLoss, 0) * 1.2 || -100;
     const x = p => M.left + (p - xMin) / (xMax - xMin) * innerW;
     const y = pl => M.top + (1 - (pl - yMin) / (yMax - yMin)) * innerH;
     const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(p.price).toFixed(1)} ${y(p.pl).toFixed(1)}`).join(' ');
@@ -7914,6 +8011,12 @@ const IronCondorBuilder = {
 
       ${svg}
 
+      ${!validCredit ? `
+        <div class="callout warn" style="margin-top:12px;">
+          <div class="callout-title">⚠ 淨權利金非正值</div>
+          <p style="margin-top:4px;font-size:13px;">賣方 Iron Condor 的淨權利金需為正（目前 ${netCredit >= 0 ? '+' : ''}$${netCredit.toFixed(0)}）。請檢查四腿報價：賣方腿（SP/SC）權利金應高於對應的保護腿（LP/LC）。在此狀態下損益比與勝率不具意義，已略過。</p>
+        </div>
+      ` : `
       <div class="widget-stats" style="margin-top:12px;">
         <div class="stat">
           <div class="label">淨 Credit</div>
@@ -7937,6 +8040,7 @@ const IronCondorBuilder = {
         <strong>Break-even</strong>: $${breakevenDown.toFixed(2)} ~ $${breakevenUp.toFixed(2)}（區間 $${(breakevenUp - breakevenDown).toFixed(2)}）<br/>
         <strong>損益比</strong>: 1 : ${(maxLoss / maxProfit).toFixed(1)}（賺 1 賠 ${(maxLoss / maxProfit).toFixed(1)}，要勝率 &gt; ${(maxLoss / (maxLoss + maxProfit) * 100).toFixed(0)}% 才正期望值）
       </div>
+      `}
     `;
 
     container.querySelectorAll('input[data-input]').forEach(input => {
@@ -7976,51 +8080,93 @@ const TradeJournal = {
     window.CloudSync && CloudSync.scheduleSync();
   },
 
+  // 產生唯一 id：優先 crypto.randomUUID()，避免同毫秒新增/匯入時 Date.now() 撞號被 CloudSync 併成一筆
+  genId() {
+    if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    return Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+  },
+
+  // 匯入正規化：補 id、status 限白名單、數值型別統一。回傳 { trades, idFilled, statusFixed }
+  normalizeImport(rows) {
+    const allowedStatus = ['open', 'closed', 'assigned', 'rolled'];
+    let idFilled = 0, statusFixed = 0;
+    const trades = rows.map((row, i) => {
+      const t = (row && typeof row === 'object') ? { ...row } : {};
+      if (t.id == null || t.id === '') { t.id = this.genId() + '-' + i; idFilled++; }
+      // status 大小寫正規化 + 白名單；未知狀態退回 closed（保守：視為已平倉但避免污染勝率需有 pnl）
+      const s = String(t.status || '').toLowerCase().trim();
+      if (!allowedStatus.includes(s)) { t.status = 'closed'; if (t.status !== row.status) statusFixed++; }
+      else t.status = s;
+      // 數值欄位統一成字串化的數字或空字串（與表單一致，pnl 空字串代表未結算）
+      ['strike', 'premium', 'qty'].forEach(k => {
+        if (t[k] != null && t[k] !== '' && !isNaN(parseFloat(t[k]))) t[k] = String(parseFloat(t[k]));
+      });
+      if (t.pnl != null && t.pnl !== '' && !isNaN(parseFloat(t.pnl))) t.pnl = String(parseFloat(t.pnl));
+      else if (t.pnl == null) t.pnl = '';
+      return t;
+    });
+    return { trades, idFilled, statusFixed };
+  },
+
+  // 共用過濾：「已平倉且已填 P/L」才納入勝率/累計等統計
+  // 五處統計（stats/strategyStats/tickerStats/monthlyPnL/streakStatus）一律共用，避免母體不一致
+  isClosedWithPnl(t) {
+    return t.status !== 'open' && t.pnl !== '' && t.pnl != null && !isNaN(parseFloat(t.pnl));
+  },
+
   stats(trades) {
-    const closed = trades.filter(t => t.status !== 'open');
+    const closed = trades.filter(t => this.isClosedWithPnl(t));
+    // 已平倉但尚未補 P/L 的筆數（不納入勝率）
+    const closedPending = trades.filter(t => t.status !== 'open' && !this.isClosedWithPnl(t)).length;
+    // 三分類：win=pnl>0、loss=pnl<0、scratch（平手）=pnl===0 不計入勝率分母
     const wins = closed.filter(t => parseFloat(t.pnl) > 0).length;
-    const losses = closed.filter(t => parseFloat(t.pnl) <= 0).length;
+    const losses = closed.filter(t => parseFloat(t.pnl) < 0).length;
+    const scratches = closed.filter(t => parseFloat(t.pnl) === 0).length;
     const totalPnl = closed.reduce((s, t) => s + parseFloat(t.pnl || 0), 0);
     const winRate = (wins + losses) > 0 ? (wins / (wins + losses) * 100) : 0;
     const avgWin = wins > 0 ? closed.filter(t => parseFloat(t.pnl) > 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / wins : 0;
-    const avgLoss = losses > 0 ? closed.filter(t => parseFloat(t.pnl) <= 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / losses : 0;
-    return { total: trades.length, open: trades.length - closed.length, closed: closed.length, wins, losses, totalPnl, winRate, avgWin, avgLoss };
+    const avgLoss = losses > 0 ? closed.filter(t => parseFloat(t.pnl) < 0).reduce((s, t) => s + parseFloat(t.pnl), 0) / losses : 0;
+    return { total: trades.length, open: trades.length - trades.filter(t => t.status !== 'open').length, closed: closed.length, closedPending, wins, losses, scratches, totalPnl, winRate, avgWin, avgLoss };
   },
 
   strategyStats(trades) {
-    const closed = trades.filter(t => t.status !== 'open' && t.pnl !== '');
+    const closed = trades.filter(t => this.isClosedWithPnl(t));
     const groups = {};
     closed.forEach(t => {
-      if (!groups[t.strategy]) groups[t.strategy] = { wins: 0, losses: 0, total: 0, pnl: 0 };
+      if (!groups[t.strategy]) groups[t.strategy] = { wins: 0, losses: 0, scratches: 0, total: 0, pnl: 0 };
       groups[t.strategy].total += 1;
       const pnl = parseFloat(t.pnl) || 0;
       groups[t.strategy].pnl += pnl;
       if (pnl > 0) groups[t.strategy].wins += 1;
-      else groups[t.strategy].losses += 1;
+      else if (pnl < 0) groups[t.strategy].losses += 1;
+      else groups[t.strategy].scratches += 1;
     });
+    // 勝率分母排除平手（scratch），與頂部 KPI 口徑一致
     return Object.entries(groups)
-      .map(([s, g]) => ({ strategy: s, ...g, winRate: g.total > 0 ? g.wins / g.total * 100 : 0 }))
+      .map(([s, g]) => ({ strategy: s, ...g, winRate: (g.wins + g.losses) > 0 ? g.wins / (g.wins + g.losses) * 100 : 0 }))
       .sort((a, b) => b.total - a.total);
   },
 
   tickerStats(trades) {
-    const closed = trades.filter(t => t.status !== 'open' && t.pnl !== '');
+    const closed = trades.filter(t => this.isClosedWithPnl(t));
     const groups = {};
     closed.forEach(t => {
-      if (!groups[t.ticker]) groups[t.ticker] = { wins: 0, total: 0, pnl: 0 };
+      if (!groups[t.ticker]) groups[t.ticker] = { wins: 0, losses: 0, total: 0, pnl: 0 };
       groups[t.ticker].total += 1;
       const pnl = parseFloat(t.pnl) || 0;
       groups[t.ticker].pnl += pnl;
       if (pnl > 0) groups[t.ticker].wins += 1;
+      else if (pnl < 0) groups[t.ticker].losses += 1;
     });
     return Object.entries(groups).map(([t, g]) => ({
       ticker: t, total: g.total, wins: g.wins,
-      winRate: g.total > 0 ? g.wins / g.total * 100 : 0, pnl: g.pnl
+      // 勝率分母排除平手（scratch），與其餘統計一致
+      winRate: (g.wins + g.losses) > 0 ? g.wins / (g.wins + g.losses) * 100 : 0, pnl: g.pnl
     })).sort((a, b) => b.total - a.total).slice(0, 5);
   },
 
   monthlyPnL(trades) {
-    const closed = trades.filter(t => t.status !== 'open' && t.pnl !== '' && t.date);
+    const closed = trades.filter(t => this.isClosedWithPnl(t) && t.date);
     const months = {};
     closed.forEach(t => {
       const m = t.date.slice(0, 7);
@@ -8032,16 +8178,20 @@ const TradeJournal = {
   },
 
   streakStatus(trades) {
-    const closed = trades.filter(t => t.status !== 'open' && t.pnl !== '')
+    const closed = trades.filter(t => this.isClosedWithPnl(t))
       .sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
     if (closed.length === 0) return null;
     let streak = 0, type = null;
     for (let i = closed.length - 1; i >= 0; i--) {
-      const isWin = parseFloat(closed[i].pnl) > 0;
+      const pnl = parseFloat(closed[i].pnl);
+      // 平手（scratch，pnl===0）視為中斷，不算連勝也不算連虧
+      if (pnl === 0) break;
+      const isWin = pnl > 0;
       if (type === null) { type = isWin ? 'win' : 'loss'; streak = 1; }
       else if ((type === 'win' && isWin) || (type === 'loss' && !isWin)) streak += 1;
       else break;
     }
+    if (type === null) return null;
     return { streak, type };
   },
 
@@ -8144,18 +8294,18 @@ const TradeJournal = {
       <div style="padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);margin-bottom:14px;">
         <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">新增交易</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
-          <input type="date" data-form="date" value="${form.date}" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <input type="text" data-form="ticker" value="${esc(form.ticker)}" placeholder="標的 NVDA" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <select data-form="strategy" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;">
+          <input type="date" data-form="date" value="${form.date}" class="tj-field"/>
+          <input type="text" data-form="ticker" value="${esc(form.ticker)}" placeholder="標的 NVDA" class="tj-field"/>
+          <select data-form="strategy" class="tj-field">
             ${['CC', 'CSP', 'PP', 'Collar', 'Wheel', 'Long Call', 'Long Put', 'Vertical', 'IC', 'Straddle', 'PMCC', '其他'].map(s => `<option ${form.strategy === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-          <input type="number" data-form="strike" value="${form.strike}" placeholder="Strike" step="0.5" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <input type="number" data-form="premium" value="${form.premium}" placeholder="Premium" step="0.05" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <input type="number" data-form="qty" value="${form.qty}" placeholder="張數" min="1" step="1" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
-          <select data-form="status" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;">
+          <input type="number" data-form="strike" value="${form.strike}" placeholder="Strike" step="0.5" class="tj-field"/>
+          <input type="number" data-form="premium" value="${form.premium}" placeholder="Premium" step="0.05" class="tj-field"/>
+          <input type="number" data-form="qty" value="${form.qty}" placeholder="張數" min="1" step="1" class="tj-field"/>
+          <select data-form="status" class="tj-field">
             ${['open', 'closed', 'assigned', 'rolled'].map(s => `<option ${form.status === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-          <input type="number" data-form="pnl" value="${form.pnl}" placeholder="P/L ($)" step="0.01" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 6px;font:inherit;font-size:12.5px;"/>
+          <input type="number" data-form="pnl" value="${form.pnl}" placeholder="P/L ($)" step="0.01" class="tj-field"/>
           <button class="btn" data-action="add" style="background:var(--accent);color:white;border-color:var(--accent);">+ 新增</button>
         </div>
       </div>
@@ -8168,6 +8318,7 @@ const TradeJournal = {
         <div class="stat">
           <div class="label">未結 / 已結</div>
           <div class="value">${stats.open} / ${stats.closed}</div>
+          ${stats.closedPending > 0 ? `<div style="font-size:10.5px;color:var(--fg-muted);margin-top:2px;line-height:1.3;">另有 ${stats.closedPending} 筆已平倉待補 P/L，未納入勝率</div>` : ''}
         </div>
         <div class="stat">
           <div class="label">勝率</div>
@@ -8279,7 +8430,7 @@ const TradeJournal = {
         return;
       }
       const newTrades = TradeJournal.load();
-      newTrades.push({ ...form, id: Date.now() });
+      newTrades.push({ ...form, id: TradeJournal.genId() });
       TradeJournal.save(newTrades);
       TradeJournal.render(container, { form: { ...form, ticker: '', strike: '', premium: '', pnl: '' } });
     });
@@ -8320,8 +8471,13 @@ const TradeJournal = {
         try {
           const imported = JSON.parse(ev.target.result);
           if (!Array.isArray(imported)) throw new Error('not array');
-          if (confirm(`匯入 ${imported.length} 筆？這會覆蓋目前的紀錄。`)) {
-            TradeJournal.save(imported);
+          // 逐列正規化：補 id（缺 id 在 CloudSync 合併會被靜默丟棄）、限制 status 白名單、統一數值型別
+          const result = TradeJournal.normalizeImport(imported);
+          const msgParts = [`匯入 ${result.trades.length} 筆`];
+          if (result.idFilled) msgParts.push(`${result.idFilled} 筆缺 id 已補`);
+          if (result.statusFixed) msgParts.push(`${result.statusFixed} 筆狀態不明已改為 closed`);
+          if (confirm(`${msgParts.join('、')}。這會覆蓋目前的紀錄，確定匯入？`)) {
+            TradeJournal.save(result.trades);
             TradeJournal.render(container, state);
           }
         } catch (err) {
@@ -8349,22 +8505,35 @@ const TradeJournal = {
    6. Hydration scanner（data-component 自動掛載）
    ============================================================ */
 function hydrateAll() {
-  document.querySelectorAll('[data-component="payoff"]').forEach(w => PayoffDiagram.hydrate(w));
-  document.querySelectorAll('[data-component="greeks"]').forEach(w => GreeksLab.hydrate(w));
-  document.querySelectorAll('[data-component="hedge"]').forEach(w => StockHedgeCalc.hydrate(w));
-  document.querySelectorAll('[data-component="pretrade"]').forEach(w => PreTradeChecklist.hydrate(w));
-  document.querySelectorAll('[data-component="picker"]').forEach(w => StrategyPicker.hydrate(w));
-  document.querySelectorAll('[data-component="margin"]').forEach(w => MarginSimulator.hydrate(w));
-  document.querySelectorAll('[data-component="ivterm"]').forEach(w => IVTermStructure.hydrate(w));
-  document.querySelectorAll('[data-component="skew"]').forEach(w => VolSkewExplorer.hydrate(w));
-  document.querySelectorAll('[data-component="quiz"]').forEach(w => Quiz.hydrate(w));
-  document.querySelectorAll('[data-component="pmcc"]').forEach(w => PMCCBuilder.hydrate(w));
-  document.querySelectorAll('[data-component="synthetic"]').forEach(w => SyntheticBuilder.hydrate(w));
-  document.querySelectorAll('[data-component="wheel"]').forEach(w => WheelSimulator.hydrate(w));
-  document.querySelectorAll('[data-component="ivcrush"]').forEach(w => IVCrushAnimator.hydrate(w));
-  document.querySelectorAll('[data-component="ic"]').forEach(w => IronCondorBuilder.hydrate(w));
-  document.querySelectorAll('[data-component="journal"]').forEach(w => TradeJournal.hydrate(w));
-  document.querySelectorAll('[data-component="path"]').forEach(w => LearningPathBuilder.hydrate(w));
+  // 每個 widget 各自 try/catch：單一壞掉的 data-* JSON（如漏逗號）只讓「該」元件顯示佔位，
+  // 不讓例外冒泡中止整個 hydrateAll，導致其後所有元件（含 TradeJournal）都不掛載。
+  const safeHydrate = (selector, fn, label) => {
+    document.querySelectorAll(selector).forEach(w => {
+      try {
+        fn(w);
+      } catch (err) {
+        console.warn(`[hydrate] ${label} 載入失敗，已略過：`, err);
+        const body = w.querySelector('.widget-body') || w;
+        body.innerHTML = `<div style="padding:16px;color:var(--fg-muted);font-size:13px;border:1px dashed var(--border-strong);border-radius:var(--radius);text-align:center;">此互動元件載入失敗（資料格式有誤），其餘內容不受影響。</div>`;
+      }
+    });
+  };
+  safeHydrate('[data-component="payoff"]', w => PayoffDiagram.hydrate(w), 'payoff');
+  safeHydrate('[data-component="greeks"]', w => GreeksLab.hydrate(w), 'greeks');
+  safeHydrate('[data-component="hedge"]', w => StockHedgeCalc.hydrate(w), 'hedge');
+  safeHydrate('[data-component="pretrade"]', w => PreTradeChecklist.hydrate(w), 'pretrade');
+  safeHydrate('[data-component="picker"]', w => StrategyPicker.hydrate(w), 'picker');
+  safeHydrate('[data-component="margin"]', w => MarginSimulator.hydrate(w), 'margin');
+  safeHydrate('[data-component="ivterm"]', w => IVTermStructure.hydrate(w), 'ivterm');
+  safeHydrate('[data-component="skew"]', w => VolSkewExplorer.hydrate(w), 'skew');
+  safeHydrate('[data-component="quiz"]', w => Quiz.hydrate(w), 'quiz');
+  safeHydrate('[data-component="pmcc"]', w => PMCCBuilder.hydrate(w), 'pmcc');
+  safeHydrate('[data-component="synthetic"]', w => SyntheticBuilder.hydrate(w), 'synthetic');
+  safeHydrate('[data-component="wheel"]', w => WheelSimulator.hydrate(w), 'wheel');
+  safeHydrate('[data-component="ivcrush"]', w => IVCrushAnimator.hydrate(w), 'ivcrush');
+  safeHydrate('[data-component="ic"]', w => IronCondorBuilder.hydrate(w), 'ic');
+  safeHydrate('[data-component="journal"]', w => TradeJournal.hydrate(w), 'journal');
+  safeHydrate('[data-component="path"]', w => LearningPathBuilder.hydrate(w), 'path');
 }
 
 /* ============================================================
@@ -8402,33 +8571,62 @@ function applyTheme(theme) {
 /* ============================================================
    8. 進度條 + 章節 active 高亮
    ============================================================ */
+let _lastScrollPct = 0;
 function updateProgress() {
   const scrollH = document.documentElement.scrollHeight - window.innerHeight;
   const pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
   document.getElementById('progress-fill').style.width = pct.toFixed(1) + '%';
-  // 存進度
+  // 不再每幀寫 localStorage（原本每次 scroll 同步 JSON.parse+stringify 整包，卡頓且耗 SSD）；
+  // 進度只暫存記憶體，停止滾動後 / 離開頁面時才 flush（見下方節流與 pagehide）。
+  _lastScrollPct = pct;
+}
+
+// active nav 改用 IntersectionObserver，不在 scroll 每幀做 getBoundingClientRect
+let _activeNavObserver = null;
+function setupActiveNavObserver() {
+  const navItems = document.querySelectorAll('.sidebar a.nav-item');
+  const visibleChapters = new Set();
+  _activeNavObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.dataset.chapter;
+      if (!id) return;
+      if (entry.isIntersecting) visibleChapters.add(id);
+      else visibleChapters.delete(id);
+    });
+    // 取目前最靠近頂部的可見章節（DOM 順序第一個）為 active
+    let activeId = '';
+    for (const sec of document.querySelectorAll('section[data-chapter]')) {
+      if (visibleChapters.has(sec.dataset.chapter)) { activeId = sec.dataset.chapter; break; }
+    }
+    if (activeId) navItems.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + activeId));
+  }, { rootMargin: '-180px 0px -55% 0px' });
+  document.querySelectorAll('section[data-chapter]').forEach(s => _activeNavObserver.observe(s));
+}
+
+// flush 進度到 localStorage（停止滾動後 debounce 或離開頁面時呼叫）
+let _scrollSaveTimer = null;
+function flushScrollProgress() {
   const s = loadState();
-  s.lastScrollPct = pct;
+  s.lastScrollPct = _lastScrollPct;
   saveState(s);
 }
 
-function updateActiveNav() {
-  const sections = document.querySelectorAll('section[data-chapter]');
-  const navItems = document.querySelectorAll('.sidebar a.nav-item');
-  let activeId = '';
-  for (const sec of sections) {
-    const rect = sec.getBoundingClientRect();
-    if (rect.top < 200 && rect.bottom > 200) { activeId = sec.dataset.chapter; break; }
-  }
-  navItems.forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
-  });
-}
-
+// scroll：passive + rAF 節流，每幀最多量一次進度條；localStorage 寫入 debounce 到停止滾動後
+let _scrollTicking = false;
 window.addEventListener('scroll', () => {
-  updateProgress();
-  updateActiveNav();
-});
+  if (!_scrollTicking) {
+    _scrollTicking = true;
+    requestAnimationFrame(() => {
+      updateProgress();
+      _scrollTicking = false;
+    });
+  }
+  if (_scrollSaveTimer) clearTimeout(_scrollSaveTimer);
+  _scrollSaveTimer = setTimeout(flushScrollProgress, 500);
+}, { passive: true });
+// 離開/隱藏頁面時確保最後進度落地
+window.addEventListener('pagehide', flushScrollProgress);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushScrollProgress(); });
 
 /* ============================================================
    8a. 書籤系統（標記當前位置 + 跳回）
@@ -9517,7 +9715,7 @@ window.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('section[data-chapter]').forEach(s => { if (!s.id) s.id = s.dataset.chapter; });
   hydrateAll();
   updateProgress();
-  updateActiveNav();
+  setupActiveNavObserver();
   setupVisitedObserver();
   setupCompletionButtons();
   setupGlossarySearch();
