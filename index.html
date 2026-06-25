@@ -22,9 +22,9 @@
   --bg-elev: #ffffff;
   --bg-sunken: #f1f1ef;
   --fg: #1c1c1c;
-  --fg-muted: #6b6b6b;
+  --fg-muted: #5f5f5f;        /* 由 #6b6b6b 微調更深，加大正文↔輔助文字對比 */
   --fg-subtle: #6f6f6f;       /* 由 #9b9b9b（2.66:1）調深至 AA：vs bg 4.81 / vs 白卡 5.02 */
-  --border: #e4e4e2;
+  --border: #e6e6e3;
   --border-strong: #c8c8c5;
   --accent: #047857;          /* emerald-700 */
   --accent-soft: #d1fae5;
@@ -33,11 +33,28 @@
   --info: #1d4ed8;            /* blue-700 */
   --info-soft: #dbeafe;
   --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.08);
-  --radius: 8px;
-  --radius-sm: 4px;
+  --shadow-md: 0 4px 14px rgba(15,23,42,.07);
+  --radius: 10px;
+  --radius-sm: 6px;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
-  --font-mono: "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
+
+  /* ── Type scale（6 級 + 一個標註）：16px 正文為基準、比例約 1.25 ──
+     用變數取代散落硬編字級，建立可預期的閱讀節奏與層級 */
+  --fs-2xl: 28px;   /* 章標題 h1             */
+  --fs-xl:  20px;   /* 區段標題 h2           */
+  --fs-lg:  16.5px; /* 子標題 h3             */
+  --fs-md:  16px;   /* 正文                  */
+  --fs-sm:  14px;   /* 次要 / 控制項標籤      */
+  --fs-xs:  13px;   /* 輔助文字 / 密集表格    */
+  --fs-2xs: 12px;   /* 標註（最小的正式文字，不再低於 12） */
+
+  /* ── 間距節奏（8pt 系統，4px 收尾）── */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  /* eyebrow（區塊小標）統一樣式 token：字重+顏色承擔層級，不靠縮字 */
+  --eyebrow-size: var(--fs-2xs);
 }
 [data-theme="dark"] {
   --bg: #0f172a;              /* slate-900 */
@@ -95,47 +112,87 @@ strong { color: var(--fg); font-weight: 600; }
 hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
 
 /* ============================================================
+   Icon 系統：以 currentColor 描邊的 inline SVG 線性 icon，
+   取代散落各處的 emoji（emoji 在不同平台字形不一、跳 tone、是 AI 模板痕跡）。
+   用 .icn 控制尺寸/對齊，stroke 跟著文字色 → 自動套深色模式與 hover 變色。
+   ============================================================ */
+.icn {
+  display: inline-block; vertical-align: -0.14em;
+  width: 1em; height: 1em; flex: none;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+}
+.icn.sm { stroke-width: 2; }
+button .icn { pointer-events: none; }
+
+/* eyebrow：區塊小標（取代 11px 過密小字）。層級由字重+字距+顏色承擔，字級守在 12px。 */
+.eyebrow {
+  font-size: var(--eyebrow-size);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+/* ============================================================
    Layout：頂部進度 / 左側導覽 / 主內容
    ============================================================ */
 .topbar {
   position: sticky; top: 0; z-index: 50;
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-  padding: 10px 18px;
-  background: var(--bg-elev);
+  display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap;
+  padding: 10px var(--sp-5);
+  background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(10px) saturate(1.1);
 }
 .topbar .brand {
-  font-weight: 700; font-size: 14px;
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-weight: 700; font-size: var(--fs-sm);
   color: var(--fg);
-  letter-spacing: .02em;
+  letter-spacing: .01em;
   white-space: nowrap; /* 放大字/窄螢幕時整列換行，標題本身不被壓成直條 */
 }
-.topbar .brand .sub { color: var(--fg-muted); font-weight: 400; margin-left: 8px; }
+.topbar .brand .brand-mark {
+  width: 22px; height: 22px; flex: none;
+  color: var(--accent);
+}
+.topbar .brand .sub {
+  color: var(--fg-muted); font-weight: 500; margin-left: 2px;
+  font-size: var(--fs-2xs); letter-spacing: .02em;
+  padding: 2px 7px; border: 1px solid var(--border); border-radius: 999px;
+}
 .topbar .progress {
-  flex: 1; height: 4px; background: var(--bg-sunken); border-radius: 2px; overflow: hidden;
+  flex: 1; height: 5px; background: var(--bg-sunken); border-radius: 999px; overflow: hidden;
 }
 .topbar .progress-fill {
   height: 100%; width: 0;
-  background: var(--accent);   /* 原為 emerald→blue 漸層，改純 accent 融入整體克制的單色設計語言 */
-  transition: width .3s;
+  /* 單色 accent；極窄同色系過渡（accent→稍深），避免「彩虹漸層」AI 模板感 */
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 82%, #000 8%), var(--accent));
+  border-radius: 999px;
+  transition: width .35s ease;
 }
-.topbar .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.topbar .actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
 .btn {
-  font: inherit; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font: inherit; font-size: var(--fs-xs); font-weight: 500;
   padding: 6px 12px;
   min-height: 36px;
   background: var(--bg-elev); color: var(--fg);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
-  cursor: pointer; transition: all .15s;
+  cursor: pointer; transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
 }
+.btn .icn { width: 15px; height: 15px; }
 /* 行動裝置：所有按鈕命中區 ≥44px（避免誤刪真實紀錄）；小型 inline 鈕也撐滿 44px 觸控區 */
 @media (max-width: 900px) {
   .btn { min-height: 44px; }
   .btn[data-action="delete"] { min-height: 44px; min-width: 44px; }
 }
-.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--bg-elev)); }
 .btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.btn-primary:hover { background: color-mix(in srgb, var(--accent) 88%, #000); color: #fff; border-color: color-mix(in srgb, var(--accent) 88%, #000); }
+.btn-danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.btn-danger:hover { color: #fff; background: var(--danger); border-color: var(--danger); }
 
 .layout {
   display: grid;
@@ -160,12 +217,12 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
   line-height: 1.6;
 }
 .sidebar .path-pill b { color: var(--fg); }
-.sidebar .nav-group { margin-bottom: 16px; }
+.sidebar .nav-group { margin-bottom: var(--sp-4); }
 .sidebar .nav-group-title {
   padding: 6px 18px 4px;
-  font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .08em;
-  color: var(--fg-subtle);
+  font-size: var(--fs-2xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--fg-muted);
 }
 .sidebar a.nav-item {
   display: block;
@@ -440,16 +497,16 @@ section[data-chapter] > h1 { display: flex; align-items: center; justify-content
 /* ============================================================
    章節 / Badge / Callout
    ============================================================ */
-section[data-chapter] { margin-bottom: 64px; padding-top: 16px; }
+section[data-chapter] { margin-bottom: var(--sp-8); padding-top: var(--sp-4); }
 section[data-chapter] h1 {
-  font-size: 28px; font-weight: 800; margin: 0 0 6px;
-  color: var(--fg); letter-spacing: -.01em;
+  font-size: var(--fs-2xl); font-weight: 800; margin: 0 0 var(--sp-2);
+  color: var(--fg); letter-spacing: -.015em; line-height: 1.25;
 }
-section[data-chapter] h2 { font-size: 20px; font-weight: 700; margin: 32px 0 12px; padding-top: 6px; border-top: 1px solid var(--border); }
-section[data-chapter] h3 { font-size: 16.5px; font-weight: 600; margin: 24px 0 8px; }
-section[data-chapter] p { margin: 12px 0; color: var(--fg); }
-section[data-chapter] ul, section[data-chapter] ol { padding-left: 24px; }
-section[data-chapter] li { margin: 4px 0; }
+section[data-chapter] h2 { font-size: var(--fs-xl); font-weight: 700; margin: var(--sp-6) 0 var(--sp-3); padding-top: var(--sp-2); border-top: 1px solid var(--border); letter-spacing: -.01em; }
+section[data-chapter] h3 { font-size: var(--fs-lg); font-weight: 600; margin: var(--sp-5) 0 var(--sp-2); }
+section[data-chapter] p { margin: var(--sp-3) 0; color: var(--fg); }
+section[data-chapter] ul, section[data-chapter] ol { padding-left: var(--sp-5); }
+section[data-chapter] li { margin: var(--sp-1) 0; }
 
 .badge {
   display: inline-block; font-size: 11.5px; font-weight: 600;
@@ -585,8 +642,8 @@ details[open] { background: var(--bg-sunken); }
   background: var(--bg-elev); padding: 10px 12px;
   text-align: left;
 }
-.stat .label { font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: .04em; }
-.stat .value { font-size: 17px; font-family: var(--font-mono); font-weight: 700; color: var(--fg); margin-top: 2px; }
+.stat .label { font-size: var(--fs-2xs); color: var(--fg-muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.stat .value { font-size: 18px; font-family: var(--font-mono); font-weight: 700; color: var(--fg); margin-top: 3px; letter-spacing: -.01em; }
 .stat .value.pos { color: var(--accent); }
 .stat .value.neg { color: var(--danger); }
 
@@ -791,21 +848,162 @@ body[data-path-filter="core"] section[data-level="op"] > p,
 body[data-path-filter="core"] section[data-level="op"] > ul,
 body[data-path-filter="core"] section[data-level="op"] > .case,
 body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25; }
+
+/* ============================================================
+   重設計新增：空狀態卡 / LLM typing indicator / 組合曝險面板
+   ============================================================ */
+
+/* ── 空狀態：置中引導卡，取代一行灰字 ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: var(--sp-2);
+  padding: var(--sp-7) var(--sp-4);
+  color: var(--fg-muted);
+}
+.empty-state .empty-icon {
+  width: 40px; height: 40px; color: var(--fg-subtle);
+  margin-bottom: var(--sp-1);
+}
+.empty-state .empty-title { font-size: var(--fs-md); font-weight: 600; color: var(--fg); }
+.empty-state .empty-sub { font-size: var(--fs-xs); max-width: 32ch; line-height: 1.6; }
+.empty-state .empty-arrow { color: var(--accent); font-size: var(--fs-lg); margin-top: 2px; }
+
+/* ── LLM typing indicator：三點呼吸，與正式訊息視覺區隔 ── */
+.typing-dots { display: inline-flex; align-items: center; gap: 5px; padding: 4px 2px; }
+.typing-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--fg-subtle);
+  animation: typing-bounce 1.25s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: .18s; }
+.typing-dots span:nth-child(3) { animation-delay: .36s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30%           { transform: translateY(-4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .typing-dots span { animation: none; opacity: .6; }
+}
+
+/* ── Journal 表單 eyebrow + 新增交易卡 ── */
+.tj-panel {
+  padding: var(--sp-4);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: var(--sp-4);
+}
+.tj-panel-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.tj-panel-head .icn { width: 15px; height: 15px; color: var(--fg-muted); }
+
+/* ── ★ 組合曝險面板（operator's risk dashboard）── */
+.expo-panel {
+  margin-bottom: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+.expo-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-sunken);
+  border-bottom: 1px solid var(--border);
+}
+.expo-panel-head .expo-title {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  font-size: var(--fs-sm); font-weight: 700; color: var(--fg);
+}
+.expo-panel-head .expo-title .icn { width: 16px; height: 16px; color: var(--accent); }
+.expo-acct { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-2xs); color: var(--fg-muted); }
+.expo-acct input {
+  width: 120px; text-align: right;
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 5px 8px; font: inherit; font-size: var(--fs-xs);
+  font-family: var(--font-mono);
+  transition: border-color .12s, box-shadow .12s;
+}
+.expo-acct input:hover { border-color: var(--border-strong); }
+.expo-acct input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent); }
+
+.expo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+}
+.expo-cell { background: var(--bg-elev); padding: var(--sp-3) var(--sp-4); min-width: 0; }
+.expo-cell .expo-k {
+  display: flex; align-items: center; gap: 5px;
+  font-size: var(--fs-2xs); font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--fg-muted);
+}
+.expo-cell .expo-k .icn { width: 13px; height: 13px; color: var(--fg-subtle); }
+.expo-cell .expo-v {
+  font-size: 21px; font-family: var(--font-mono); font-weight: 700;
+  letter-spacing: -.02em; margin-top: 4px; color: var(--fg);
+}
+.expo-cell .expo-v.pos { color: var(--accent); }
+.expo-cell .expo-v.neg { color: var(--danger); }
+.expo-cell .expo-v.warnv { color: var(--warn); }
+.expo-cell .expo-sub { font-size: 11.5px; color: var(--fg-subtle); margin-top: 3px; line-height: 1.45; }
+
+/* 集中度 / 帳戶風險的細進度條 */
+.expo-bar { height: 5px; border-radius: 999px; background: var(--bg-sunken); overflow: hidden; margin-top: 7px; }
+.expo-bar > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .35s ease; }
+.expo-bar > i.warnb { background: var(--warn); }
+.expo-bar > i.dangerb { background: var(--danger); }
+
+.expo-foot {
+  padding: 9px var(--sp-4);
+  font-size: 11.5px; color: var(--fg-subtle); line-height: 1.5;
+  border-top: 1px solid var(--border); background: var(--bg-elev);
+}
+.expo-empty {
+  padding: var(--sp-5) var(--sp-4);
+  text-align: center; font-size: var(--fs-xs); color: var(--fg-muted);
+  background: var(--bg-elev);
+}
+@media (max-width: 720px) {
+  .expo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 380px) {
+  .expo-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <button class="menu-btn" id="menu-btn" title="開啟 / 關閉目錄" aria-label="Toggle menu">☰</button>
-  <div class="brand">衍生品自學系統<span class="sub">Stage 6 完整版</span></div>
+  <button class="menu-btn" id="menu-btn" title="開啟 / 關閉目錄" aria-label="Toggle menu">
+    <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 3 3 7-8"/><path d="M21 7v4M21 7h-4"/></svg>
+    <span>衍生品自學系統</span><span class="sub">Stage 6</span>
+  </div>
   <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
   <div class="actions">
     <span class="completion-counter" id="completion-counter" title="已完成章節數">已完成 <span class="count">0</span> / 0</span>
-    <button class="btn" id="goto-bookmark-btn" title="跳到上次標記位置" style="display:none;">📂</button>
-    <button class="btn" id="set-bookmark-btn" title="把目前位置記下來">📍 標記</button>
-    <button class="btn" id="sync-btn" title="跨裝置同步" style="display:none;">☁️ 同步</button>
-    <button class="btn" id="theme-btn" title="切換深色 / 淺色主題">深色</button>
-    <button class="btn" id="reset-btn" title="清除閱讀進度">重置</button>
+    <button class="btn" id="goto-bookmark-btn" title="跳到上次標記位置" aria-label="跳到書籤" style="display:none;">
+      <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h11a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg>
+    </button>
+    <button class="btn" id="set-bookmark-btn" title="把目前位置記下來">
+      <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-7-10a7 7 0 0 1 14 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>
+      <span>標記</span>
+    </button>
+    <button class="btn" id="sync-btn" title="跨裝置同步" style="display:none;">
+      <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8"/><path d="M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 16"/><path d="M4 20v-4h4"/></svg>
+      <span>同步</span>
+    </button>
+    <button class="btn" id="theme-btn" title="切換深色 / 淺色主題">
+      <svg class="icn theme-icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/></svg>
+      <span class="theme-label">深色</span>
+    </button>
+    <button class="btn" id="reset-btn" title="清除閱讀進度">
+      <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+      <span>重置</span>
+    </button>
   </div>
 </header>
 
@@ -814,7 +1012,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
     <div class="path-pill">
       <b>Stage 6 完整版</b>：35 章 + 14 互動 + 11 案例 + 9 Quiz + 名詞表。
       新增 <strong>LLM 助教（自帶 Gemini key）/ PWA 加到主畫面 / 快速鍵</strong>。
-      右下 🤖 開助教 · 按 <kbd>?</kbd> 看快速鍵說明。
+      右下 <svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="width:1em;height:1em;color:var(--accent);vertical-align:-.15em;"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1.2-4.4A8 8 0 1 1 21 12z"/></svg> 開助教 · 按 <kbd>?</kbd> 看快速鍵說明。
     </div>
 
     <div class="nav-group">
@@ -887,9 +1085,9 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
     <div class="nav-group">
       <div class="nav-group-title">附錄 · 實戰工具</div>
-      <a class="nav-item" href="#ch36"><span class="ch-num">📓</span>實戰日誌 Trade Journal</a>
-      <a class="nav-item" href="#glossary"><span class="ch-num">📖</span>名詞表（中英對照）</a>
-      <a class="nav-item" href="#progress"><span class="ch-num">📊</span>學習進度</a>
+      <a class="nav-item" href="#ch36"><span class="ch-num"><svg class="icn sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></span>實戰日誌 Trade Journal</a>
+      <a class="nav-item" href="#glossary"><span class="ch-num"><svg class="icn sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 2-2h11v16H7a2 2 0 0 0-2 2z"/><path d="M5 19a2 2 0 0 1 2-2h11"/></svg></span>名詞表（中英對照）</a>
+      <a class="nav-item" href="#progress"><span class="ch-num"><svg class="icn sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>學習進度</a>
     </div>
   </aside>
 
@@ -940,7 +1138,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <div class="widget" data-component="path">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧭</span>LearningPathBuilder · 個人學習計畫</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>LearningPathBuilder · 個人學習計畫</div>
           <div class="widget-meta">3 步 → 推薦路徑</div>
         </div>
         <div class="widget-body"></div>
@@ -1260,7 +1458,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"「Max Pain」現象的原因是？","opts":["造市商故意操縱股價","純粹巧合","造市商到期前 delta hedging 的對沖行為集中","政府介入"],"correct":2,"explain":"並非造市商「操縱」（散戶常見誤解），而是 ITM 期權的造市商 delta hedge 動作會把股價拉向 OI 最集中的價格（Max Pain）。是被動的市場結構效應。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅰ 共通基礎</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅰ 共通基礎</div>
           <div class="widget-meta">5 題 / 基礎</div>
         </div>
         <div class="widget-body"></div>
@@ -1933,7 +2131,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
            data-monthly-vol="7"
            data-seed="42">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🔄</span>WheelSimulator · 多輪 CSP → CC 模擬</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8"/><path d="M20 4v4h-4"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 16"/><path d="M4 20v-4h4"/></svg></span>WheelSimulator · 多輪 CSP → CC 模擬</div>
           <div class="widget-meta">蒙地卡羅單路徑</div>
         </div>
         <div class="widget-body"></div>
@@ -1948,7 +2146,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"Wheel 卡住（CSP 接到後股價繼續跌）最常用對策？","opts":["立刻停損","加碼攤平","Roll down + out","完全不動"],"correct":2,"explain":"Roll down + out = 改賣高於成本但低於 OTM 標準的 call，DTE 拉長到 45-60 天。給股票時間回升 + 持續收權利金。不違反「願意長期持有」初衷。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅱ 鎖股實作</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅱ 鎖股實作</div>
           <div class="widget-meta">5 題 / 操作層</div>
         </div>
         <div class="widget-body"></div>
@@ -2109,7 +2307,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
            data-component="ivterm"
            data-points='[{"dte":14,"iv":28},{"dte":30,"iv":29},{"dte":60,"iv":30},{"dte":90,"iv":31},{"dte":120,"iv":32}]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">📈</span>IVTermStructure · 期限結構視覺化</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-5 3 3 7-8"/><path d="M21 7v4M21 7h-4"/></svg></span>IVTermStructure · 期限結構視覺化</div>
           <div class="widget-meta">5 個 DTE 的 IV 對照</div>
         </div>
         <div class="widget-body"></div>
@@ -2410,7 +2608,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"ATM Call $8 + ATM Put $7.50 → Expected Move 大約是？","opts":["$0.50（兩者差）","$15.50（兩者和）","$2（√和）","$60（10× 和）"],"correct":1,"explain":"EM ≈ ATM Call + ATM Put = $15.50。市場定價該到期日股價約 68% 機率落在 ±$15.50 範圍內（1σ）。更精確版本是 1.25 × ATM Straddle，但散戶用相加近似已夠。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅲ 市場語言</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅲ 市場語言</div>
           <div class="widget-meta">5 題 / 指標判讀</div>
         </div>
         <div class="widget-body"></div>
@@ -2671,7 +2869,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
            data-dte="35"
            data-spread-width="8">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🦅</span>IronCondorBuilder · 4 腿 IC 試算</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 16l4-4 3 2 4-6 3 4 4-3"/><path d="M3 20h18"/></svg></span>IronCondorBuilder · 4 腿 IC 試算</div>
           <div class="widget-meta">EM 推薦 + 勝率估算</div>
         </div>
         <div class="widget-body"></div>
@@ -2805,7 +3003,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
            data-entry-day="-7"
            data-actual-move-pct="7">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">💥</span>IVCrushAnimator · 財報 IV 飆 + Crush + Straddle 損益</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></span>IVCrushAnimator · 財報 IV 飆 + Crush + Straddle 損益</div>
           <div class="widget-meta">時間軸視覺化</div>
         </div>
         <div class="widget-body"></div>
@@ -2987,7 +3185,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"美式 ITM Call 最常被「早 assign」的時機是？","opts":["任何時候都會","除息日前一晚","到期日當天","IV 飆升時"],"correct":1,"explain":"美式期權的買方為了領股息，會在除息日前一晚行使 ITM call。應對：除息前如果 call 已 ITM 且 extrinsic 小於下次股息，先 buy-to-close 或 roll。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅳ 多腿與事件</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅳ 多腿與事件</div>
           <div class="widget-meta">5 題 / 中級</div>
         </div>
         <div class="widget-body"></div>
@@ -3643,7 +3841,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"連假前持有滿倉期貨多單最大的風險？","opts":["手續費","跳空 + 直接跌穿結算保證金被斷頭","結算日結算","換月成本"],"correct":1,"explain":"連假/重大事件後跳空，盤一開可能直接跌穿結算保證金線，券商還沒來得及通知就強制平倉。所以 FOMC / 大選 / 連假前不要持滿倉。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅴ 台股期貨</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅴ 台股期貨</div>
           <div class="widget-meta">5 題 / 操作層</div>
         </div>
         <div class="widget-body"></div>
@@ -3930,7 +4128,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"散戶套利的 5 鐵則中，「不下單前必確認」的是？","opts":["有 colo 機房","雙邊掛單能成交（避免 leg risk）","用模擬倉跑過 3 年","API 串接券商"],"correct":1,"explain":"Leg risk 是套利最致命的——只成交一邊變裸部位，可能被市場後續走勢猛打。下單前必確認兩邊深度足夠 + 雙邊掛單都會成交。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅵ 套利操作</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅵ 套利操作</div>
           <div class="widget-meta">5 題 / 進階</div>
         </div>
         <div class="widget-body"></div>
@@ -4541,7 +4739,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <div class="widget" data-component="picker">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🌳</span>StrategyPicker · 策略決策樹</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M12 7.4v4.6M12 12H6v3.6M12 12h6v3.6"/></svg></span>StrategyPicker · 策略決策樹</div>
           <div class="widget-meta">5 步 → 推薦策略</div>
         </div>
         <div class="widget-body"></div>
@@ -4552,7 +4750,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <div class="widget" data-component="pretrade">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">✅</span>PreTradeChecklist · 交易前 Gate</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l2.5 2.5L17 8"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg></span>PreTradeChecklist · 交易前 Gate</div>
           <div class="widget-meta">6 項檢查 → Go / No-Go</div>
         </div>
         <div class="widget-body"></div>
@@ -4567,7 +4765,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"你想做 4 腿 Iron Condor，但期權鏈 bid/ask spread 很寬、OI 很少。合理做法是？","opts":["照做，因為多腿一定分散風險","先不做或換高流動性標的，否則進出場滑價可能吃掉 edge","加大張數補回滑價","改成更短 DTE"],"correct":1,"explain":"流動性不足會讓理論 payoff 失真。多腿每一腿都可能被點差吃掉，尤其調整或停損時成本更高，這是典型 No-Go。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">📝</span>No-Trade Drill · 不交易練習</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16"/><path d="M5 16l9.5-9.5a1.5 1.5 0 0 1 2.1 0l.9.9a1.5 1.5 0 0 1 0 2.1L8 19l-4 1z"/></svg></span>No-Trade Drill · 不交易練習</div>
         </div>
         <div class="widget-body"></div>
       </div>
@@ -4768,7 +4966,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"連續 3 筆虧損後應該？","opts":["double down 加碼贏回來","維持原 size","降 50% 部位重新檢視策略","換策略立刻"],"correct":2,"explain":"連 3 虧 → 降 50% 部位 + 重新檢視策略。不是 double down（過度信心）也不是立刻換（沒給策略足夠樣本）。確認策略邏輯仍有效後再恢復 size。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅶ 決策框架</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅶ 決策框架</div>
           <div class="widget-meta">5 題 / 風險管理</div>
         </div>
         <div class="widget-body"></div>
@@ -5531,7 +5729,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"0-DTE 散戶幾乎全虧的關鍵原因？","opts":["券商手續費太高","theta 主導 + gamma 極端 + 機構反應速度遠勝散戶","期權太貴","不能放空"],"correct":1,"explain":"0-DTE 在最後 6.5 小時 theta 主導 + ATM gamma 是正常 35 DTE 的 50-100 倍。機構毫秒級反應 + 程式 delta hedge + 分散 100+ 標的；散戶手動 + 單一賭注，結構性虧損。"}
       ]'>
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">🧠</span>Quiz · Part Ⅷ 進階主題</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅷ 進階主題</div>
           <div class="widget-meta">5 題 / 進階</div>
         </div>
         <div class="widget-body"></div>
@@ -5562,7 +5760,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <div class="widget" data-component="journal">
         <div class="widget-header">
-          <div class="widget-title"><span class="icon">📓</span>TradeJournal · 我的下單記錄</div>
+          <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></span>TradeJournal · 我的下單記錄</div>
           <div class="widget-meta">localStorage · 可匯入匯出</div>
         </div>
         <div class="widget-body"></div>
@@ -5764,7 +5962,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
          學習進度 dashboard
          ============================================================ -->
     <section data-chapter="progress">
-      <h1>📊 我的學習進度</h1>
+      <h1><svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="width:.82em;height:.82em;color:var(--accent);margin-right:.3em;vertical-align:-.04em;"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>我的學習進度</h1>
       <p style="color: var(--fg-muted); margin-top: -2px;">
         每章 h1 旁邊有「☐ 標為已完成」按鈕。手動勾選後這頁與 sidebar 都會顯示 ✓。
       </p>
@@ -8114,6 +8312,118 @@ const TradeJournal = {
     return t.status !== 'open' && t.pnl !== '' && t.pnl != null && !isNaN(parseFloat(t.pnl));
   },
 
+  // ── 組合曝險面板：帳戶總額（每台裝置各自設定，不進 CloudSync） ──
+  ACCT_KEY: 'opt/account-size',
+  loadAccount() {
+    const v = parseFloat(localStorage.getItem(this.ACCT_KEY));
+    return Number.isFinite(v) && v > 0 ? v : 0;
+  },
+  saveAccount(v) {
+    const n = parseFloat(v);
+    try {
+      if (Number.isFinite(n) && n > 0) localStorage.setItem(this.ACCT_KEY, String(n));
+      else localStorage.removeItem(this.ACCT_KEY);
+    } catch {}
+  },
+
+  // ── 策略 → 方向 / Greek 訊號表（粗估用）──
+  // posDelta: 該策略「站在標的方向」的每股 delta 符號與量級（單位：股，1 張 call ≈ 100 股名目）
+  //   用 ATM 起算的 BS delta 當基準（約 0.5），再依策略調整：
+  //   sign>0 看多、<0 看空；mag 是 |每股 delta| 的粗估
+  // thetaSign: 賣方收 theta(+)、買方付 theta(−)、價差/中性視策略而定
+  // riskKind: 'defined'(風險有限) / 'undefined'(裸賣，最大虧損視為無限) / 'capital'(現股級資金佔用)
+  STRAT_SIG: {
+    'CC':         { sign:  1, mag: 0.65, thetaSign:  1, riskKind: 'capital'   }, // 持股+賣call：仍偏多但被削頂
+    'CSP':        { sign:  1, mag: 0.35, thetaSign:  1, riskKind: 'defined'   }, // 賣put：偏多、被 assign 即接股
+    'PP':         { sign:  1, mag: 0.70, thetaSign: -1, riskKind: 'capital'   }, // 持股+買put：偏多但有保險
+    'Collar':     { sign:  1, mag: 0.45, thetaSign:  0, riskKind: 'capital'   },
+    'Wheel':      { sign:  1, mag: 0.40, thetaSign:  1, riskKind: 'capital'   },
+    'Long Call':  { sign:  1, mag: 0.50, thetaSign: -1, riskKind: 'defined'   },
+    'Long Put':   { sign: -1, mag: 0.50, thetaSign: -1, riskKind: 'defined'   },
+    'Vertical':   { sign:  1, mag: 0.25, thetaSign:  0, riskKind: 'defined'   },
+    'IC':         { sign:  0, mag: 0.05, thetaSign:  1, riskKind: 'defined'   },
+    'Straddle':   { sign:  0, mag: 0.05, thetaSign: -1, riskKind: 'defined'   },
+    'PMCC':       { sign:  1, mag: 0.55, thetaSign:  0, riskKind: 'defined'   },
+    '其他':        { sign:  0, mag: 0.30, thetaSign:  0, riskKind: 'defined'   }
+  },
+
+  /**
+   * 對 open 部位粗估「組合層曝險」。
+   * 注意：日誌未存每筆 spot / IV / DTE，故以 strike 當 ATM spot 代理、IV 45% / DTE 30 起算，
+   * 透過 Math2.bs 取 per-share theta；delta 用策略訊號表（比死記 BS 更貼近多腿部位實況）。
+   * 一律標示為「粗估」——目的在給操盤手方向與集中度的整體感，不是精確 Greeks。
+   */
+  exposureStats(trades) {
+    const open = trades.filter(t => t.status === 'open' && t.ticker);
+    if (open.length === 0) {
+      return { hasData: false, positions: 0 };
+    }
+    const IV = 0.45, DTE = 30, R = 0.045, T = DTE / 365;
+    let netDelta = 0;      // 等效股數（含正負）
+    let grossDelta = 0;    // 絕對方向曝險（看集中度用）
+    let totalTheta = 0;    // 每日 $（賣方為正、買方為負）
+    let totalRisk = 0;     // 粗估最大虧損 $（資金佔用 / 名目）
+    let undefinedRisk = 0; // 含無限風險裸賣的筆數
+    const byTicker = {};   // ticker → 名目 $（用 |delta 名目| 當權重）
+
+    open.forEach(t => {
+      const sig = this.STRAT_SIG[t.strategy] || this.STRAT_SIG['其他'];
+      const qty = Math.max(1, parseFloat(t.qty) || 1);
+      const strike = parseFloat(t.strike) || 0;
+      const premium = parseFloat(t.premium) || 0;
+      const contracts = qty * 100; // 1 張 = 100 股
+      // 方向 delta（等效股數）
+      const posDelta = sig.sign * sig.mag * contracts;
+      netDelta += posDelta;
+      grossDelta += Math.abs(posDelta);
+      // theta：用 ATM BS theta（每股、每日），符號用策略表覆蓋（賣方收正、買方付負、中性給小量）
+      const g = (strike > 0) ? Math2.bs(strike, strike, T, R, IV, true) : { theta: 0 };
+      const perShareTheta = Number.isFinite(g.theta) ? Math.abs(g.theta) : 0;
+      totalTheta += sig.thetaSign * perShareTheta * contracts;
+      // 名目（集中度 / 帳戶風險用）：以 strike×股數 當部位名目
+      const notional = strike * contracts;
+      byTicker[t.ticker] = (byTicker[t.ticker] || 0) + notional;
+      // 粗估最大虧損：
+      //   defined（買方/價差/IC）→ 已付權利金 × 股數（買方）或保守用名目的一小段；這裡買方用 premium×股數
+      //   capital（持股級 CC/PP/Collar/Wheel）→ 視為股票級資金佔用（strike×股數），但有 premium 緩衝
+      //   undefined（裸賣 call 等）→ 標記、用名目當下限估計
+      let risk;
+      if (sig.riskKind === 'capital') {
+        risk = Math.max(0, notional - premium * contracts);
+      } else if (sig.riskKind === 'undefined') {
+        risk = notional; undefinedRisk += 1;
+      } else { // defined
+        // 買方：最大虧損 = 已付權利金；中性/價差：保守抓 premium×股數 或名目 20% 取大者
+        risk = Math.max(premium * contracts, notional * 0.2);
+      }
+      totalRisk += risk;
+    });
+
+    // 單標的集中度（以名目占比最大者）
+    const tickerEntries = Object.entries(byTicker).sort((a, b) => b[1] - a[1]);
+    const totalNotional = tickerEntries.reduce((s, [, v]) => s + v, 0) || 1;
+    const top = tickerEntries[0];
+    const concPct = top ? (top[1] / totalNotional * 100) : 0;
+
+    const account = this.loadAccount();
+    const riskPct = account > 0 ? (totalRisk / account * 100) : null;
+
+    return {
+      hasData: true,
+      positions: open.length,
+      tickers: tickerEntries.length,
+      netDelta,
+      grossDelta,
+      totalTheta,
+      totalRisk,
+      undefinedRisk,
+      concTicker: top ? top[0] : '—',
+      concPct,
+      account,
+      riskPct,
+    };
+  },
+
   stats(trades) {
     const closed = trades.filter(t => this.isClosedWithPnl(t));
     // 已平倉但尚未補 P/L 的筆數（不納入勝率）
@@ -8260,6 +8570,116 @@ const TradeJournal = {
     </svg>`;
   },
 
+  // ── ★ 組合曝險面板：把單筆日誌升級為操盤手要的「組合層風險」視角 ──
+  renderExposurePanel(expo) {
+    const acctVal = expo.account > 0 ? String(expo.account) : '';
+    const acctInput = `
+      <span class="expo-acct">
+        <label for="tj-account">帳戶總額 $</label>
+        <input type="number" id="tj-account" data-action="account" min="0" step="1000"
+               value="${acctVal}" placeholder="例 50000" inputmode="numeric"/>
+      </span>`;
+
+    const head = (body) => `
+      <div class="expo-panel">
+        <div class="expo-panel-head">
+          <span class="expo-title">
+            <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M12 3v9l6.4 6.4"/></svg>
+            組合曝險（未平倉）
+          </span>
+          ${acctInput}
+        </div>
+        ${body}
+      </div>`;
+
+    if (!expo.hasData) {
+      return head(`<div class="expo-empty">目前沒有 <code>open</code> 部位。把進場中的單留在 <code>open</code> 狀態，這裡會即時彙總淨方向、theta 與集中度。</div>`);
+    }
+
+    // 淨 delta：等效股數，正=偏多、負=偏空
+    const nd = expo.netDelta;
+    const ndCls = Math.abs(nd) < expo.grossDelta * 0.15 ? 'warnv' : (nd >= 0 ? 'pos' : 'neg');
+    const ndLabel = Math.abs(nd) < expo.grossDelta * 0.15 ? '接近中性' : (nd >= 0 ? '偏多' : '偏空');
+    const ndStr = (nd >= 0 ? '+' : '') + Math.round(nd).toLocaleString();
+
+    // theta：每日 $，賣方為正
+    const th = expo.totalTheta;
+    const thCls = th >= 0 ? 'pos' : 'neg';
+    const thStr = (th >= 0 ? '+' : '') + '$' + Math.abs(th).toFixed(0);
+
+    // 集中度
+    const conc = expo.concPct;
+    const concCls = conc >= 70 ? 'dangerb' : (conc >= 45 ? 'warnb' : '');
+    const concVCls = conc >= 70 ? 'neg' : (conc >= 45 ? 'warnv' : '');
+
+    // 帳戶風險 %
+    const hasAcct = expo.riskPct != null;
+    const rp = expo.riskPct || 0;
+    const rpCls = rp >= 50 ? 'dangerb' : (rp >= 25 ? 'warnb' : '');
+    const rpVCls = rp >= 50 ? 'neg' : (rp >= 25 ? 'warnv' : '');
+
+    const grid = `
+      <div class="expo-grid">
+        <div class="expo-cell">
+          <div class="expo-k"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>淨 Delta</div>
+          <div class="expo-v ${ndCls}">${ndStr}</div>
+          <div class="expo-sub">等效股數 · ${ndLabel}</div>
+        </div>
+        <div class="expo-cell">
+          <div class="expo-k"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 13V9M9 2h6"/></svg>總 Theta</div>
+          <div class="expo-v ${thCls}">${thStr}</div>
+          <div class="expo-sub">每日時間價值 ${th >= 0 ? '收（賣方順風）' : '付（買方逆風）'}</div>
+        </div>
+        <div class="expo-cell">
+          <div class="expo-k"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9v9z"/></svg>單標的集中度</div>
+          <div class="expo-v ${concVCls}">${conc.toFixed(0)}%</div>
+          <div class="expo-bar"><i class="${concCls}" style="width:${Math.min(100, conc).toFixed(0)}%;"></i></div>
+          <div class="expo-sub">最大：<strong>${esc(expo.concTicker)}</strong>（${expo.tickers} 個標的）</div>
+        </div>
+        <div class="expo-cell">
+          <div class="expo-k"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 4v5c0 5-3.8 8-9 9-5.2-1-9-4-9-9V7z"/></svg>佔帳戶風險</div>
+          <div class="expo-v ${hasAcct ? rpVCls : ''}">${hasAcct ? rp.toFixed(0) + '%' : '—'}</div>
+          ${hasAcct ? `<div class="expo-bar"><i class="${rpCls}" style="width:${Math.min(100, rp).toFixed(0)}%;"></i></div>` : ''}
+          <div class="expo-sub">${hasAcct ? ('粗估最大虧損 $' + Math.round(expo.totalRisk).toLocaleString()) : '填右上帳戶總額即可估算'}</div>
+        </div>
+      </div>`;
+
+    const warns = [];
+    if (conc >= 70) warns.push(`單標的 <strong>${esc(expo.concTicker)}</strong> 集中度 ${conc.toFixed(0)}%，過度集中——一檔事件即重傷組合。`);
+    if (hasAcct && rp >= 50) warns.push(`未平倉粗估最大虧損已達帳戶 ${rp.toFixed(0)}%，遠超單筆風險預算（Ch28 建議單筆 ≤ 1–2%）。`);
+    if (expo.undefinedRisk > 0) warns.push(`有 ${expo.undefinedRisk} 筆含<strong>無限風險</strong>裸賣，最大虧損無法以名目封頂。`);
+
+    const foot = `
+      <div class="expo-foot">
+        <strong>粗估</strong>：日誌未存每筆 spot / IV / DTE，本面板以 strike 當 ATM、IV 45% / 30 DTE、依策略方向訊號估算，僅供組合層方向與集中度的整體感，非精確 Greeks。
+        ${warns.length ? '<br/>' + warns.map(w => '· ' + w).join('<br/>') : ''}
+      </div>`;
+
+    return head(grid + foot);
+  },
+
+  // 綁定帳戶輸入：input 時存值 + 只重繪曝險面板（保留焦點/游標），避免整體 re-render 打斷輸入
+  _bindAccount(container) {
+    const input = container.querySelector('[data-action="account"]');
+    if (!input) return;
+    input.addEventListener('input', (e) => {
+      this.saveAccount(e.target.value);
+      const panel = container.querySelector('.expo-panel');
+      if (!panel) return;
+      const caret = e.target.selectionStart;
+      const tmp = document.createElement('div');
+      tmp.innerHTML = this.renderExposurePanel(this.exposureStats(this.load()));
+      const fresh = tmp.firstElementChild;
+      panel.replaceWith(fresh);
+      const newInput = fresh.querySelector('[data-action="account"]');
+      if (newInput) {
+        newInput.focus();
+        try { newInput.setSelectionRange(caret, caret); } catch {}
+      }
+      this._bindAccount(container); // 節點已替換，重綁
+    });
+  },
+
   render(container, state) {
     const trades = this.load();
     const stats = this.stats(trades);
@@ -8271,7 +8691,13 @@ const TradeJournal = {
     const form = state.form || { date: new Date().toISOString().slice(0, 10), ticker: '', strategy: 'CC', strike: '', premium: '', qty: 1, status: 'open', pnl: '' };
 
     const rows = trades.length === 0
-      ? `<tr><td colspan="8" style="text-align:center;color:var(--fg-subtle);padding:30px;">尚無紀錄。在上方填表後按「新增」開始追蹤。</td></tr>`
+      ? `<tr><td colspan="9" style="padding:0;">
+          <div class="empty-state">
+            <svg class="empty-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+            <div class="empty-title">開始記錄你的第一筆交易</div>
+            <div class="empty-sub">學完手冊後最重要的單一動作。進場後立刻在上方填一列，平倉再回來更新狀態與 P/L——20 筆之後勝率才有意義。</div>
+            <div class="empty-arrow" aria-hidden="true">&uarr;</div>
+          </div></td></tr>`
       : trades.slice().reverse().map((t, idx) => {
         const realIdx = trades.length - 1 - idx;
         const pnlColor = parseFloat(t.pnl) > 0 ? 'var(--accent)' : (parseFloat(t.pnl) < 0 ? 'var(--danger)' : 'var(--fg-muted)');
@@ -8283,30 +8709,37 @@ const TradeJournal = {
             <td>$${esc(t.strike)}</td>
             <td>$${esc(t.premium)}</td>
             <td>${esc(t.qty)}</td>
-            <td><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:${t.status === 'open' ? 'var(--info-soft)' : 'var(--bg-sunken)'};color:${t.status === 'open' ? 'var(--info)' : 'var(--fg-muted)'};">${esc(t.status)}</span></td>
+            <td><span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:${t.status === 'open' ? 'var(--info-soft)' : 'var(--bg-sunken)'};color:${t.status === 'open' ? 'var(--info)' : 'var(--fg-muted)'};">${esc(t.status)}</span></td>
             <td style="color:${pnlColor};font-weight:600;font-family:var(--font-mono);">${t.pnl ? (parseFloat(t.pnl) >= 0 ? '+' : '') + '$' + esc(t.pnl) : '—'}</td>
-            <td><button class="btn" data-action="delete" data-idx="${realIdx}" style="font-size:11px;padding:2px 8px;color:var(--danger);border-color:var(--danger);">刪</button></td>
+            <td><button class="btn btn-danger" data-action="delete" data-idx="${realIdx}" title="刪除這筆" aria-label="刪除" style="font-size:11px;padding:3px 7px;min-height:auto;"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px;"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg></button></td>
           </tr>
         `;
       }).join('');
 
     container.innerHTML = `
-      <div style="padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);margin-bottom:14px;">
-        <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">新增交易</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
-          <input type="date" data-form="date" value="${form.date}" class="tj-field"/>
-          <input type="text" data-form="ticker" value="${esc(form.ticker)}" placeholder="標的 NVDA" class="tj-field"/>
-          <select data-form="strategy" class="tj-field">
+      ${this.renderExposurePanel(this.exposureStats(trades))}
+
+      <div class="tj-panel">
+        <div class="tj-panel-head">
+          <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="eyebrow">新增交易</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--sp-2);">
+          <input type="date" data-form="date" value="${form.date}" class="tj-field" aria-label="日期"/>
+          <input type="text" data-form="ticker" value="${esc(form.ticker)}" placeholder="標的 NVDA" class="tj-field" aria-label="標的"/>
+          <select data-form="strategy" class="tj-field" aria-label="策略">
             ${['CC', 'CSP', 'PP', 'Collar', 'Wheel', 'Long Call', 'Long Put', 'Vertical', 'IC', 'Straddle', 'PMCC', '其他'].map(s => `<option ${form.strategy === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-          <input type="number" data-form="strike" value="${form.strike}" placeholder="Strike" step="0.5" class="tj-field"/>
-          <input type="number" data-form="premium" value="${form.premium}" placeholder="Premium" step="0.05" class="tj-field"/>
-          <input type="number" data-form="qty" value="${form.qty}" placeholder="張數" min="1" step="1" class="tj-field"/>
-          <select data-form="status" class="tj-field">
+          <input type="number" data-form="strike" value="${form.strike}" placeholder="Strike" step="0.5" class="tj-field" aria-label="Strike"/>
+          <input type="number" data-form="premium" value="${form.premium}" placeholder="Premium" step="0.05" class="tj-field" aria-label="權利金"/>
+          <input type="number" data-form="qty" value="${form.qty}" placeholder="張數" min="1" step="1" class="tj-field" aria-label="張數"/>
+          <select data-form="status" class="tj-field" aria-label="狀態">
             ${['open', 'closed', 'assigned', 'rolled'].map(s => `<option ${form.status === s ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
-          <input type="number" data-form="pnl" value="${form.pnl}" placeholder="P/L ($)" step="0.01" class="tj-field"/>
-          <button class="btn" data-action="add" style="background:var(--accent);color:white;border-color:var(--accent);">+ 新增</button>
+          <input type="number" data-form="pnl" value="${form.pnl}" placeholder="P/L ($)" step="0.01" class="tj-field" aria-label="P/L"/>
+          <button class="btn btn-primary" data-action="add">
+            <svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>新增
+          </button>
         </div>
       </div>
 
@@ -8332,7 +8765,7 @@ const TradeJournal = {
 
       ${streak && streak.streak >= 3 ? `
         <div class="callout ${streak.type === 'win' ? 'success' : 'warn'}" style="margin-bottom:12px;">
-          <div class="callout-title">${streak.type === 'win' ? '🔥 連勝中' : '⚠ 連虧警示'}</div>
+          <div class="callout-title">${streak.type === 'win' ? '連勝中' : '連虧警示'}</div>
           <p style="margin-top:4px;font-size:13px;">
             連續 <strong>${streak.streak} 筆</strong>${streak.type === 'win' ? '獲利' : '虧損'}。
             ${streak.type === 'loss' ? '依 Ch28 規則，連虧 3 次 → 降部位 50% + 重新檢視策略。' : '保持紀律，不要過度自信加碼。'}
@@ -8340,8 +8773,8 @@ const TradeJournal = {
         </div>
       ` : ''}
 
-      <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
-        <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">Journal Coach · 本月檢討提示</div>
+      <div style="margin-bottom:14px;padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);">
+        <div class="eyebrow" style="margin-bottom:10px;">Journal Coach · 本月檢討提示</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;">
           ${reviewHints.map(h => `<div style="padding:10px 12px;background:var(--bg-elev);border:1px solid ${h.tone === 'danger' ? 'var(--danger)' : (h.tone === 'warn' ? 'var(--warn)' : (h.tone === 'success' ? 'var(--accent)' : 'var(--border)'))};border-radius:var(--radius-sm);font-size:12.5px;line-height:1.55;">
             <div style="font-weight:700;color:${h.tone === 'danger' ? 'var(--danger)' : (h.tone === 'warn' ? 'var(--warn)' : (h.tone === 'success' ? 'var(--accent)' : 'var(--info)'))};margin-bottom:3px;">${esc(h.title)}</div>
@@ -8351,8 +8784,8 @@ const TradeJournal = {
       </div>
 
       ${stratStats.length > 0 ? `
-        <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
-          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">策略勝率分組</div>
+        <div style="margin-bottom:14px;padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);">
+          <div class="eyebrow" style="margin-bottom:10px;">策略勝率分組</div>
           <table style="width:100%;font-size:12.5px;margin:0;">
             <thead><tr><th>策略</th><th style="text-align:right;">筆數</th><th style="text-align:right;">勝率</th><th style="text-align:right;">累計 P/L</th></tr></thead>
             <tbody>
@@ -8370,8 +8803,8 @@ const TradeJournal = {
       ` : ''}
 
       ${tkrStats.length > 0 ? `
-        <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
-          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:8px;">標的勝率 Top 5</div>
+        <div style="margin-bottom:14px;padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);">
+          <div class="eyebrow" style="margin-bottom:10px;">標的勝率 Top 5</div>
           <table style="width:100%;font-size:12.5px;margin:0;">
             <thead><tr><th>標的</th><th style="text-align:right;">筆數</th><th style="text-align:right;">勝率</th><th style="text-align:right;">累計 P/L</th></tr></thead>
             <tbody>
@@ -8389,8 +8822,8 @@ const TradeJournal = {
       ` : ''}
 
       ${monthly.length >= 2 ? `
-        <div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-sunken);border-radius:var(--radius);">
-          <div style="font-size:11px;color:var(--fg-muted);letter-spacing:.08em;margin-bottom:4px;">月度累計 P/L</div>
+        <div style="margin-bottom:14px;padding:14px 16px;background:var(--bg-sunken);border-radius:var(--radius);">
+          <div class="eyebrow" style="margin-bottom:8px;">月度累計 P/L</div>
           ${this.renderMonthlyChart(monthly)}
         </div>
       ` : ''}
@@ -8404,15 +8837,16 @@ const TradeJournal = {
         </table>
       </div>
 
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn" data-action="export" style="font-size:12px;">📤 匯出 JSON</button>
-        <button class="btn" data-action="import" style="font-size:12px;">📥 匯入 JSON</button>
-        <button class="btn" data-action="clear" style="font-size:12px;color:var(--danger);border-color:var(--danger);">🗑 清空全部</button>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" data-action="export"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>匯出 JSON</button>
+        <button class="btn" data-action="import"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M4 17v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2"/></svg>匯入 JSON</button>
+        <button class="btn btn-danger" data-action="clear"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg>清空全部</button>
         <input type="file" id="tj-import-file" accept=".json" style="display:none;"/>
       </div>
 
-      <div style="margin-top:10px;font-size:12px;color:var(--fg-muted);">
-        💾 紀錄存在你瀏覽器 localStorage（瀏覽器清資料會遺失）。建議定期匯出 JSON 備份到 Obsidian。
+      <div style="margin-top:10px;font-size:var(--fs-2xs);color:var(--fg-muted);display:flex;align-items:flex-start;gap:6px;line-height:1.55;">
+        <svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px;flex:none;margin-top:1px;color:var(--fg-subtle);"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>
+        <span>紀錄存在你瀏覽器 localStorage（瀏覽器清資料會遺失）。建議定期匯出 JSON 備份到 Obsidian。</span>
       </div>
     `;
 
@@ -8422,6 +8856,9 @@ const TradeJournal = {
         form[e.target.dataset.form] = e.target.value;
       });
     });
+
+    // Bind 帳戶總額（曝險面板）：存值後只重繪曝險面板，保留輸入焦點與游標位置
+    this._bindAccount(container);
 
     // Add trade
     container.querySelector('[data-action="add"]').addEventListener('click', () => {
@@ -8549,7 +8986,19 @@ function saveState(s) {
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  document.getElementById('theme-btn').textContent = theme === 'dark' ? '淺色' : '深色';
+  // 只更新標籤文字與圖示，不覆寫整顆按鈕（保留 inline SVG）
+  const btn = document.getElementById('theme-btn');
+  if (!btn) return;
+  const label = btn.querySelector('.theme-label');
+  if (label) label.textContent = theme === 'dark' ? '淺色' : '深色';
+  const icn = btn.querySelector('.theme-icn');
+  if (icn) {
+    // dark 模式顯示「太陽」(可切回淺色)；light 模式顯示「月亮」(可切到深色)
+    icn.innerHTML = theme === 'dark'
+      ? '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/>'
+      : '<path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.5 6.5 0 0 0 9.8 9.8z"/>';
+    icn.setAttribute('viewBox', '0 0 24 24');
+  }
 }
 
 (function initTheme() {
@@ -8703,7 +9152,8 @@ function updateBookmarkUI() {
   const setBtn = document.getElementById('set-bookmark-btn');
   if (b && gotoBtn) {
     gotoBtn.style.display = '';
-    gotoBtn.textContent = `📂 ${chapterLabel(b.chapterId)}`;
+    // 保留 inline SVG icon，再接動態章節標籤（不用 emoji）
+    gotoBtn.innerHTML = `<svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>${esc(chapterLabel(b.chapterId))}</span>`;
     gotoBtn.title = `跳回標記位置（${new Date(b.ts).toLocaleString()}）`;
   } else if (gotoBtn) {
     gotoBtn.style.display = 'none';
@@ -9152,7 +9602,8 @@ const CloudSync = {
     if (!btn) return;
     btn.style.display = this.configured() ? '' : 'none';
     if (!this.configured()) return;
-    btn.textContent = this.enabled() ? '☁️ 已同步' : '☁️ 同步';
+    const cloud = '<svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a4 4 0 0 1-.5-7.97A6 6 0 0 1 18 9.5a3.5 3.5 0 0 1-.5 8.5z"/></svg>';
+    btn.innerHTML = cloud + '<span>' + (this.enabled() ? '已同步' : '同步') + '</span>';
     btn.title = this.enabled() ? '雲端同步已啟用，點開設定' : '設定跨裝置同步';
   },
 
@@ -9394,8 +9845,9 @@ OPT 是「美股期權 + 台股期貨」單檔 HTML 自學手冊（線上：http
     if (document.getElementById('llm-fab')) return;
     const fab = document.createElement('button');
     fab.id = 'llm-fab';
-    fab.innerHTML = '🤖';
+    fab.innerHTML = '<svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="width:24px;height:24px;stroke-width:1.9;"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1.2-4.4A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>';
     fab.title = 'OPT 助教';
+    fab.setAttribute('aria-label', 'OPT 助教');
     fab.addEventListener('click', () => this.togglePanel());
     document.body.appendChild(fab);
 
@@ -9420,8 +9872,8 @@ OPT 是「美股期權 + 台股期貨」單檔 HTML 自學手冊（線上：http
     if (!key) {
       p.innerHTML = `
         <div class="llm-header">
-          <strong>🤖 OPT 助教設定</strong>
-          <button class="llm-close" data-action="close">✕</button>
+          <strong style="display:inline-flex;align-items:center;gap:7px;"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="color:var(--accent);"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1.2-4.4A8 8 0 1 1 21 12z"/></svg>OPT 助教設定</strong>
+          <button class="llm-close" data-action="close" aria-label="關閉"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div class="llm-messages">
           <p style="font-size:13.5px;margin-top:0;">問問題前需要貼 Google Gemini API key。免費 tier 完全夠用日常學習。</p>
@@ -9458,20 +9910,30 @@ OPT 是「美股期權 + 台股期貨」單檔 HTML 自學手冊（線上：http
     // Chat panel
     const history = this.loadHistory();
     const msgsHTML = history.length === 0
-      ? `<div style="color:var(--fg-muted);text-align:center;padding:24px;font-size:13px;line-height:1.7;">問我關於這份手冊的任何問題。<br/><br/>例如：<br/><em>「Covered Call 跟 Wheel 有什麼差別？」<br/>「現在 IV Percentile 80% 該不該做 Iron Condor？」<br/>「期現套利的手續費怎麼算？」</em></div>`
-      : history.map(m => `
+      ? `<div class="empty-state" style="padding:28px 16px;">
+           <svg class="empty-icon" viewBox="0 0 24 24" aria-hidden="true" style="width:34px;height:34px;"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1.2-4.4A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>
+           <div class="empty-title" style="font-size:14px;">問我關於這份手冊的任何問題</div>
+           <div class="empty-sub" style="font-size:12.5px;">試試：<br/>「Covered Call 跟 Wheel 有什麼差別？」<br/>「IV Percentile 80% 該不該做 Iron Condor？」<br/>「期現套利的手續費怎麼算？」</div>
+         </div>`
+      : history.map(m => {
+        // 載入態（佔位訊息）改成純視覺 typing indicator，與正式 assistant 訊息明確區隔
+        const isTyping = m.role === 'assistant' && m.content === '⏳ 思考中...';
+        const bubble = isTyping
+          ? `<span class="typing-dots" role="status" aria-label="思考中"><span></span><span></span><span></span></span>`
+          : this.formatReply(m.content);
+        return `
         <div style="margin-bottom:12px;${m.role === 'user' ? 'text-align:right;' : ''}">
-          <div style="display:inline-block;max-width:90%;padding:8px 12px;border-radius:${m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px'};background:${m.role === 'user' ? 'var(--accent)' : 'var(--bg-sunken)'};color:${m.role === 'user' ? 'white' : 'var(--fg)'};font-size:13.5px;line-height:1.55;text-align:left;white-space:pre-wrap;word-break:break-word;">${this.formatReply(m.content)}</div>
-        </div>
-      `).join('');
+          <div style="display:inline-block;max-width:90%;padding:8px 12px;border-radius:${m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px'};background:${m.role === 'user' ? 'var(--accent)' : 'var(--bg-sunken)'};color:${m.role === 'user' ? 'white' : 'var(--fg)'};font-size:13.5px;line-height:1.55;text-align:left;white-space:pre-wrap;word-break:break-word;">${bubble}</div>
+        </div>`;
+      }).join('');
 
     p.innerHTML = `
       <div class="llm-header">
-        <strong>🤖 OPT 助教</strong>
+        <strong style="display:inline-flex;align-items:center;gap:7px;"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true" style="color:var(--accent);"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3 1.2-4.4A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>OPT 助教</strong>
         <div style="display:flex;gap:4px;">
-          <button class="llm-icon-btn" data-action="settings" title="重新設定 API key">⚙️</button>
-          <button class="llm-icon-btn" data-action="clear" title="清空對話">🗑</button>
-          <button class="llm-close" data-action="close" title="關閉">✕</button>
+          <button class="llm-icon-btn" data-action="settings" title="重新設定 API key" aria-label="設定"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+          <button class="llm-icon-btn" data-action="clear" title="清空對話" aria-label="清空對話"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13"/></svg></button>
+          <button class="llm-close" data-action="close" title="關閉" aria-label="關閉"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
       </div>
       <div class="llm-messages" id="llm-messages">${msgsHTML}</div>
