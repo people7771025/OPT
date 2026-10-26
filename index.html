@@ -1191,7 +1191,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <p><strong>Max Pain</strong> = 「到期日股價落在這裡，整個期權市場的賣方賠最少 / 買方賠最多」的那個價格。</p>
       <p>並不是說造市商「操控」股價到 Max Pain（他們沒這麼大本事），而是：</p>
       <ul>
-        <li>到期日前幾天，所有 ITM 期權都會被造市商<strong>反向對沖</strong>（賣股票或回補股票），這些動作會把股價拉向 Max Pain（OI 最集中的位置）</li>
+        <li>到期日前幾天，所有 ITM 期權都會被造市商<strong>反向對沖</strong>（賣股票或回補股票），有一種說法認為這些對沖會把股價拉向 OI 最集中的位置；較被接受的解釋是造市商持有正 gamma 時的反向對沖造成到期黏著（pinning），但實證只偶爾出現，Max Pain 不是可靠的預測訊號</li>
         <li>越接近到期，這個「磁吸」效應越明顯</li>
         <li>但這不是預測工具——只是解釋「為什麼股價常在到期日附近反常拉回」的現象</li>
       </ul>
@@ -1228,7 +1228,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         {"q":"NVDA 現價 $145，30 DTE 的 $150 call 報價 $4.00。內在價值與時間價值分別是多少？","opts":["內在 $5、時間 $-1","內在 $0、時間 $4","內在 $4、時間 $0","內在 $145、時間 $4"],"correct":1,"explain":"履約價 $150 高於現價 $145，call 立即履約沒有好處，內在價值 = 0。整個 $4 都是時間價值。"},
         {"q":"ATM、ITM、OTM 中，哪個位置的「時間價值」最高？","opts":["深 ITM","ATM","深 OTM","三者相等"],"correct":1,"explain":"ATM 處「翻 ITM」的機率最不確定（≈50%），市場願為這個位置付最多「不確定性費用」。深 ITM 行為接近股票本身，深 OTM 接近彩券，時間價值都塌。"},
         {"q":"以下哪個是「Long Put」不同於「放空股票」的關鍵差別？","opts":["Long Put 沒有保證金","Long Put 最大損失有限（限於權利金）","Long Put 比較便宜","Long Put 沒有到期日"],"correct":1,"explain":"放空股票若股價漲 1000% 你賠 1000%（無上限）。Long Put 最壞情境只損失權利金。這是用「有限損失」換看空權利。"},
-        {"q":"「Max Pain」現象的原因是？","opts":["造市商故意操縱股價","純粹巧合","造市商到期前 delta hedging 的對沖行為集中","政府介入"],"correct":2,"explain":"並非造市商「操縱」（散戶常見誤解），而是 ITM 期權的造市商 delta hedge 動作會把股價拉向 OI 最集中的價格（Max Pain）。是被動的市場結構效應。"}
+        {"q":"「Max Pain」現象的原因是？","opts":["造市商故意操縱股價","純粹巧合","可能與造市商到期前的 gamma 對沖有關，但並非可靠規律","政府介入"],"correct":2,"explain":"並非造市商「操縱」（散戶常見誤解），到期黏著（pinning）較被接受的解釋是造市商持有正 gamma 時的反向對沖，但只偶爾出現在 OI 集中、流動性高的標的，不能當可靠訊號。"}
       ]'>
         <div class="widget-header">
           <div class="widget-title"><span class="icon"><svg class="icn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3.5a3 3 0 0 0-3 3 3 3 0 0 0-2 5.2A3 3 0 0 0 6 17a3 3 0 0 0 3.5 2.5V3.5z"/><path d="M14.5 3.5a3 3 0 0 1 3 3 3 3 0 0 1 2 5.2A3 3 0 0 1 18 17a3 3 0 0 1-3.5 2.5V3.5z"/></svg></span>Quiz ·Part Ⅰ 共通基礎</div>
@@ -2019,7 +2019,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 <h3>Step 2 · 決定 Strike</h3>
         <p>原則：<strong>看 delta 而不是看「OTM 幾 %」</strong>。delta 是「被 assign 的近似機率」。</p>
         <ul>
-          <li>30 delta call：約 30% 機率被 assign，70% 機率到期失效（最常用）</li>
+          <li>30 delta call：到期落在價內機率約 30%，約 70% 到期失效（最常用）</li>
           <li>20 delta call：保守，被 assign 機率低，但權利金也少</li>
           <li>40+ delta call：激進，權利金大，但很可能被 assign（適合本來就準備了結的部位）</li>
         </ul>
@@ -2211,7 +2211,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 <h2>怎麼挑 strike（同樣看 delta）</h2>
       <p>規則與 CC 對稱：</p>
       <ul>
-        <li>30 delta put：約 30% 被 assign 機率，最常用</li>
+        <li>30 delta put：到期落在價內機率約 30%，最常用</li>
         <li>20 delta put（更 OTM）：保守，少接到，少收權利金</li>
         <li>40+ delta put（更接近 ATM）：激進，常接到，權利金多</li>
       </ul>
@@ -4408,7 +4408,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <tbody>
           <tr><td><strong>台指期</strong>（大台）</td><td>TX</td><td><strong>NT$200</strong></td><td>NT$400 萬</td><td>機構 / 大戶</td></tr>
           <tr><td><strong>小型台指期</strong>（小台）</td><td>MTX</td><td><strong>NT$50</strong></td><td>NT$100 萬</td><td>主流散戶</td></tr>
-          <tr><td><strong>微型台指期</strong>（微台）</td><td>MXF</td><td><strong>NT$10</strong></td><td>NT$20 萬</td><td>小資 / 練習 / 微調避險</td></tr>
+          <tr><td><strong>微型台指期</strong>（微台）</td><td>TMF</td><td><strong>NT$10</strong></td><td>NT$20 萬</td><td>小資 / 練習 / 微調避險</td></tr>
         </tbody>
       </table>
 
@@ -4459,11 +4459,12 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         </p>
       </div>
       <table>
+        <caption>示意數字（以指數 20,000 估算），實際保證金隨指數與風險調整，以期交所最新公告為準</caption>
         <thead><tr><th>契約</th><th>原始保證金（示意）</th><th>維持保證金（示意）</th><th>結算保證金</th></tr></thead>
         <tbody>
           <tr><td>TX</td><td>NT$184,000</td><td>NT$141,000</td><td>NT$135,000</td></tr>
           <tr><td>MTX</td><td>NT$46,000</td><td>NT$35,250</td><td>NT$33,750</td></tr>
-          <tr><td>MXF（微台）</td><td>NT$9,200</td><td>NT$7,050</td><td>NT$6,750</td></tr>
+          <tr><td>TMF（微台）</td><td>NT$9,200</td><td>NT$7,050</td><td>NT$6,750</td></tr>
         </tbody>
       </table>
 
@@ -4481,7 +4482,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <tbody>
           <tr><td><strong>TX</strong>（大台）</td><td>20,000 × NT$200 = <strong>NT$4,000,000</strong></td><td>~NT$184,000</td><td>~22x</td><td>名目是資金 4 倍 → <strong>過大</strong></td></tr>
           <tr><td><strong>MTX</strong>（小台）</td><td>20,000 × NT$50 = <strong>NT$1,000,000</strong></td><td>~NT$46,000</td><td>~22x</td><td>名目剛好 ≈ 1 倍資金</td></tr>
-          <tr><td><strong>MXF</strong>（微台）</td><td>20,000 × NT$10 = <strong>NT$200,000</strong></td><td>~NT$9,200</td><td>~22x</td><td>名目是資金 1/5</td></tr>
+          <tr><td><strong>TMF</strong>（微台）</td><td>20,000 × NT$10 = <strong>NT$200,000</strong></td><td>~NT$9,200</td><td>~22x</td><td>名目是資金 1/5</td></tr>
         </tbody>
       </table>
       <p>三者槓桿一樣（都 ≈ 4,000,000÷184,000 ≈ 1,000,000÷46,000 ≈ 200,000÷9,200 ≈ <strong>22 倍</strong>）——差別只在「<strong>顆粒度</strong>」：一口下去暴露多大的名目。</p>
@@ -4499,7 +4500,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <p>關鍵不是「能下幾口」，而是「<strong>留多少保證金緩衝（margin buffer）</strong>」，避免一根黑K就被追繳。兩個務實選擇：</p>
       <ol>
         <li><strong>1 口 MTX（小台）</strong>：名目 NT$100 萬 ≈ 100% 資金曝險。原始保證金只佔 46,000，<strong>剩 954,000 全是緩衝</strong>。多到誇張的緩衝 → 幾乎不可能被追繳，但等於只把 4.6% 的錢拿去當「擔保」、用 100 萬的部位賭。新手想要「足額（1 倍）的指數曝險、又睡得著」，這是最乾淨的選擇。</li>
-        <li><strong>3～5 口 MXF（微台）</strong>：每口名目 NT$20 萬。下 <strong>5 口</strong> = 名目 NT$100 萬（和 1 口小台等量曝險），但保證金 5 × 9,200 = <strong>46,000</strong>，跟 1 口小台一模一樣；好處是你能<strong>分批進出</strong>（先 2 口試水溫、回檔再加到 5 口），顆粒度細 5 倍。想保守一點就只下 <strong>3 口</strong>（名目 NT$60 萬、保證金 27,600），曝險只剩 60% 資金。</li>
+        <li><strong>3～5 口 TMF（微台）</strong>：每口名目 NT$20 萬。下 <strong>5 口</strong> = 名目 NT$100 萬（和 1 口小台等量曝險），但保證金 5 × 9,200 = <strong>46,000</strong>，跟 1 口小台一模一樣；好處是你能<strong>分批進出</strong>（先 2 口試水溫、回檔再加到 5 口），顆粒度細 5 倍。想保守一點就只下 <strong>3 口</strong>（名目 NT$60 萬、保證金 27,600），曝險只剩 60% 資金。</li>
       </ol>
 
       <h3>Step 3 · 指數跌幾點會吃掉多少保證金？（追繳線在哪）</h3>
@@ -4508,13 +4509,13 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <thead><tr><th>合約（多單）</th><th>每點損益</th><th>原始 − 維持（緩衝）</th><th>觸發追繳的逆向點數</th><th>等值跌幅</th></tr></thead>
         <tbody>
           <tr><td>1 口 MTX</td><td>NT$50</td><td>46,000 − 35,250 = NT$10,750</td><td>10,750 ÷ 50 = <strong>215 點</strong></td><td>215 ÷ 20,000 ≈ 1.1%</td></tr>
-          <tr><td>1 口 MXF</td><td>NT$10</td><td>9,200 − 7,050 = NT$2,150</td><td>2,150 ÷ 10 = <strong>215 點</strong></td><td>≈ 1.1%</td></tr>
+          <tr><td>1 口 TMF</td><td>NT$10</td><td>9,200 − 7,050 = NT$2,150</td><td>2,150 ÷ 10 = <strong>215 點</strong></td><td>≈ 1.1%</td></tr>
         </tbody>
       </table>
       <p>注意：上表是「<strong>只放剛好一口原始保證金</strong>」時的追繳線——215 點就被追繳，太脆弱。但你帳戶有 NT$100 萬、不是只放 46,000。<strong>1 口 MTX 用滿 100 萬權益</strong>時，要把權益賠到跌破維持保證金才會碰到追繳線：<strong>(1,000,000 − 35,250) ÷ 50 ≈ 19,295 點</strong>（若要賠到權益歸零見底，則需跌 1,000,000 ÷ 50 = 20,000 點，等同指數歸零）——指數實際根本跌不到那裡，所以真正風險不是「被追繳」而是「<strong>方向看錯、慢慢失血</strong>」。常見的失血感受值：</p>
       <ul>
         <li><strong>1 口 MTX</strong>：指數每跌 <strong>100 點</strong>＝賠 100 × NT$50 = <strong>NT$5,000</strong>（佔資金 0.5%）。跌 500 點＝ −NT$25,000（−2.5%）。</li>
-        <li><strong>5 口 MXF</strong>：指數每跌 100 點＝賠 5 × 100 × NT$10 = <strong>NT$5,000</strong>（與 1 口小台同步，因為名目相同）。</li>
+        <li><strong>5 口 TMF</strong>：指數每跌 100 點＝賠 5 × 100 × NT$10 = <strong>NT$5,000</strong>（與 1 口小台同步，因為名目相同）。</li>
         <li><strong>1 口 TX（對照組）</strong>：指數每跌 100 點＝賠 100 × NT$200 = <strong>NT$20,000</strong>（佔資金 2%）——同樣 100 點，痛 4 倍。</li>
       </ul>
 
@@ -4523,8 +4524,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <ul>
           <li>NT$100 萬做多指數，<strong>1 口 TX 名目 400 萬＝4 倍資金，過度槓桿，跳過</strong>。</li>
           <li>想要「<strong>足額 1 倍曝險</strong>」且操作單純 → <strong>1 口 MTX</strong>（名目 100 萬、保證金 4.6 萬、緩衝極大）。</li>
-          <li>想要「<strong>能分批、能微調曝險</strong>」→ 用 <strong>微台 MXF</strong>，3 口（60% 曝險）到 5 口（=1 口小台）任你切。</li>
-          <li>口數定了就回頭算「指數逆走 X 點賠多少」：1 口 MTX 或 5 口 MXF，每 100 點都是 −NT$5,000，跌 500 點才 −2.5% 資金——這個量級你才扛得住，也才有空間設停損、不被洗出場。保證金機制與追繳細節見下一章 Ch21。</li>
+          <li>想要「<strong>能分批、能微調曝險</strong>」→ 用 <strong>微台 TMF</strong>，3 口（60% 曝險）到 5 口（=1 口小台）任你切。</li>
+          <li>口數定了就回頭算「指數逆走 X 點賠多少」：1 口 MTX 或 5 口 TMF，每 100 點都是 −NT$5,000，跌 500 點才 −2.5% 資金——這個量級你才扛得住，也才有空間設停損、不被洗出場。保證金機制與追繳細節見下一章 Ch21。</li>
         </ul>
       </div>
 
@@ -4594,7 +4595,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <tbody>
           <tr><td>TX</td><td>NT$4,000,000</td><td>NT$184,000</td><td>~ 22 倍</td></tr>
           <tr><td>MTX</td><td>NT$1,000,000</td><td>NT$46,000</td><td>~ 22 倍</td></tr>
-          <tr><td>MXF</td><td>NT$200,000</td><td>NT$9,200</td><td>~ 22 倍</td></tr>
+          <tr><td>TMF</td><td>NT$200,000</td><td>NT$9,200</td><td>~ 22 倍</td></tr>
         </tbody>
       </table>
       <p>三個契約槓桿率<strong>幾乎一樣</strong>——只差在「絕對部位大小」。微台適合練習與微調避險不是因為「槓桿低」，而是因為「絕對虧損可控」。</p>
@@ -4773,7 +4774,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <table>
         <thead><tr><th>狀況</th><th>定義</th><th>含義</th></tr></thead>
         <tbody>
-          <tr><td><strong>正基差（contango）</strong></td><td>期貨 > 現貨</td><td>市場看多 / 利率高於股息率 / 正常市場</td></tr>
+          <tr><td><strong>正基差（contango）</strong></td><td>期貨 > 現貨</td><td>市場看多 / 利率高於股息率（台指期較少見，美股指數期較常見）</td></tr>
           <tr><td><strong>逆基差（backwardation）</strong></td><td>期貨 < 現貨</td><td>市場看空 / 接近除息日 / 大事件前避險</td></tr>
         </tbody>
       </table>
@@ -4785,7 +4786,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       </p>
       <p>實務判讀（台股）：</p>
       <ul>
-        <li><strong>+2 ~ +5%</strong>：正常正基差（反映無風險利率 - 預期股息率）</li>
+        <li><strong>+2 ~ +5%</strong>：偏正基差。注意台股殖利率常高於利率，台指期平時多為小幅逆價差或接近零，除息旺季（6–9 月）逆價差更明顯；判讀時先扣掉預期股息</li>
         <li><strong>&gt; +5%</strong>：偏多熱度（謹慎，可能反指標）</li>
         <li><strong>-2 ~ +2%</strong>：對稱，多空意見分歧</li>
         <li><strong>-5 ~ -2%</strong>：偏空避險（市場轉趨保守）</li>
@@ -4954,7 +4955,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <p>到這裡很容易過度興奮，但必須套回本章的勝率上限：跟著大戶淨變化做方向，<strong>長期勝率僅約 53-56%</strong>（見上方「大戶不是先知」）。所以這只是 <em>context（背景訊號）</em>，不是進場保證。</p>
       <p>對應的部位作法：</p>
       <ol>
-        <li><strong>偏多，但只微調、不重壓</strong>：若原本看法中性，可把多空傾向往多偏一格——例如把計畫中的試單由 1 口微台 MXF（NT$10/點）改成偏多方向，<strong>而不是直接上 1 大台 TX</strong> 重押。</li>
+        <li><strong>偏多，但只微調、不重壓</strong>：若原本看法中性，可把多空傾向往多偏一格——例如把計畫中的試單由 1 口微台 TMF（NT$10/點）改成偏多方向，<strong>而不是直接上 1 大台 TX</strong> 重押。</li>
         <li><strong>等確認再加碼</strong>：依本章準則，<strong>連續 3 天同方向變化</strong>才算成立的訊號。單日 +4,000 只是第 1 天，先小、等第 2、3 天延續再考慮加碼。</li>
         <li><strong>反例要降權重</strong>：如果哪天讀到「淨多續增、但 OI 反而下降」，那是空方回補、不是新多進場，訊號較弱，這時不該因為「淨多又變多」就追多。</li>
         <li><strong>交叉驗證</strong>：再去對「外資現貨買賣超」是否同向買超；兩者一致時這個偏多 context 才比較可靠。</li>
@@ -5003,7 +5004,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <ul>
         <li><strong>分子（組合方向暴險）</strong>：每支股票市值 × 該股 beta，加總</li>
-        <li><strong>分母（每口期貨的方向暴險）</strong>：指數點位 × 該契約每點價值（TX=$200 / MTX=$50 / MXF=$10）</li>
+        <li><strong>分母（每口期貨的方向暴險）</strong>：指數點位 × 該契約每點價值（TX=$200 / MTX=$50 / TMF=$10）</li>
       </ul>
 
       <h2>Beta 怎麼查</h2>
@@ -5047,8 +5048,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
 
       <h2>Part Ⅴ 小測驗</h2>
       <div class="widget" data-component="quiz" data-questions='[
-        {"q":"1 口大台（TX）等於多少口小台（MTX）？","opts":["2 口","4 口","10 口","20 口"],"correct":1,"explain":"TX 1 點 NT$200 / MTX 1 點 NT$50。比例 200:50 = 4:1。所以 1 大台 = 4 小台 = 20 微台（MXF 1 點 NT$10）。"},
-        {"q":"TX 大台 1 口指數 20,000，槓桿率約為？","opts":["5 倍","10 倍","22 倍","100 倍"],"correct":2,"explain":"合約價值 = 20,000 × NT$200 = NT$4,000,000；原始保證金約 NT$184,000；槓桿率 = 4,000,000 / 184,000 ≈ 22 倍。三契約槓桿率幾乎一樣。"},
+        {"q":"1 口大台（TX）等於多少口小台（MTX）？","opts":["2 口","4 口","10 口","20 口"],"correct":1,"explain":"TX 1 點 NT$200 / MTX 1 點 NT$50。比例 200:50 = 4:1。所以 1 大台 = 4 小台 = 20 微台（TMF 1 點 NT$10）。"},
+        {"q":"TX 大台 1 口指數 20,000，槓桿率約為？","opts":["5 倍","10 倍","22 倍","100 倍"],"correct":2,"explain":"合約價值 = 20,000 × NT$200 = NT$4,000,000；以示意原始保證金 NT$184,000 計（實際以期交所公告為準）；槓桿率 = 4,000,000 / 184,000 ≈ 22 倍。三契約槓桿率幾乎一樣。"},
         {"q":"台指期結算日是？","opts":["每月最後交易日","每月第一個週一","結算月第三個週三","每週五"],"correct":2,"explain":"結算日 = 結算月份第三個週三。結算價 = 當天最後 30 分鐘加權現貨指數的算術平均。實務上要在結算日前 2-3 天 roll 到下月。"},
         {"q":"持股 NT$200 萬，組合 beta 1.1，加權指數 20,000。應賣多少口 MTX？","opts":["1 口","2 口","4 口","6 口"],"correct":1,"explain":"應賣 = (NT$2M × 1.1) / (20,000 × NT$50) = NT$2.2M / NT$1M = 2.2 口 → 取整 2 口 MTX。"},
         {"q":"連假前持有滿倉期貨多單最大的風險？","opts":["手續費","跳空 + 直接跌穿結算保證金被斷頭","結算日結算","換月成本"],"correct":1,"explain":"連假/重大事件後跳空，盤一開可能直接跌穿結算保證金線，券商還沒來得及通知就強制平倉。所以 FOMC / 大選 / 連假前不要持滿倉。"}
@@ -5243,7 +5244,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <h2>③ 跨商品套利：大小台 / 微台之間的價差</h2>
 
       <h3>原理</h3>
-      <p>三個指數期貨（TX / MTX / MXF）跟蹤<strong>同一個加權指數</strong>，理論價格 = 0 差距。但實務上偶爾出現短暫不對稱（流動性差異）：</p>
+      <p>三個指數期貨（TX / MTX / TMF）跟蹤<strong>同一個加權指數</strong>，理論價格 = 0 差距。但實務上偶爾出現短暫不對稱（流動性差異）：</p>
       <ul>
         <li>大量大台單壓低大台價，小台跟不上 → 可賣小台買大台等收斂</li>
         <li>盤後微台流動性差，價格錯位</li>
@@ -6051,7 +6052,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <tbody>
           <tr><td>大台 / 台指期</td><td>TX</td><td>Ch20</td><td>1 點 NT$200</td></tr>
           <tr><td>小台</td><td>MTX</td><td>Ch20</td><td>1 點 NT$50</td></tr>
-          <tr><td>微台</td><td>MXF (微型台指)</td><td>Ch20</td><td>1 點 NT$10</td></tr>
+          <tr><td>微台</td><td>TMF (微型台指)</td><td>Ch20</td><td>1 點 NT$10</td></tr>
           <tr><td>台指選擇權</td><td>TXO</td><td>Ch20</td><td>歐式 / 1 點 NT$50</td></tr>
           <tr><td>原始保證金</td><td>Initial Margin</td><td>Ch21</td><td>下單時凍結</td></tr>
           <tr><td>維持保證金</td><td>Maintenance Margin</td><td>Ch21</td><td>跌破要補錢</td></tr>
@@ -6636,7 +6637,7 @@ const StockHedgeCalc = {
   CONTRACTS: {
     TX:  { name: '台指期 TX（大台）', perPoint: 200 },
     MTX: { name: '小型台指期 MTX',   perPoint: 50  },
-    MXF: { name: '微型台指期 MXF',   perPoint: 10  }
+    TMF: { name: '微型台指期 TMF',   perPoint: 10  }
   },
 
   render(container, state) {
@@ -6668,7 +6669,7 @@ const StockHedgeCalc = {
           <select data-input="contract" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font:inherit;font-size:12.5px;">
             <option value="TX"  ${contract==='TX'?'selected':''}>台指期 TX（大台，1點 NT$200）</option>
             <option value="MTX" ${contract==='MTX'?'selected':''}>小型台指期 MTX（1點 NT$50）</option>
-            <option value="MXF" ${contract==='MXF'?'selected':''}>微型台指期 MXF（1點 NT$10）</option>
+            <option value="TMF" ${contract==='TMF'?'selected':''}>微型台指期 TMF（1點 NT$10）</option>
           </select>
         </div>
       </div>
@@ -6713,7 +6714,7 @@ const StockHedgeCalc = {
       <div class="callout" style="margin-top:12px;">
         <div class="callout-title">📌 三契約的「顆粒度」建議</div>
         <p style="margin-top:6px;font-size:13px;">
-          若理論口數 < 1：用<strong>微台 MXF</strong>（1 口 NT$20 萬）做小單位調整；
+          若理論口數 < 1：用<strong>微台 TMF</strong>（1 口 NT$20 萬）做小單位調整；
           1-3 口：用<strong>小台 MTX</strong>避免 round-off 太多；
           ≥ 4 口：可考慮 1 口大台 = 4 口小台組合，省手續費。
         </p>
@@ -6995,7 +6996,7 @@ const MarginSimulator = {
   CONTRACTS: {
     TX:  { name: '台指期 TX',  perPoint: 200, initial: 184000, maint: 141000, settle: 135000 },
     MTX: { name: '小台 MTX',   perPoint: 50,  initial: 46000,  maint: 35250,  settle: 33750  },
-    MXF: { name: '微台 MXF',   perPoint: 10,  initial: 9200,   maint: 7050,   settle: 6750   }
+    TMF: { name: '微台 TMF',   perPoint: 10,  initial: 9200,   maint: 7050,   settle: 6750   }
   },
   render(container, state) {
     const { contract, entry, current, qty, side } = state;
@@ -7029,7 +7030,7 @@ const MarginSimulator = {
           <select data-input="contract" style="background:var(--bg-elev);color:var(--fg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;font:inherit;font-size:12.5px;">
             <option value="TX"  ${contract==='TX'?'selected':''}>台指期 TX</option>
             <option value="MTX" ${contract==='MTX'?'selected':''}>小台 MTX</option>
-            <option value="MXF" ${contract==='MXF'?'selected':''}>微台 MXF</option>
+            <option value="TMF" ${contract==='TMF'?'selected':''}>微台 TMF</option>
           </select>
         </div>
         <div class="ctrl">
@@ -9889,7 +9890,7 @@ OPT 是「美股期權 + 台股期貨」單檔 HTML 自學手冊（v2 由淺入�
 回答準則：
 - 對齊手冊用語：CC (Covered Call) / CSP (Cash-Secured Put) / IV Percentile / Strike (K) / DTE / ATM/ITM/OTM
 - 提到具體章節用 [Ch5] 或 [Ch12] 格式（方便使用者點擊）
-- 台股期貨數字：TX 1 點 NT$200、MTX 1 點 NT$50、MXF 1 點 NT$10、結算日 = 結算月第三個週三
+- 台股期貨數字：TX 1 點 NT$200、MTX 1 點 NT$50、TMF 1 點 NT$10、結算日 = 結算月第三個週三
 - 不給投資建議，只解釋觀念
 - 用白話講原理；數字計算列算式
 - 短回答優先；除非問「詳細說明」`;
