@@ -28,9 +28,13 @@ OPT/
 ├── WIP.md
 ├── HANDOFF.md
 ├── index.html         # 單檔 self-contained 主檔
-├── .github/workflows/pages.yml
+├── v2.js / v2.css     # learn-v2：段落內嵌練習 + 間隔複習
+├── sync-worker/       # Cloudflare Worker（雲端同步）
+├── tests/             # node:test 自動化檢查（node --test），見 README「開發者：自動化檢查」
 └── .gitignore
 ```
+
+（2026-11-02 更正：repo 內沒有 `.github/workflows/pages.yml`；GitHub Pages 由 main 分支直接發佈。）
 
 Stage 1 仍維持「直接寫單檔 index.html」策略（檔案目前 ~2200 行 / ~120KB，瀏覽器處理無壓力）。
 等 Stage 2 章節再翻倍 + 互動元件變複雜後再評估是否拆 src/ + build script。
