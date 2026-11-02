@@ -5216,17 +5216,17 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <div class="scenario">
             <div class="when">情境 A</div>
             <div>AAPL ≈ $195（最佳）：近月 call 失效（賺光 $450）/ 遠月仍有 35 DTE 的時間價值 ≈ $5.00</div>
-            <div class="pnl pos">+$250（拆解：近月 +$450 - $250 成本 + 遠月留值）</div>
+            <div class="pnl pos">+$250（拆解：近月收 $450 + 遠月留值 $500 − 遠月買價 $700）</div>
           </div>
           <div class="scenario">
             <div class="when">情境 B</div>
             <div>AAPL = $210（大漲）：近月被 assign / 遠月也大漲 ≈ $18</div>
-            <div class="pnl pos">+$50（近月虧 -$1,050，遠月賺 +$1,100，淨 +$50 - 原成本 = 接近 break-even）</div>
+            <div class="pnl pos">+$50（近月虧 -$1,050，遠月賺 +$1,100，合計 +$50，已含原成本 = 接近 break-even）</div>
           </div>
           <div class="scenario">
             <div class="when">情境 C</div>
             <div>AAPL = $175（大跌）：近月失效 / 遠月也跌 ≈ $1.50</div>
-            <div class="pnl neg">-$100（淨成本 -$250 + 近月收 $450 - 遠月剩值 $150 - 原買價 $700 = -$100）</div>
+            <div class="pnl neg">-$100（近月收 $450 + 遠月剩值 $150 − 遠月買價 $700 = -$100）</div>
           </div>
         </div>
 
