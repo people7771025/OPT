@@ -7009,7 +7009,7 @@ const MarginSimulator = {
     // 多單虧損 = (entry - current) × perPoint × qty 若 current < entry
     // 空單虧損 = (current - entry) × perPoint × qty 若 current > entry
     const dir = side === 'long' ? 1 : -1;
-    const plPoints = (current - entry) * dir;
+    const plPoints = (current - entry) * dir || 0; // 空單在進場價時 0×−1 = −0，會顯示成「+NT$-0」
     const plAmount = plPoints * spec.perPoint * qty;
     const equity = totalInitial + plAmount;
     const equityPct = (equity / totalInitial) * 100;
