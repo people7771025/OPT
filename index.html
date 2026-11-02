@@ -8416,7 +8416,7 @@ const TradeJournal = {
       if (t.id == null || t.id === '') { t.id = this.genId() + '-' + i; idFilled++; }
       // status 大小寫正規化 + 白名單；未知狀態退回 closed（保守：視為已平倉但避免污染勝率需有 pnl）
       const s = String(t.status || '').toLowerCase().trim();
-      if (!allowedStatus.includes(s)) { t.status = 'closed'; if (t.status !== row.status) statusFixed++; }
+      if (!allowedStatus.includes(s)) { t.status = 'closed'; if (t.status !== row?.status) statusFixed++; }
       else t.status = s;
       // 數值欄位統一成字串化的數字或空字串（與表單一致，pnl 空字串代表未結算）
       ['strike', 'premium', 'qty'].forEach(k => {
