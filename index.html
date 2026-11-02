@@ -1075,7 +1075,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <div class="callout-title">✓ 完整版範圍（Stage 6）</div>
         <p style="margin-top: 6px;">已完整實作 <b>35 章</b>（Ch1–Ch35，每章皆含具體實算案例）+ <b>實戰日誌</b>（Ch36）+
         <b>14 個互動元件</b>（PayoffDiagram · GreeksLab · StockHedgeCalc · StrategyPicker · <b>PreTradeChecklist</b> · MarginSimulator · IVTermStructure · VolSkewExplorer · WheelSimulator · IVCrushAnimator · IronCondorBuilder · <b>PMCCBuilder · SyntheticBuilder</b> · TradeJournal）+
-        <b>11 個實戰案例</b>（含 NVDA PMCC 1 年週期、2024 VIX 飆升避險、Synthetic Long Stock 替代 IRA 等）+
+        <b>11 個實戰案例</b>（含 NVDA PMCC 1 年週期、2024 VIX 飆升避險、Synthetic Short Stock 替代 IRA 等）+
         <b>9 個 Quiz</b>（覆蓋全 Part）+ <b>完整中英對照名詞表</b> + <b>雲端跨裝置同步</b> + <b>LLM 助教</b>。</p>
         <p style="margin-top: 6px;">新版排序：PMCC（Ch30）、Synthetic（Ch32）、Risk Reversal（Ch33）移到 Part 4 價差與波動率策略；Part 7 <a href="#ch31">高階主題</a> 收 VIX 與 VXX、0-DTE、Vol Surface + 高階 Greeks。章節編號維持原本。</p>
       </div>
@@ -2876,8 +2876,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           </div>
           <div class="scenario">
             <div class="when">情境 C</div>
-            <div>SPY 在 break-even 之間（如 $477 / $523）</div>
-            <div class="pnl neutral">小幅虧（受 short 部分損失，但仍有部分 credit）</div>
+            <div>SPY 在 short strike 與 break-even 之間（如 $477 / $523）</div>
+            <div class="pnl neutral">小幅賺 +$180（short 腿被穿 $1 = −$100，仍保有部分 credit）</div>
           </div>
         </div>
 
@@ -4131,7 +4131,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <div class="case">
         <div class="case-header">
           <span class="case-tag">案例 ⑦</span>
-          <span class="case-title">TX 年化基差 +9% · 真實期現套利執行</span>
+          <span class="case-title">TX 年化基差 +10.9% · 真實期現套利執行</span>
         </div>
 
         <p><strong>觸發條件達成</strong>：</p>
@@ -4171,7 +4171,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <p><strong>啟示</strong>：</p>
         <ul>
           <li><strong>ETF 0.1% 證交稅比個股 0.3% 友善很多</strong>，但合計手續費 + 期交稅 + 證交稅仍會吃掉約 0.4% 報酬</li>
-          <li>實際邊際 edge 約 NT$735 / NT$1.9M = 0.04%（21 天），等於年化 ~0.7%，<strong>幾乎被成本吃光</strong></li>
+          <li>實際邊際 edge 約 NT$735 / NT$1.9M = 0.04%（持有 14 天），等於年化 ~1.0%，<strong>幾乎被成本吃光</strong></li>
           <li>實際上應改用「期貨 vs 股票期貨」對沖（兩邊都用期貨稅費小），但需要熟悉個股期搭配</li>
           <li>拉大規模（&gt; NT$500 萬）讓固定成本佔比下降，edge 才會明顯</li>
           <li><strong>結論：散戶的期現套利在「年化基差 &gt; +8%」+「規模 &gt; NT$300 萬」時開始有合理 edge</strong></li>
@@ -4229,8 +4229,8 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         <ul>
           <li>持股賺：(440-474) × 100 = -$3,400（被 assign 虧）</li>
           <li>6 個月 call 權利金：約 $2,400</li>
-          <li>原 CSP 權利金：$600</li>
-          <li><strong>總計：-$400</strong>（卡 6 個月幾乎打平）</li>
+          <li>原 CSP 權利金 $600：已含在成本 $474 內，不重複計入</li>
+          <li><strong>總計：約 -$1,000</strong>（卡 6 個月，虧損遠小於直接停損的 -$7,400）</li>
         </ul>
 
         <p><strong>啟示</strong>：</p>
@@ -4340,7 +4340,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
         </ul>
       </div>
 
-      <h2>案例 ⑪ · Synthetic Long Stock 替代 IRA 限制</h2>
+      <h2>案例 ⑪ · Synthetic Short Stock 替代 IRA 限制</h2>
       <p style="font-size:13px;color:var(--fg-muted);">應用章節：<a href="#ch32">Ch32</a> · <a href="#ch19">Ch19</a></p>
       <div class="case">
         <div class="case-header">
@@ -4867,7 +4867,7 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
       <ul>
         <li>每日結算後公布前 5 大、前 10 大交易人的部位（不揭露身分）</li>
         <li>分一般交易人 / 特定法人（外資 / 自營商 / 投信）兩類</li>
-        <li>主要報表：Top5 淨、Top10 淨、Top10 - Top5（即「11-10 名」這層的部位）</li>
+        <li>主要報表：Top5 淨、Top10 淨、Top10 - Top5（即「第 6–10 名」這層的部位）</li>
       </ul>
 
       <h2>怎麼解讀（不只看數字，要看變化）</h2>
@@ -5216,17 +5216,17 @@ body[data-path-filter="core"] section[data-level="op"] > .widget { opacity: .25;
           <div class="scenario">
             <div class="when">情境 A</div>
             <div>AAPL ≈ $195（最佳）：近月 call 失效（賺光 $450）/ 遠月仍有 35 DTE 的時間價值 ≈ $5.00</div>
-            <div class="pnl pos">+$250（拆解：近月 +$450 - $250 成本 + 遠月留值）</div>
+            <div class="pnl pos">+$250（拆解：近月收 $450 + 遠月留值 $500 − 遠月買價 $700）</div>
           </div>
           <div class="scenario">
             <div class="when">情境 B</div>
             <div>AAPL = $210（大漲）：近月被 assign / 遠月也大漲 ≈ $18</div>
-            <div class="pnl pos">+$50（近月虧 -$1,050，遠月賺 +$1,100，淨 +$50 - 原成本 = 接近 break-even）</div>
+            <div class="pnl pos">+$50（近月虧 -$1,050，遠月賺 +$1,100，合計 +$50，已含原成本 = 接近 break-even）</div>
           </div>
           <div class="scenario">
             <div class="when">情境 C</div>
             <div>AAPL = $175（大跌）：近月失效 / 遠月也跌 ≈ $1.50</div>
-            <div class="pnl neg">-$100（淨成本 -$250 + 近月收 $450 - 遠月剩值 $150 - 原買價 $700 = -$100）</div>
+            <div class="pnl neg">-$100（近月收 $450 + 遠月剩值 $150 − 遠月買價 $700 = -$100）</div>
           </div>
         </div>
 
@@ -7009,7 +7009,7 @@ const MarginSimulator = {
     // 多單虧損 = (entry - current) × perPoint × qty 若 current < entry
     // 空單虧損 = (current - entry) × perPoint × qty 若 current > entry
     const dir = side === 'long' ? 1 : -1;
-    const plPoints = (current - entry) * dir;
+    const plPoints = (current - entry) * dir || 0; // 空單在進場價時 0×−1 = −0，會顯示成「+NT$-0」
     const plAmount = plPoints * spec.perPoint * qty;
     const equity = totalInitial + plAmount;
     const equityPct = (equity / totalInitial) * 100;
@@ -8416,7 +8416,7 @@ const TradeJournal = {
       if (t.id == null || t.id === '') { t.id = this.genId() + '-' + i; idFilled++; }
       // status 大小寫正規化 + 白名單；未知狀態退回 closed（保守：視為已平倉但避免污染勝率需有 pnl）
       const s = String(t.status || '').toLowerCase().trim();
-      if (!allowedStatus.includes(s)) { t.status = 'closed'; if (t.status !== row.status) statusFixed++; }
+      if (!allowedStatus.includes(s)) { t.status = 'closed'; if (t.status !== row?.status) statusFixed++; }
       else t.status = s;
       // 數值欄位統一成字串化的數字或空字串（與表單一致，pnl 空字串代表未結算）
       ['strike', 'premium', 'qty'].forEach(k => {
