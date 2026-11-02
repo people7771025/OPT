@@ -94,6 +94,7 @@ Node 22 以後 `node --test tests/` 會把資料夾當成模組而失敗，請�
 | `tests/audit-examples.test.mjs` | 從內文擷取數字範例重算 |
 | `tests/script-syntax.test.mjs` | 所有 inline script 與 `v2.js` 可解析 |
 | `tests/v2.test.mjs` | 段落練習與間隔複習（localStorage 格式） |
+| `tests/cloudsync-merge.test.mjs` | 雲端同步合併規則（聯集、不覆蓋） |
 
 測試以 `node:vm` 在沙箱載入 `index.html` 的主腳本（假 DOM、記憶體 localStorage、`fetch` 一律丟錯），不改動 `index.html`。
 標成 `todo` 的測試是已知、尚待決定的問題，不會讓整體失敗。全站數字審查結果見 `tests/AUDIT-2026-11.md`。
