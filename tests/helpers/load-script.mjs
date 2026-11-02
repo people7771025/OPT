@@ -236,14 +236,36 @@ export function decodeAttr(v) {
   return String(v).replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
-/** 找出所有 data-component widget：[{ type, attrs, line }] */
+/** 從 i（指向 '<'）開始，找出尊重引號的標籤結尾 '>' 位置 */
+export function tagEnd(src, i) {
+  let q = null;
+  for (let j = i + 1; j < src.length; j++) {
+    const c = src[j];
+    if (q) { if (c === q) q = null; }
+    else if (c === '"' || c === "'") q = c;
+    else if (c === '>') return j;
+  }
+  return -1;
+}
+
+/** 找出所有 data-component widget：[{ tag, type, attrs, line, start, end }]（屬性值內的 > 不會截斷） */
 export function listWidgets(html = readIndexHtml()) {
   const body = contentHtml(html);
   const out = [];
-  const re = /<([a-z]+)\b([^>]*\bdata-component\s*=\s*["']([a-z-]+)["'][^>]*)>/g;
+  const re = /<([a-z]+)\b/g;
   let m;
   while ((m = re.exec(body))) {
-    out.push({ tag: m[1], type: m[3], attrs: parseAttrs(m[2]), line: body.slice(0, m.index).split('\n').length });
+    const end = tagEnd(body, m.index);
+    if (end < 0) break;
+    const inner = body.slice(m.index + 1 + m[1].length, end);
+    const t = inner.match(/\bdata-component\s*=\s*["']([a-z-]+)["']/);
+    if (t && !/^\s*$/.test(inner)) {
+      const attrs = parseAttrs(inner);
+      if (attrs['data-component'] === t[1]) {
+        out.push({ tag: m[1], type: t[1], attrs, line: body.slice(0, m.index).split('\n').length, start: m.index, end });
+      }
+    }
+    re.lastIndex = end;
   }
   return out;
 }
