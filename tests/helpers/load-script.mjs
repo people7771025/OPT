@@ -82,7 +82,9 @@ export class FakeElement {
   insertAdjacentHTML() {}
   replaceWith() {}
   remove() {}
-  querySelector() { return null; }
+  // 回傳一個樁元件（非 null），讓「render 後 querySelector(...).addEventListener」的程式碼可執行；
+  // 事件不會被觸發，測試只檢查 innerHTML。
+  querySelector() { return new FakeElement('div'); }
   querySelectorAll() { return []; }
   closest() { return null; }
   getBoundingClientRect() { return { top: 0, left: 0, width: 0, height: 0, bottom: 0, right: 0 }; }
