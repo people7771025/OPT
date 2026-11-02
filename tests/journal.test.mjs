@@ -93,6 +93,32 @@ describe('TradeJournal.reviewHints（Journal Coach）', () => {
   });
 });
 
+describe('TradeJournal：日期與時區邊界', () => {
+  test('月份以日期字串切分，月底／月初分屬不同月份（不受執行環境時區影響）', () => {
+    const tr = [T(1, 'CC', 'A', 10, '2026-01-31'), T(2, 'CC', 'A', 20, '2026-02-01')];
+    assert.deepEqual(plain(TJ.monthlyPnL(tr)).map(m => m.month), ['2026-01', '2026-02']);
+  });
+  test('沒有日期的已結交易不進月損益，但仍計入勝率', () => {
+    const tr = [T(1, 'CC', 'A', 10, ''), T(2, 'CC', 'A', -5, '2026-02-01')];
+    assert.equal(TJ.monthlyPnL(tr).length, 1);
+    assert.equal(TJ.stats(tr).winRate, 50);
+  });
+  test('open 超過 45 天 → Journal Coach 提示「未結部位太久」；30 天內不提示', () => {
+    const iso = d => new Date(Date.now() - d * 864e5).toISOString().slice(0, 10);
+    const closed = [T(9, 'CC', 'A', 10, '2026-01-01')];
+    assert.ok(TJ.reviewHints([...closed, T(1, 'CC', 'A', null, iso(60), 'open')]).some(h => h.title === '未結部位太久'));
+    assert.ok(!TJ.reviewHints([...closed, T(1, 'CC', 'A', null, iso(30), 'open')]).some(h => h.title === '未結部位太久'));
+  });
+  test('重複 id 的交易各自計入（統計不去重，去重是匯入／同步層的責任）', () => {
+    const tr = [T(1, 'CC', 'A', 10, '2026-01-01'), T(1, 'CC', 'A', 10, '2026-01-01')];
+    assert.equal(TJ.stats(tr).closed, 2);
+  });
+  test('pnl 為非數字字串（如 "abc"）視為未結算，不污染勝率', () => {
+    const s = TJ.stats([T(1, 'CC', 'A', 'abc', '2026-01-01'), T(2, 'CC', 'A', 10, '2026-01-02')]);
+    assert.equal(s.closed, 1); assert.equal(s.closedPending, 1); assert.equal(s.winRate, 100);
+  });
+});
+
 describe('TradeJournal.normalizeImport', () => {
   test('補 id、status 小寫化、未知 status 退回 closed、數值字串化', () => {
     const r = TJ.normalizeImport([{ status: 'OPEN', strike: 100, premium: '1.50', pnl: 30 }, { id: 'x', status: 'weird', pnl: null }]);

@@ -136,7 +136,7 @@ const EXPORT_NAMES = [
 ];
 
 /**
- * 載入主腳本，回傳 { api, window, localStorage, logs }。
+ * 載入主腳本，回傳 { api, window, localStorage, logs, fetchCalls }。
  * api 內含 Math2、各元件物件等。每次呼叫都是全新沙箱（測試間互不影響）。
  */
 export function loadApp({ storage = {}, html = readIndexHtml() } = {}) {
@@ -144,6 +144,7 @@ export function loadApp({ storage = {}, html = readIndexHtml() } = {}) {
   const localStorage = makeLocalStorage(storage);
   const sessionStorage = makeLocalStorage();
   const logs = { warn: [], error: [], log: [] };
+  const fetchCalls = [];
   const document = makeDocument();
   const win = {
     document,
@@ -162,7 +163,7 @@ export function loadApp({ storage = {}, html = readIndexHtml() } = {}) {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
     requestAnimationFrame: () => 0,
     alert() {}, confirm: () => false, prompt: () => null,
-    fetch: () => { throw new Error('測試沙箱禁止網路請求（fetch 已 stub）'); },
+    fetch: (...args) => { fetchCalls.push(args); throw new Error('測試沙箱禁止網路請求（fetch 已 stub）'); },
     IntersectionObserver: class { observe() {} unobserve() {} disconnect() {} },
     crypto: { getRandomValues: a => { for (let i = 0; i < a.length; i++) a[i] = (i * 7 + 3) % 256; return a; } },
     URL, URLSearchParams, TextEncoder, TextDecoder,
@@ -175,7 +176,7 @@ export function loadApp({ storage = {}, html = readIndexHtml() } = {}) {
   const context = vm.createContext(win);
   const epilogue = `\n;globalThis.__OPT = { ${EXPORT_NAMES.map(n => `${n}: (typeof ${n} !== 'undefined' ? ${n} : undefined)`).join(', ')} };`;
   vm.runInContext(code + epilogue, context, { filename: 'index.html#main-script' });
-  return { api: context.__OPT, window: context, localStorage, logs };
+  return { api: context.__OPT, window: context, localStorage, logs, fetchCalls };
 }
 
 /* ---------------- 渲染輔助 ---------------- */

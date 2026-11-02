@@ -27,8 +27,13 @@ describe('vm 沙箱執行主腳本', () => {
     const { logs } = loadApp();
     assert.deepEqual(logs.error, []);
   });
-  test('載入時不讀寫 localStorage 以外的狀態、不發網路請求（fetch 為會丟錯的 stub）', () => {
-    assert.doesNotThrow(() => loadApp());
+  test('載入時不發任何網路請求（fetch stub 呼叫次數為 0；含已設定同步碼的情況，因 syncOnLoad 只在 DOMContentLoaded 才跑）', () => {
+    assert.equal(loadApp().fetchCalls.length, 0);
+    assert.equal(loadApp({ storage: { 'opt/sync-code': 'ABCDEFGHJKLMNPQR' } }).fetchCalls.length, 0);
+  });
+  test('載入時不寫入 localStorage（只讀）', () => {
+    const { localStorage } = loadApp();
+    assert.equal(localStorage.length, 0);
   });
   test('主題初始化：沒有存檔且系統非深色 → light，並寫入 documentElement.dataset.theme', () => {
     const { window } = loadApp();

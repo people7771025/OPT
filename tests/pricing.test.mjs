@@ -248,6 +248,17 @@ describe('極端輸入：不得出現 NaN / Infinity', () => {
     }
   });
 
+  test('σ 為 NaN 或 Infinity：結果為 NaN（不丟例外；元件層負責擋輸入）', () => {
+    assert.ok(Number.isNaN(bs(100, 100, 1, 0.05, NaN, true).price));
+    assert.doesNotThrow(() => bs(100, 100, 1, 0.05, Infinity, true));
+  });
+
+  test('S、K 等比例放大 → 價格等比例放大、delta 不變（齊次性，例如台指點數量級）', () => {
+    const a = bs(100, 105, 0.3, 0.02, 0.25, true), b = bs(20000, 21000, 0.3, 0.02, 0.25, true);
+    assert.ok(close(b.price, a.price * 200, 1e-6));
+    assert.ok(close(b.delta, a.delta, 1e-12));
+  });
+
   test('冪等：同輸入重複呼叫結果完全相同（無隱藏狀態）', () => {
     const a = bs(145, 160, 35 / 365, 0.045, 0.55, true);
     const b = bs(145, 160, 35 / 365, 0.045, 0.55, true);
